@@ -323,7 +323,7 @@
           {
             "min_usd": 0,
             "max_usd": 1000,
-            "percent": 3.0
+            "percent": 3
           },
           {
             "min_usd": 1000,
@@ -352,7 +352,7 @@
       "fee_structure": {
         "fixed_fee": 5800,
         "fixed_fee_currency": "COP",
-        "variable_fee_percent": 2.0,
+        "variable_fee_percent": 2,
         "variable_fee_tiers": [
           {
             "min_usd": 0,
@@ -362,7 +362,7 @@
           {
             "min_usd": 1000,
             "max_usd": 5000,
-            "percent": 2.0
+            "percent": 2
           },
           {
             "min_usd": 5000,
@@ -825,7 +825,7 @@
           {
             "min_usd": 5000,
             "max_usd": 20000,
-            "spread_percent": 3.0
+            "spread_percent": 3
           }
         ]
       },
@@ -849,7 +849,7 @@
           {
             "min_usd": 0,
             "max_usd": 1000,
-            "spread_percent": 4.0
+            "spread_percent": 4
           },
           {
             "min_usd": 1000,
@@ -1043,9 +1043,9 @@
           "wise",
           "revolut"
         ],
-        "ease_score": 3,
-        "ease_label": "A few steps",
-        "ease_description": "4 steps across well-known apps — straightforward once set up"
+        "ease_score": 1,
+        "ease_label": "Complex",
+        "ease_description": "4 steps across multiple apps — takes time to set up"
       },
       {
         "id": "r002",
@@ -1058,8 +1058,8 @@
           "bancolombia",
           "wise"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step — just send through Wise"
       },
       {
@@ -1076,9 +1076,9 @@
           "binance",
           "barclays"
         ],
-        "ease_score": 2,
-        "ease_label": "Complicated",
-        "ease_description": "Requires a Binance account with identity verification"
+        "ease_score": 1,
+        "ease_label": "Complex",
+        "ease_description": "Requires a Binance account with identity verification and crypto steps"
       },
       {
         "id": "r004",
@@ -1091,9 +1091,9 @@
           "bancolombia",
           "global66"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
-        "ease_description": "One step through Global66 — just need the app"
+        "ease_score": 1,
+        "ease_label": "Complex",
+        "ease_description": "Specialist platform most users will not have — requires new account setup"
       },
       {
         "id": "r005",
@@ -1106,8 +1106,8 @@
           "bancolombia",
           "remitly"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step through Remitly — designed for international transfers"
       }
     ],
@@ -1123,8 +1123,8 @@
           "bancolombia",
           "dolarapp"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step — just need Dollar App"
       },
       {
@@ -1138,8 +1138,8 @@
           "bancolombia",
           "wise"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step — just send through Wise"
       },
       {
@@ -1156,8 +1156,8 @@
           "binance",
           "coinbase"
         ],
-        "ease_score": 2,
-        "ease_label": "Complicated",
+        "ease_score": 1,
+        "ease_label": "Complex",
         "ease_description": "Requires crypto exchange accounts with verification"
       }
     ],
@@ -1173,8 +1173,8 @@
           "bbva_mx",
           "dolarapp"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step via SPEI — instant"
       },
       {
@@ -1188,8 +1188,8 @@
           "bbva_mx",
           "wise"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step — just send through Wise"
       },
       {
@@ -1206,8 +1206,8 @@
           "binance",
           "coinbase"
         ],
-        "ease_score": 2,
-        "ease_label": "Complicated",
+        "ease_score": 1,
+        "ease_label": "Complex",
         "ease_description": "Requires crypto exchange accounts"
       },
       {
@@ -1225,7 +1225,7 @@
           "wise",
           "chase_us"
         ],
-        "ease_score": 3,
+        "ease_score": 2,
         "ease_label": "A few steps",
         "ease_description": "3 steps across mainstream apps"
       }
@@ -1242,8 +1242,8 @@
           "bbva_mx",
           "wise"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step — just send through Wise"
       },
       {
@@ -1262,9 +1262,9 @@
           "wise",
           "revolut"
         ],
-        "ease_score": 3,
-        "ease_label": "A few steps",
-        "ease_description": "4 steps across well-known apps"
+        "ease_score": 1,
+        "ease_label": "Complex",
+        "ease_description": "4 steps across multiple apps — takes time to set up"
       },
       {
         "id": "r032",
@@ -1280,9 +1280,9 @@
           "binance",
           "revolut"
         ],
-        "ease_score": 2,
-        "ease_label": "Complicated",
-        "ease_description": "Requires Binance with identity verification"
+        "ease_score": 1,
+        "ease_label": "Complex",
+        "ease_description": "Requires Binance with identity verification and crypto steps"
       }
     ],
     "USD_GBP": [
@@ -1298,9 +1298,9 @@
           "wise",
           "revolut"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
-        "ease_description": "One step — just convert in Wise"
+        "ease_score": 2,
+        "ease_label": "A few steps",
+        "ease_description": "Two mainstream fiat steps — Wise then Revolut"
       },
       {
         "id": "r041",
@@ -1312,8 +1312,8 @@
         "platforms_needed": [
           "revolut"
         ],
-        "ease_score": 5,
-        "ease_label": "Simplest",
+        "ease_score": 3,
+        "ease_label": "Simple",
         "ease_description": "One step — convert in Revolut app"
       },
       {
@@ -1329,9 +1329,9 @@
           "binance",
           "revolut"
         ],
-        "ease_score": 2,
-        "ease_label": "Complicated",
-        "ease_description": "Requires Binance account"
+        "ease_score": 1,
+        "ease_label": "Complex",
+        "ease_description": "Requires Binance account with crypto steps"
       }
     ]
   },
