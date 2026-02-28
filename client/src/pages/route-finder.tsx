@@ -1,98 +1,87 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  ArrowLeftRight, 
-  Clock, 
-  ExternalLink, 
-  Check, 
-  ChevronDown, 
-  ChevronUp, 
-  TrendingDown, 
-  TrendingUp,
-  Search
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip as RechartTooltip,
-  ResponsiveContainer,
-  ReferenceLine,
+  AreaChart, Area, XAxis, YAxis, Tooltip as RechartTooltip,
+  ReferenceLine, ResponsiveContainer,
 } from "recharts";
+import {
+  ArrowLeftRight, Clock, ExternalLink, ChevronDown, ChevronUp,
+  Check, TrendingDown,
+} from "lucide-react";
+import {
+  ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted,
+} from "@/components/corridor-select";
+
+// ─── rate formatting helpers ──────────────────────────────────────────────────
+
+type MidRate = { rate: number; date: string; from: string; to: string; source: string };
+
+function formatDisplayRate(midRate: number, from: string, to: string) {
+  const fromSym = getCurrencySymbol(from);
+  const toSym = getCurrencySymbol(to);
+  if (midRate < 1) {
+    // e.g. COP→GBP: rate=0.000191, show "£1 = 5,247 COP"
+    const inv = Math.round(1 / midRate);
+    return { label: `${toSym}1 ${to} = ${inv.toLocaleString()} ${from}`, inverted: true, displayRate: inv, strongSym: toSym, strongCode: to, weakCode: from };
+  }
+  // e.g. GBP→COP: rate=5247, show "£1 = 5,247 COP"
+  const formatted = midRate >= 100 ? Math.round(midRate).toLocaleString() : midRate.toFixed(4);
+  return { label: `${fromSym}1 ${from} = ${formatted} ${to}`, inverted: false, displayRate: midRate, strongSym: fromSym, strongCode: from, weakCode: to };
+}
+
+function effectiveDisplayRate(midRate: number, totalPercent: number, inverted: boolean) {
+  const displayMid = inverted ? 1 / midRate : midRate;
+  const effective = displayMid / (1 - totalPercent / 100);
+  return inverted
+    ? Math.round(effective).toLocaleString()
+    : (effective >= 100 ? Math.round(effective).toLocaleString() : effective.toFixed(4));
+}
 
 // ─── constants ───────────────────────────────────────────────────────────────
 
-const ALL_CURRENCIES = [
-  { value: "COP", label: "Colombian Peso", currency: "COP", symbol: "$", country: "Colombia" },
-  { value: "GBP", label: "British Pound", currency: "GBP", symbol: "£", country: "United Kingdom" },
-  { value: "USD", label: "US Dollar", currency: "USD", symbol: "$", country: "United States" },
-  { value: "EUR", label: "Euro", currency: "EUR", symbol: "€", country: "Europe" },
-  { value: "BRL", label: "Brazilian Real", currency: "BRL", symbol: "R$", country: "Brazil" },
-  { value: "MXN", label: "Mexican Peso", currency: "MXN", symbol: "$", country: "Mexico" },
-  { value: "PHP", label: "Philippine Peso", currency: "PHP", symbol: "₱", country: "Philippines" },
-  { value: "INR", label: "Indian Rupee", currency: "INR", symbol: "₹", country: "India" },
-  { value: "NGN", label: "Nigerian Naira", currency: "NGN", symbol: "₦", country: "Nigeria" },
-];
-
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  COP: "$", GBP: "£", USD: "$", EUR: "€", BRL: "R$", MXN: "$", PHP: "₱", INR: "₹", NGN: "₦"
-};
-
 const TIME_OPTIONS = [
-  { value: "any", label: "Any time" },
-  { value: "1", label: "Within 1 hour" },
-  { value: "24", label: "Within 24 hours" },
-  { value: "72", label: "Within 3 days" },
+  { value: "any", label: "Any duration" },
+  { value: "0", label: "Instant only" },
+  { value: "6", label: "Up to 6 hours" },
+  { value: "24", label: "Up to 1 day" },
+  { value: "72", label: "Up to 3 days" },
 ];
 
 const ORIGIN_PLATFORMS: Record<string, string[]> = {
-  COP: ["Bancolombia", "Daviplata", "Nequi"],
-  GBP: ["HSBC UK", "Barclays", "Monzo", "Revolut", "Lloyds"],
-  USD: ["Chase", "Bank of America", "Wells Fargo", "Revolut"],
-  BRL: ["Nubank", "Itaú", "Bradesco"],
-  MXN: ["BBVA México", "Banamex", "Santander México"],
-  PHP: ["GCash", "BDO", "BPI", "Maya"],
-  INR: ["HDFC Bank", "ICICI Bank", "SBI"],
-  NGN: ["Access Bank", "Zenith Bank", "GTBank"],
+  COP: ["Bancolombia", "Davivienda", "Nequi", "BBVA Colombia"],
+  MXN: ["BBVA Mexico", "Banorte", "Nu Mexico"],
+  BRL: ["Nubank", "Itaú"],
+  PHP: ["GCash", "BPI"],
+  INR: ["HDFC Bank", "Paytm"],
+  NGN: ["GTBank"],
 };
 
 const DEST_PLATFORMS: Record<string, string[]> = {
-  GBP: ["UK Bank Account", "Revolut", "Monzo", "Wise"],
-  USD: ["US Bank Account", "Revolut", "Wise", "Coinbase"],
-  EUR: ["EU Bank Account", "Revolut", "Wise"],
+  GBP: ["Wise", "Revolut", "Monzo", "Starling", "Barclays"],
+  USD: ["Chase", "Bank of America", "Wise", "Coinbase"],
+  EUR: ["Wise", "Revolut", "N26", "Bunq"],
 };
 
-const OTHER_PLATFORMS = ["Wise", "Revolut", "Binance", "Binance P2P", "Western Union", "MoneyGram", "Remitly"];
+const OTHER_PLATFORMS = ["Dollar App", "Binance", "Coinbase", "Payoneer", "Global66"];
 
-const EASE: Record<string, { label: string; score: number; color: string; explanation: string }> = {
-  "cop-gbp-1": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "cop-gbp-2": { label: "Involved", score: 4, color: "red", explanation: "Requires Binance account — involves crypto steps" },
-  "cop-gbp-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through WorldRemit" },
-  "cop-gbp-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "cop-gbp-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through MoneyGram" },
-  "cop-usd-1": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "cop-usd-2": { label: "Involved", score: 4, color: "red", explanation: "Requires Binance P2P — involves crypto steps" },
-  "cop-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through WorldRemit" },
-  "cop-usd-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "cop-usd-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through MoneyGram" },
-  "mxn-usd-1": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps — BBVA to Wise to Revolut" },
-  "mxn-usd-2": { label: "Involved", score: 4, color: "red", explanation: "Requires Binance P2P — identity verification needed" },
+type EaseLevel = { label: string; score: number; color: string; explanation: string };
+const EASE: Record<string, EaseLevel> = {
+  "cop-gbp-1": { label: "A few steps", score: 3, color: "amber", explanation: "4 steps across well-known apps — straightforward once set up" },
+  "cop-gbp-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
+  "cop-gbp-3": { label: "Involved", score: 4, color: "red", explanation: "Requires a Binance account with identity verification" },
+  "cop-gbp-4": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps via XE — easy to set up" },
+  "cop-gbp-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
+  "cop-usd-1": { label: "Straightforward", score: 2, color: "lime", explanation: "One step — just need Dollar App" },
+  "cop-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
+  "cop-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
+  "cop-usd-4": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps via XE and OFX" },
+  "cop-usd-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
+  "mxn-usd-1": { label: "Involved", score: 4, color: "red", explanation: "Requires crypto exchange accounts" },
+  "mxn-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
   "mxn-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
   "mxn-usd-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through XE" },
   "mxn-usd-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through MoneyGram" },
@@ -184,7 +173,6 @@ type Hop = {
 type Route = {
   id: string;
   total_cost_destination: number;
-  total_percent: number;
   estimated_hours: number;
   hops: Hop[];
 };
@@ -193,14 +181,6 @@ type PricePoint = {
   date: string;
   cost: number;
   avg: number;
-};
-
-type MidRate = {
-  rate: number;
-  date: string;
-  from: string;
-  to: string;
-  source: string;
 };
 
 type Perks = { revolut: boolean; wise: boolean; binance: boolean };
@@ -278,43 +258,9 @@ function verdictDotClass(color: string) {
 }
 
 function verdictBannerClass(color: string) {
-  if (color === "green") return "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
-  if (color === "yellow") return "bg-amber-500/10 border-amber-500/20 text-amber-400";
-  return "bg-rose-500/10 border-rose-500/20 text-rose-400";
-}
-
-function getCurrencySymbol(code: string) {
-  return CURRENCY_SYMBOLS[code] || code;
-}
-
-function formatDisplayRate(rate: number, from: string, to: string) {
-  if (rate < 1) {
-    const inv = 1 / rate;
-    return {
-      label: `${getCurrencySymbol(to)}1 = ${getCurrencySymbol(from)}${inv.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
-      inverted: true,
-      displayRate: inv,
-      strongSym: getCurrencySymbol(to),
-      strongCode: to,
-      weakCode: from,
-    };
-  }
-  return {
-    label: `${getCurrencySymbol(from)}1 = ${getCurrencySymbol(to)}${rate.toLocaleString(undefined, { maximumFractionDigits: 4 })}`,
-    inverted: false,
-    displayRate: rate,
-    strongSym: getCurrencySymbol(from),
-    strongCode: from,
-    weakCode: to,
-  };
-}
-
-function getApproxConverted(amount: string, from: string, to: string) {
-  const num = parseFloat(amount);
-  if (isNaN(num)) return null;
-  const rate = 1; // placeholder for direct logic
-  const sym = getCurrencySymbol(to);
-  return `${sym}${(num * rate).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  if (color === "green") return "bg-emerald-50 border-emerald-200 text-emerald-700";
+  if (color === "yellow") return "bg-amber-50 border-amber-200 text-amber-700";
+  return "bg-rose-50 border-rose-200 text-rose-700";
 }
 
 // ─── sub-components ───────────────────────────────────────────────────────────
@@ -323,10 +269,10 @@ function EaseBadge({ routeId }: { routeId: string }) {
   const ease = EASE[routeId];
   if (!ease) return null;
   const classes: Record<string, string> = {
-    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    lime: "bg-lime-500/10 text-lime-400 border-lime-500/20",
-    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    red: "bg-rose-500/10 text-rose-400 border-rose-500/20",
+    green: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    lime: "bg-lime-50 text-lime-700 border-lime-200",
+    amber: "bg-amber-50 text-amber-700 border-amber-200",
+    red: "bg-rose-50 text-rose-700 border-rose-200",
   };
   return (
     <span
@@ -357,17 +303,15 @@ function PlatformLink({ name, url }: { name: string; url: string | null }) {
 }
 
 function RouteFlow({ hops }: { hops: Hop[] }) {
-  const deduped: string[] = [];
-  hops.forEach((h) => {
-    if (deduped[deduped.length - 1] !== h.from_platform) deduped.push(h.from_platform);
-    if (deduped[deduped.length - 1] !== h.to_platform) deduped.push(h.to_platform);
-  });
-
+  const flow: Array<{ name: string; url: string | null }> = [];
+  if (hops.length > 0) flow.push({ name: hops[0].from_platform, url: hops[0].from_url });
+  for (const hop of hops) flow.push({ name: hop.to_platform, url: hop.to_url });
+  const deduped = flow.filter((item, i) => i === 0 || item.name !== flow[i - 1].name);
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      {deduped.map((p, i) => (
-        <span key={i} className="flex items-center gap-2">
-          <PlatformLink name={p} url={hops.find((h) => h.from_platform === p || h.to_platform === p)?.from_url ?? null} />
+    <div className="flex flex-wrap items-center gap-1.5">
+      {deduped.map((item, i) => (
+        <span key={i} className="flex items-center gap-1.5">
+          <PlatformLink name={item.name} url={item.url} />
           {i < deduped.length - 1 && (
             <span className="text-muted-foreground text-sm select-none">→</span>
           )}
@@ -405,7 +349,7 @@ function PriceTracker({
     const fxPart = Math.round(cost * 0.62 * 100) / 100;
     const feePart = Math.round((cost - fxPart) * 100) / 100;
     return (
-      <div className="bg-card border border-border rounded-lg p-3 text-xs shadow-lg">
+      <div className="bg-white border border-[#D5E8DA] rounded-lg p-3 text-xs shadow-lg">
         <div className="font-semibold text-foreground mb-1">{label}</div>
         <div className="text-foreground font-mono">{sym}{cost.toFixed(2)} total</div>
         <div className="text-muted-foreground mt-1">FX: {sym}{fxPart.toFixed(2)} · Fees: {sym}{feePart.toFixed(2)}</div>
@@ -415,13 +359,13 @@ function PriceTracker({
 
   const CustomDot = (props: { cx?: number; cy?: number; index?: number }) => {
     const { cx, cy, index } = props;
-    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={2} />;
-    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="hsl(var(--background))" strokeWidth={1.5} />;
+    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#0D7A49" stroke="#ffffff" strokeWidth={2} />;
+    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="#ffffff" strokeWidth={1.5} />;
     return <circle r={0} cx={cx} cy={cy} fill="none" />;
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-border">
+    <div className="mt-3 pt-3 border-t border-[#D5E8DA]">
       <div
         className={`rounded-lg border px-3 py-2.5 mb-3 ${verdictBannerClass(verdict.color)}`}
         data-testid={`verdict-${routeId}`}
@@ -439,20 +383,20 @@ function PriceTracker({
           <AreaChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id={`grad-${routeId}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.01} />
+                <stop offset="5%" stopColor="#00D4AA" stopOpacity={0.25} />
+                <stop offset="95%" stopColor="#00D4AA" stopOpacity={0.01} />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="date"
               ticks={tickDates}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+              tick={{ fill: "#5A7A65", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={["auto", "auto"]}
-              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
+              tick={{ fill: "#5A7A65", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               width={36}
@@ -461,16 +405,16 @@ function PriceTracker({
             <RechartTooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={avg}
-              stroke="hsl(var(--muted))"
+              stroke="#9BB5A2"
               strokeDasharray="4 3"
               strokeWidth={1}
-              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "hsl(var(--muted-foreground))", fontSize: 9, position: "insideTopRight" }}
+              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "#5A7A65", fontSize: 9, position: "insideTopRight" }}
             />
             <Area
               type="monotone"
               dataKey="cost"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
+              stroke="#00D4AA"
+              strokeWidth={1.5}
               fill={`url(#grad-${routeId})`}
               dot={(props) => <CustomDot {...props} />}
             />
@@ -479,7 +423,7 @@ function PriceTracker({
       </div>
 
       <div className="flex gap-4 text-xs text-muted-foreground mt-2">
-        <span>Low: <span className="text-emerald-400 font-mono font-bold">{sym}{low.toFixed(2)}</span> on {bestDate}</span>
+        <span>Low: <span className="text-emerald-400 font-mono">{sym}{low.toFixed(2)}</span> on {bestDate}</span>
         <span>Avg: <span className="font-mono text-foreground/70">{sym}{avg.toFixed(2)}</span></span>
         <span>High: <span className="text-rose-400 font-mono">{sym}{high.toFixed(2)}</span></span>
       </div>
@@ -541,8 +485,8 @@ function RouteCard({
     <div
       className={`rounded-xl border transition-all duration-200 ${
         isBest
-          ? "border-primary bg-primary/5 shadow-[0_4px_20px_rgba(0,212,170,0.12)]"
-          : "border-border bg-card shadow-sm hover:border-primary/50"
+          ? "border-[#7DCCA5] bg-[#F0FAF5] shadow-[0_0_20px_rgba(13,122,73,0.08)]"
+          : "border-[#D5E8DA] bg-white shadow-sm"
       }`}
       data-testid={`card-route-${route.id}`}
     >
@@ -577,7 +521,7 @@ function RouteCard({
                   Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
                   {rateDisplay && (
                     <span className="ml-1" data-testid={`text-rate-${route.id}`}>
-                      (<span className={`font-bold ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
+                      (<span className={`font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
                     </span>
                   )}
                 </div>
@@ -590,7 +534,7 @@ function RouteCard({
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {isBest ? (
               <span
-                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30"
+                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#D8F0E5] text-[#0A6A3C] border border-[#7DCCA5]"
                 data-testid="badge-best-route"
               >
                 Best route
@@ -619,7 +563,7 @@ function RouteCard({
           </div>
           {usesAccounts && (
             <span
-              className="flex items-center gap-1 text-xs text-primary font-bold"
+              className="flex items-center gap-1 text-xs text-teal font-medium"
               data-testid={`tag-uses-accounts-${route.id}`}
             >
               <Check className="w-3 h-3" /> Uses your accounts
@@ -634,12 +578,12 @@ function RouteCard({
 
         <button
           onClick={onToggleExpand}
-          className="flex items-center gap-1.5 text-xs font-bold text-primary w-full pt-3 border-t border-border hover:text-primary/80 transition-colors"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground w-full pt-2 border-t border-white/8 transition-colors"
           data-testid={`button-price-tracker-${route.id}`}
         >
           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           Is this a good price?
-          <TrendingDown className="w-3.5 h-3.5 ml-auto opacity-70" />
+          <TrendingDown className="w-3.5 h-3.5 ml-auto" />
         </button>
       </div>
 
@@ -666,8 +610,8 @@ function AccountChip({
       onClick={onToggle}
       className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
         selected
-          ? "bg-primary/20 border-primary text-primary"
-          : "border-border bg-card text-muted-foreground hover:border-primary"
+          ? "bg-teal/20 border-teal/50 text-teal"
+          : "border-white/15 text-muted-foreground"
       }`}
       data-testid={`chip-account-${name.toLowerCase().replace(/\s+/g, "-")}`}
     >
@@ -708,68 +652,81 @@ export default function RouteFinder() {
       const json = await res.json();
       return Array.isArray(json) ? json : (json.routes ?? []);
     },
+    enabled: !!searchParams,
   });
 
   const { data: midRateData } = useQuery<MidRate>({
-    queryKey: ["/api/midmarket-rate", from, to],
+    queryKey: ["/api/midmarket-rate", searchParams?.from, searchParams?.to],
     queryFn: async () => {
-      const res = await fetch(`/api/midmarket-rate?from=${from}&to=${to}`);
+      if (!searchParams) throw new Error("No params");
+      const params = new URLSearchParams({ from: searchParams.from, to: searchParams.to });
+      const res = await fetch(`/api/midmarket-rate?${params}`);
       if (!res.ok) throw new Error("Failed to fetch mid-market rate");
       return res.json();
     },
+    enabled: !!searchParams,
+    staleTime: 60 * 60 * 1000,
   });
 
-  const toggleAccount = (name: string) => {
-    const next = new Set(selectedAccounts);
-    if (next.has(name)) next.delete(name);
-    else next.add(name);
-    setSelectedAccounts(next);
-  };
+  function toggleAccount(name: string) {
+    setSelectedAccounts((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name); else next.add(name);
+      return next;
+    });
+  }
 
-  const togglePerk = (p: keyof Perks) => {
-    setPerks((prev) => ({ ...prev, [p]: !prev[p] }));
-  };
+  function togglePerk(key: keyof Perks) {
+    setPerks((prev) => ({ ...prev, [key]: !prev[key] }));
+  }
 
-  const handleSearch = () => {
-    if (!amount) return;
-    setSearchParams({ from, to, amount, maxHours });
-    setExpandedCard(null);
-  };
-
-  const handleSwap = () => {
-    setFrom(to);
-    setTo(from);
-    setSearchParams(null);
-  };
-
-  const handleFromChange = (val: string) => {
+  function handleFromChange(val: string) {
     setFrom(val);
+    const opt = ALL_CURRENCIES.find((o) => o.value === val);
+    if (opt?.defaultAmount) setAmount(opt.defaultAmount);
     setSearchParams(null);
     setSelectedAccounts(new Set());
-  };
+  }
+
+  function handleSwap() {
+    const prevFrom = from;
+    const prevTo = to;
+    setFrom(prevTo);
+    setTo(prevFrom);
+    const newFromOpt = ALL_CURRENCIES.find((o) => o.value === prevTo);
+    if (newFromOpt?.defaultAmount) setAmount(newFromOpt.defaultAmount);
+    setSearchParams(null);
+    setSelectedAccounts(new Set());
+  }
+
+  function handleSearch() {
+    setSearchParams({ from, to, amount, maxHours });
+    setExpandedCard(null);
+  }
+
+  const rawRoutes = data ?? [];
 
   const processedRoutes = useMemo(() => {
-    if (!data) return [];
-    return data.map((r) => {
-      const platforms = getRoutePlatforms(r);
-      const cost = applyPerks(r.total_cost_destination, platforms, perks);
-      return { ...r, adjustedCost: cost };
+    return rawRoutes.map((route) => {
+      const platforms = getRoutePlatforms(route);
+      const adjustedCost = applyPerks(route.total_cost_destination, platforms, perks);
+      const ease = EASE[route.id];
+      return { ...route, adjustedCost, easeScore: ease?.score ?? 99 };
     });
-  }, [data, perks]);
+  }, [rawRoutes, perks]);
 
   const sortedRoutes = useMemo(() => {
-    const arr = [...processedRoutes];
-    if (sortMode === "cheapest") return arr.sort((a, b) => a.adjustedCost - b.adjustedCost);
-    return arr.sort((a, b) => {
-      const easeA = EASE[a.id]?.score ?? 3;
-      const easeB = EASE[b.id]?.score ?? 3;
-      if (easeA !== easeB) return easeA - easeB;
-      return a.adjustedCost - b.adjustedCost;
-    });
+    const sorted = [...processedRoutes];
+    if (sortMode === "simplest") {
+      sorted.sort((a, b) => a.easeScore - b.easeScore || a.adjustedCost - b.adjustedCost);
+    } else {
+      sorted.sort((a, b) => a.adjustedCost - b.adjustedCost);
+    }
+    return sorted;
   }, [processedRoutes, sortMode]);
 
-  const bestAdjustedCost = sortedRoutes[0]?.adjustedCost ?? 0;
-  const hasResults = !!searchParams && !isLoading;
+  const bestAdjustedCost = sortedRoutes.length > 0 ? sortedRoutes[0].adjustedCost : 0;
+  const hasResults = !!searchParams && data !== undefined;
 
   const showRevolut = selectedAccounts.has("Revolut");
   const showWise = selectedAccounts.has("Wise");
@@ -793,18 +750,19 @@ export default function RouteFinder() {
       )}
 
       <div
-        className={`rounded-xl border border-border bg-card p-4 shadow-md max-w-5xl mx-auto ${
-          hasResults ? "mb-8" : "mb-4"
+        className={`rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-5 md:p-6 space-y-4 ${
+          hasResults ? "mb-6" : ""
         }`}
       >
-        <div className="flex flex-col md:flex-row items-stretch md:items-end gap-3">
-          <div className="flex-1 min-w-[120px]">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1 block">From</label>
+        {/* From / To */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">From</label>
             <Select value={from} onValueChange={handleFromChange}>
-              <SelectTrigger className="w-full bg-background border-border text-foreground h-10 px-3 shadow-sm" data-testid="select-from-currency">
+              <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-11" data-testid="select-from-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-popover-border">
+              <SelectContent className="bg-[#0F1729] border-white/10">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-from-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -813,24 +771,18 @@ export default function RouteFinder() {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="pb-1 flex-shrink-0 flex items-center justify-center">
-            <button 
-              onClick={handleSwap} 
-              className="w-8 h-8 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-primary transition-all shadow-sm" 
-              data-testid="button-swap"
-            >
-              <ArrowLeftRight className="w-3.5 h-3.5" />
+          <div className="pt-5">
+            <button onClick={handleSwap} className="w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground transition-colors" data-testid="button-swap">
+              <ArrowLeftRight className="w-4 h-4" />
             </button>
           </div>
-
-          <div className="flex-1 min-w-[120px]">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1 block">To</label>
+          <div className="flex-1">
+            <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">To</label>
             <Select value={to} onValueChange={(val) => { setTo(val); setSearchParams(null); setSelectedAccounts(new Set()); }}>
-              <SelectTrigger className="w-full bg-background border-border text-foreground h-10 px-3 shadow-sm" data-testid="select-to-currency">
+              <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-11" data-testid="select-to-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-popover-border">
+              <SelectContent className="bg-[#0F1729] border-white/10">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-to-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -839,90 +791,63 @@ export default function RouteFinder() {
               </SelectContent>
             </Select>
           </div>
-
-          <div className="flex-[0.7] min-w-[100px]">
-            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1 block">Amount</label>
-            <div className="relative">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground select-none">{CURRENCY_SYMBOLS[from] ?? from}</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={amount}
-                onChange={(e) => { setAmount(e.target.value.replace(/[^0-9]/g, "")); setSearchParams(null); }}
-                className="w-full h-10 pl-7 pr-3 rounded-md border border-border bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary/20 shadow-sm"
-                data-testid="input-amount"
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <div className="flex-shrink-0">
-            <Button
-              onClick={handleSearch}
-              disabled={isLoading || !amount}
-              className="h-10 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-md flex items-center gap-2 shadow-md transition-all active:scale-[0.98]"
-              data-testid="button-find-routes"
-            >
-              {isLoading ? "..." : (
-                <>
-                  Find best route <span className="text-base">🔍</span>
-                </>
-              )}
-            </Button>
-          </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto mt-2 px-1 md:hidden">
-        <Button
-          onClick={handleSearch}
-          disabled={isLoading || !amount}
-          className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-lg flex items-center justify-center gap-2 shadow-md"
-          data-testid="button-find-routes-mobile"
-        >
-          {isLoading ? "..." : (
-            <>
-              Find best route <span className="text-xl">🔍</span>
-            </>
+        {/* Amount */}
+        <div>
+          <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount</label>
+          <div className="relative">
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono select-none">{CURRENCY_SYMBOLS[from] ?? from}</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={amount}
+              onChange={(e) => { setAmount(e.target.value.replace(/[^0-9]/g, "")); setSearchParams(null); }}
+              className="w-full h-11 pl-14 pr-4 rounded-md border border-white/10 bg-white/5 text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal/40"
+              data-testid="input-amount"
+              placeholder="0"
+            />
+          </div>
+          {approxConverted && (
+            <p className="text-xs text-muted-foreground mt-1.5 ml-0.5" data-testid="text-approx-converted">
+              Approximately {approxConverted} received
+            </p>
           )}
-        </Button>
-      </div>
+        </div>
 
-      {/* More options toggle */}
-      <div className="max-w-5xl mx-auto flex justify-end mb-8 mt-2 md:mt-0">
-        <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline transition-all" data-testid="button-toggle-options">
-          {showOptions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          {showOptions ? "Fewer options" : "More options"}
-        </button>
-      </div>
+        {/* More options toggle */}
+        <div>
+          <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid="button-toggle-options">
+            {showOptions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            {showOptions ? "Hide options" : "More options"}
+          </button>
 
-      {showOptions && (
-        <div className="max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="bg-card rounded-xl border border-border p-6 shadow-sm space-y-4">
-            {/* Time filter */}
-            <div>
-              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
-                Maximum transfer time
-              </label>
-              <Select value={maxHours} onValueChange={(val) => { setMaxHours(val); setSearchParams(null); }}>
-                <SelectTrigger className="w-full bg-background border-border h-10 text-sm" data-testid="select-max-hours">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-popover-border">
-                  {TIME_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {showOptions && (
+            <div className="mt-4 space-y-4">
+              {/* Time filter */}
+              <div>
+                <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  I need money there within
+                </label>
+                <Select value={maxHours} onValueChange={(val) => { setMaxHours(val); setSearchParams(null); }}>
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-10 text-sm" data-testid="select-max-hours">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0F1729] border-white/10">
+                    {TIME_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Account selection */}
-            <div className="pt-4 border-t border-border">
-              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">
-                Your existing accounts <span className="font-normal lowercase opacity-60">(optional)</span>
-              </p>
+              {/* Account selection */}
+              <div className="pt-3 border-t border-white/8">
+                <p className="text-[11px] text-muted-foreground mb-3">
+                  Have existing accounts? Select them for better results <span className="opacity-60">(optional)</span>
+                </p>
 
                 {originChips.length > 0 && (
                   <div className="mb-3">
@@ -973,7 +898,7 @@ export default function RouteFinder() {
                       }
                     }}
                     placeholder="Type a platform name and press Enter"
-                    className="flex-1 text-xs bg-transparent border-b border-border focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/50 py-1"
+                    className="flex-1 text-xs bg-transparent border-b border-white/20 focus:outline-none focus:border-teal/50 text-foreground placeholder:text-muted-foreground/50 py-1"
                     data-testid="input-custom-account"
                   />
                 </div>
@@ -992,27 +917,27 @@ export default function RouteFinder() {
                 })()}
 
                 {(showRevolut || showWise || showBinance) && (
-                  <div className="mt-3 pt-3 border-t border-border space-y-2">
+                  <div className="mt-3 pt-3 border-t border-white/8 space-y-2">
                     {showRevolut && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-revolut">
-                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-primary border-primary" : "border-border bg-background"}`}>
-                          {perks.revolut && <Check className="w-2.5 h-2.5 text-white" />}
+                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
+                          {perks.revolut && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-foreground/60">(fee-free FX up to £1,000/mo)</span></span>
                       </label>
                     )}
                     {showWise && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-wise">
-                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-primary border-primary" : "border-border bg-background"}`}>
-                          {perks.wise && <Check className="w-2.5 h-2.5 text-white" />}
+                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
+                          {perks.wise && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Wise Business <span className="text-foreground/60">(lower fees)</span></span>
                       </label>
                     )}
                     {showBinance && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-binance">
-                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-primary border-primary" : "border-border bg-background"}`}>
-                          {perks.binance && <Check className="w-2.5 h-2.5 text-white" />}
+                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
+                          {perks.binance && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Binance VIP <span className="text-foreground/60">(reduced spreads)</span></span>
                       </label>
@@ -1021,58 +946,55 @@ export default function RouteFinder() {
                 )}
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        <Button
+          onClick={handleSearch}
+          disabled={isLoading || !amount}
+          className="w-full h-11 bg-teal text-[#0F1729] font-semibold text-sm rounded-lg"
+          data-testid="button-find-routes"
+        >
+          {isLoading ? "Finding routes..." : "Find best route"}
+        </Button>
+      </div>
 
       {/* Results */}
       {hasResults && (
-        <div className="max-w-5xl mx-auto">
-          {approxConverted && (
-            <div className="mb-2 px-1 text-center md:text-left">
-              <p className="text-xs text-primary font-medium" data-testid="text-approx-converted">
-                ≈ {approxConverted} received
-              </p>
-            </div>
-          )}
-
+        <div>
           {midRateData && (() => {
             const d = formatDisplayRate(midRateData.rate, midRateData.from, midRateData.to);
             const dateLabel = new Date(midRateData.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
             return (
-              <div className="mb-6 px-4 py-3 rounded-xl border border-border bg-card flex items-center justify-between gap-3 flex-wrap shadow-sm" data-testid="banner-midmarket-rate">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">Mid-market rate</p>
-                    <p className="text-sm font-mono font-bold text-foreground">{d.label}</p>
-                  </div>
+              <div className="mb-4 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-between gap-3 flex-wrap" data-testid="banner-midmarket-rate">
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Mid-market rate</p>
+                  <p className="text-sm font-mono font-semibold text-foreground">{d.label}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground font-medium">Updated {dateLabel}</p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-0.5 italic text-[9px]">Official benchmark rate</p>
+                  <p className="text-[10px] text-muted-foreground">Updated {dateLabel}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">Route rates below show actual cost vs this benchmark</p>
                 </div>
               </div>
             );
           })()}
 
           {sortedRoutes.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground bg-card rounded-xl border border-border">
+            <div className="text-center py-16 text-muted-foreground">
               <p className="text-base mb-1">No routes found for this corridor</p>
               <p className="text-sm">Try relaxing the time limit or selecting a different corridor</p>
             </div>
           ) : (
-            <div className="max-w-2xl mx-auto">
-              <div className="flex items-center justify-between mb-4 px-1">
-                <p className="text-sm font-medium text-muted-foreground" data-testid="text-route-count">
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground" data-testid="text-route-count">
                   {sortedRoutes.length} route{sortedRoutes.length !== 1 ? "s" : ""} found
                 </p>
-                <div className="flex gap-0.5 bg-card border border-border rounded-lg p-0.5 shadow-sm">
+                <div className="flex gap-0.5 bg-white/5 border border-white/8 rounded-lg p-0.5">
                   <button
                     onClick={() => setSortMode("cheapest")}
-                    className={`text-[11px] px-3 py-1.5 rounded-md font-bold transition-colors ${
-                      sortMode === "cheapest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+                    className={`text-[11px] px-3 py-1.5 rounded-md font-medium transition-colors ${
+                      sortMode === "cheapest" ? "bg-white/10 text-foreground" : "text-muted-foreground"
                     }`}
                     data-testid="button-sort-cheapest"
                   >
@@ -1080,8 +1002,8 @@ export default function RouteFinder() {
                   </button>
                   <button
                     onClick={() => setSortMode("simplest")}
-                    className={`text-[11px] px-3 py-1.5 rounded-md font-bold transition-colors ${
-                      sortMode === "simplest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
+                    className={`text-[11px] px-3 py-1.5 rounded-md font-medium transition-colors ${
+                      sortMode === "simplest" ? "bg-white/10 text-foreground" : "text-muted-foreground"
                     }`}
                     data-testid="button-sort-simplest"
                   >
@@ -1090,7 +1012,7 @@ export default function RouteFinder() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {sortedRoutes.map((route, idx) => (
                   <RouteCard
                     key={route.id}
@@ -1109,11 +1031,11 @@ export default function RouteFinder() {
               </div>
 
               {selectedAccounts.size === 0 && (
-                <p className="text-[11px] text-muted-foreground text-center mt-8 font-medium italic">
-                  Tip: Open "More options" to select your accounts for personalized results
+                <p className="text-xs text-muted-foreground text-center mt-5">
+                  Open "More options" to select your accounts for personalized results
                 </p>
               )}
-              <p className="text-[11px] text-muted-foreground text-center mt-2 opacity-60">
+              <p className="text-xs text-muted-foreground text-center mt-2">
                 Click any platform name to open its website
               </p>
             </div>
