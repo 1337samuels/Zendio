@@ -461,6 +461,8 @@ function RouteCard({
   const diff = Math.round((total - bestAdjustedCost) * 100) / 100;
   const ease = EASE[route.id];
 
+  const [isCostExpanded, setIsCostExpanded] = useState(false);
+
   const rateDisplay = midRateData
     ? formatDisplayRate(midRateData.rate, fromCurrency, toCurrency)
     : null;
@@ -513,20 +515,32 @@ function RouteCard({
                 data-testid={`dot-verdict-${route.id}`}
               />
             </div>
-            <div className="text-xs text-muted-foreground">
-              FX cost: {sym}{fxCost.toFixed(2)} &middot; Fees: {sym}{feeCost.toFixed(2)}
-            </div>
-            {rateDisplay && effectiveRate && (
-              <div className="text-xs mt-1" data-testid={`text-rate-${route.id}`}>
-                <span className="text-muted-foreground">Route rate: </span>
-                <span className="font-mono text-foreground">
-                  {rateDisplay.strongSym}1 {rateDisplay.strongCode} = {effectiveRate} {rateDisplay.weakCode}
-                </span>
-                <span className="text-muted-foreground"> vs </span>
-                <span className="font-mono text-muted-foreground/80">{midDisplayRate} mid-market</span>
-                <span className={`ml-1.5 font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>
-                  +{route.total_percent.toFixed(2)}%
-                </span>
+            <button
+              onClick={() => setIsCostExpanded((v) => !v)}
+              className="flex items-center gap-1 text-xs text-muted-foreground mt-1 hover:text-foreground/70 transition-colors"
+              data-testid={`button-cost-breakdown-${route.id}`}
+            >
+              {isCostExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              Cost breakdown
+            </button>
+            {isCostExpanded && (
+              <div className="mt-2 space-y-1.5" data-testid={`cost-breakdown-${route.id}`}>
+                <div className="text-xs text-muted-foreground">
+                  FX cost: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
+                  <span className="mx-1.5">&middot;</span>
+                  Fees: <span className="font-mono text-foreground/80">{sym}{feeCost.toFixed(2)}</span>
+                </div>
+                {rateDisplay && effectiveRate && (
+                  <div className="text-xs" data-testid={`text-rate-${route.id}`}>
+                    <span className="text-muted-foreground">Route rate: </span>
+                    <span className="font-mono text-foreground">{rateDisplay.strongSym}1 {rateDisplay.strongCode} = {effectiveRate} {rateDisplay.weakCode}</span>
+                    <span className="text-muted-foreground"> &middot; mid-market: </span>
+                    <span className="font-mono text-muted-foreground/80">{midDisplayRate}</span>
+                    <span className={`ml-1.5 font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>
+                      +{route.total_percent.toFixed(2)}% cost
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>

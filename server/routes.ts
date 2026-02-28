@@ -162,7 +162,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       const key = `${from}-${to}`;
       const cfg = RATE_CONFIGS[key];
       if (cfg) {
-        return res.json({ rate: cfg.end, date: new Date().toISOString().split("T")[0], from, to, source: "fallback" });
+        return res.json({ rate: 1 / cfg.end, date: new Date().toISOString().split("T")[0], from, to, source: "fallback" });
       }
       return res.status(404).json({ error: "Corridor not found" });
     }
