@@ -1,0 +1,38 @@
+Major redesign of the app. We're renaming it to "Remio" and simplifying everything. The app should feel intuitive and self-explanatory — no fintech jargon, no cognitive load. Anyone should be able to understand what to do within 3 seconds of landing on the page.
+
+CHANGES:
+
+1. REMOVE the sidebar navigation entirely. Remove the Rate Tracker, Smart Timing, and Rate Alerts pages. The app is now a SINGLE PAGE with one purpose: find the cheapest way to move money between countries.
+
+2. RENAME everything from "RemitRadar" to "Remio". Update the logo text, page titles, meta tags, and any references.
+
+3. REDESIGN the main page layout:
+
+TOP SECTION — clean and clear:
+- Heading: "Find the cheapest way to send money abroad"
+- Subheading in muted text: "We compare routes across multiple platforms so you don't have to"
+- Two standard dropdown selectors with country flags inline:
+  - "From" — shows flag + country + currency (e.g., 🇨🇴 Colombia (COP))
+  - "To" — shows flag + country + currency (e.g., 🇬🇧 United Kingdom (GBP))
+  - A small swap icon (↔) between them
+- Amount input with currency symbol, with a helper line below showing approximate converted amount: "≈ £950" that updates as user types
+- "Find best route" button in teal
+
+This should feel like any standard search tool — clean, obvious, nothing to figure out.
+
+RESULTS SECTION — route cards:
+- Each route card shows:
+  - Total cost prominently: "£11.20 total cost" — this is FX rate cost + all platform fees combined into one number
+  - Smaller breakdown below: "FX rate: £7.40 · Fees: £3.80" — secondary information
+  - The route shown as a clean horizontal flow: Bancolombia → Dollar App → Wise → Revolut (just names and arrows, no complex pipeline)
+  - Estimated time: "About 1 day"
+  - BEST ROUTE badge on the cheapest option with a subtle teal highlight on the card
+  - On non-best routes: "£37.10 more than cheapest" in muted text
+
+4. REMOVE all references to other pages — sidebar, navigation, route definitions, footer links, CTAs pointing to removed pages. Clean up all unused component files.
+
+5. Header: "Remio" logo on left, "How it works" link on right. Keep it minimal.
+
+6. Footer: "Remio does not provide financial advice. Information is for comparison purposes only."
+
+The overall feel should be like a search engine — mostly empty before a search, clear results after. No visual clutter.

@@ -1,19 +1,26 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
-export const FROM_CURRENCIES = [
-  { value: "COP", label: "COP — Colombian Peso" },
-  { value: "MXN", label: "MXN — Mexican Peso" },
-  { value: "BRL", label: "BRL — Brazilian Real" },
-  { value: "PHP", label: "PHP — Philippine Peso" },
-  { value: "INR", label: "INR — Indian Rupee" },
-  { value: "NGN", label: "NGN — Nigerian Naira" },
+export const FROM_OPTIONS = [
+  { value: "COP", flag: "🇨🇴", country: "Colombia", currency: "COP", defaultAmount: "5000000" },
+  { value: "MXN", flag: "🇲🇽", country: "Mexico", currency: "MXN", defaultAmount: "100000" },
+  { value: "BRL", flag: "🇧🇷", country: "Brazil", currency: "BRL", defaultAmount: "10000" },
+  { value: "PHP", flag: "🇵🇭", country: "Philippines", currency: "PHP", defaultAmount: "100000" },
+  { value: "INR", flag: "🇮🇳", country: "India", currency: "INR", defaultAmount: "200000" },
+  { value: "NGN", flag: "🇳🇬", country: "Nigeria", currency: "NGN", defaultAmount: "5000000" },
 ];
 
-export const TO_CURRENCIES = [
-  { value: "GBP", label: "GBP — British Pound" },
-  { value: "USD", label: "USD — US Dollar" },
-  { value: "EUR", label: "EUR — Euro" },
+export const TO_OPTIONS = [
+  { value: "GBP", flag: "🇬🇧", country: "United Kingdom", currency: "GBP" },
+  { value: "USD", flag: "🇺🇸", country: "United States", currency: "USD" },
+  { value: "EUR", flag: "🇪🇺", country: "Europe", currency: "EUR" },
 ];
+
+export const APPROX_RATES: Record<string, Record<string, number>> = {
+  COP: { GBP: 1 / 5247, USD: 1 / 4289, EUR: 1 / 4500 },
+  MXN: { GBP: 1 / 21.4, USD: 1 / 17.8, EUR: 1 / 19.5 },
+  BRL: { GBP: 1 / 6.3, USD: 1 / 5.02, EUR: 1 / 5.51 },
+  PHP: { GBP: 1 / 70.8, USD: 1 / 56.2, EUR: 1 / 60.0 },
+  INR: { GBP: 1 / 103.8, USD: 1 / 83.2, EUR: 1 / 89.0 },
+  NGN: { GBP: 1 / 2010, USD: 1 / 1600, EUR: 1 / 1720 },
+};
 
 export function getCurrencySymbol(currency: string): string {
   const map: Record<string, string> = {
@@ -23,60 +30,17 @@ export function getCurrencySymbol(currency: string): string {
     CAD: "CA$",
     AUD: "A$",
   };
-  return map[currency] ?? currency + " ";
+  return map[currency] ?? `${currency} `;
 }
 
-interface CorridorSelectProps {
-  fromValue: string;
-  toValue: string;
-  onFromChange: (v: string) => void;
-  onToChange: (v: string) => void;
-}
-
-export function CorridorSelect({ fromValue, toValue, onFromChange, onToChange }: CorridorSelectProps) {
-  return (
-    <div className="flex flex-wrap gap-3">
-      <div className="flex-1 min-w-[160px]">
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
-          Sending from
-        </label>
-        <Select value={fromValue} onValueChange={onFromChange}>
-          <SelectTrigger
-            className="bg-white/5 border-white/10 text-foreground"
-            data-testid="select-from-currency"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-[#0F1729] border-white/10">
-            {FROM_CURRENCIES.map((c) => (
-              <SelectItem key={c.value} value={c.value} data-testid={`option-from-${c.value}`}>
-                {c.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex-1 min-w-[160px]">
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
-          Receiving in
-        </label>
-        <Select value={toValue} onValueChange={onToChange}>
-          <SelectTrigger
-            className="bg-white/5 border-white/10 text-foreground"
-            data-testid="select-to-currency"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="bg-[#0F1729] border-white/10">
-            {TO_CURRENCIES.map((c) => (
-              <SelectItem key={c.value} value={c.value} data-testid={`option-to-${c.value}`}>
-                {c.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
+export function getApproxConverted(amount: string, from: string, to: string): string | null {
+  const num = parseFloat(amount.replace(/,/g, ""));
+  if (!num || isNaN(num)) return null;
+  const rate = APPROX_RATES[from]?.[to];
+  if (!rate) return null;
+  const converted = num * rate;
+  const sym = getCurrencySymbol(to);
+  if (converted >= 1000) return `${sym}${Math.round(converted).toLocaleString()}`;
+  if (converted >= 1) return `${sym}${converted.toFixed(2)}`;
+  return `${sym}${converted.toFixed(4)}`;
 }

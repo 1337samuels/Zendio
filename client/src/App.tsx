@@ -1,100 +1,39 @@
-import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { HowItWorksModal } from "@/components/how-it-works-modal";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Search, TrendingUp, Clock, Bell } from "lucide-react";
-import { Link, useLocation } from "wouter";
-import { RadarIcon } from "@/components/radar-icon";
-import NotFound from "@/pages/not-found";
 import RouteFinder from "@/pages/route-finder";
-import RateTracker from "@/pages/rate-tracker";
-import SmartTiming from "@/pages/smart-timing";
-import RateAlerts from "@/pages/rate-alerts";
 
-const mobileNav = [
-  { title: "Routes", url: "/", icon: Search },
-  { title: "Rates", url: "/rates", icon: TrendingUp },
-  { title: "Timing", url: "/timing", icon: Clock },
-  { title: "Alerts", url: "/alerts", icon: Bell },
-];
-
-function MobileBottomNav() {
-  const [location] = useLocation();
+function RemioLogo() {
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0F1729]/95 backdrop-blur-xl flex">
-      {mobileNav.map((item) => {
-        const isActive = location === item.url;
-        return (
-          <Link
-            key={item.url}
-            href={item.url}
-            className={`flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors ${
-              isActive ? "text-teal" : "text-muted-foreground"
-            }`}
-            data-testid={`mobile-nav-${item.title.toLowerCase()}`}
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{item.title}</span>
-          </Link>
-        );
-      })}
-    </nav>
+    <div className="flex items-center gap-2">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="28" height="28" rx="8" fill="#00D4AA" fillOpacity="0.15" />
+        <path d="M8 14C8 10.686 10.686 8 14 8" stroke="#00D4AA" strokeWidth="2" strokeLinecap="round" />
+        <path d="M14 8C17.314 8 20 10.686 20 14C20 17.314 17.314 20 14 20" stroke="#00D4AA" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.5" />
+        <path d="M17 14L21 10M21 10H17.5M21 10V13.5" stroke="#00D4AA" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      <span className="font-heading font-bold text-xl text-foreground tracking-tight">Remio</span>
+    </div>
   );
 }
 
 function Header({ onHowItWorks }: { onHowItWorks: () => void }) {
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-4 px-4 border-b border-white/10 bg-[#0F1729]/80 backdrop-blur-xl">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger className="md:flex" data-testid="button-sidebar-toggle" />
-        <div className="md:hidden flex items-center gap-1.5">
-          <RadarIcon size={22} />
-          <span className="font-heading font-bold text-base text-foreground">RemitRadar</span>
-          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-teal/15 text-teal border border-teal/30">BETA</span>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <button
-          onClick={onHowItWorks}
-          className="text-sm text-muted-foreground transition-colors hidden sm:block"
-          data-testid="button-how-it-works"
-        >
-          How it works
-        </button>
-        <Button
-          className="bg-teal text-[#0F1729] font-semibold text-sm"
-          size="sm"
-          data-testid="button-early-access"
-        >
-          Get Early Access
-        </Button>
-      </div>
+    <header className="flex h-14 items-center justify-between px-5 md:px-8 border-b border-white/8">
+      <RemioLogo />
+      <button
+        onClick={onHowItWorks}
+        className="text-sm text-muted-foreground transition-colors"
+        data-testid="button-how-it-works"
+      >
+        How it works
+      </button>
     </header>
   );
 }
-
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={RouteFinder} />
-      <Route path="/rates" component={RateTracker} />
-      <Route path="/timing" component={SmartTiming} />
-      <Route path="/alerts" component={RateAlerts} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
-
-const sidebarStyle = {
-  "--sidebar-width": "220px",
-  "--sidebar-width-icon": "60px",
-};
 
 export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -102,24 +41,15 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <SidebarProvider defaultOpen style={sidebarStyle as React.CSSProperties}>
-          <div className="flex h-screen w-full bg-[#0F1729]">
-            <div className="hidden md:flex">
-              <AppSidebar />
-            </div>
-            <div className="flex flex-col flex-1 min-w-0">
-              <Header onHowItWorks={() => setModalOpen(true)} />
-              <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
-                <Router />
-              </main>
-              <footer className="hidden md:block px-6 py-3 border-t border-white/10 text-xs text-muted-foreground">
-                RemitRadar does not provide financial advice. Historical data is for informational purposes only.
-                &nbsp;&nbsp;|&nbsp;&nbsp;Built with love for the diaspora.
-              </footer>
-            </div>
-          </div>
-          <MobileBottomNav />
-        </SidebarProvider>
+        <div className="min-h-screen flex flex-col bg-[#0F1729]">
+          <Header onHowItWorks={() => setModalOpen(true)} />
+          <main className="flex-1">
+            <RouteFinder />
+          </main>
+          <footer className="px-6 py-4 text-center text-xs text-muted-foreground border-t border-white/8">
+            Remio does not provide financial advice. Information is for comparison purposes only.
+          </footer>
+        </div>
         <HowItWorksModal open={modalOpen} onOpenChange={setModalOpen} />
         <Toaster />
       </TooltipProvider>
