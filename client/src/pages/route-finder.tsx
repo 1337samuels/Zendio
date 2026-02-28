@@ -5,12 +5,15 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
+import {
   AreaChart, Area, XAxis, YAxis, Tooltip as RechartTooltip,
   ReferenceLine, ResponsiveContainer,
 } from "recharts";
 import {
   ArrowLeftRight, Clock, ExternalLink, ChevronDown, ChevronUp,
-  Check, TrendingDown,
+  Check, TrendingDown, ArrowRight,
 } from "lucide-react";
 import {
   ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted,
@@ -433,6 +436,35 @@ function PriceTracker({
   );
 }
 
+function buildSteps(hops: Hop[], amount: string, fromCurrency: string) {
+  return hops.map((hop, i) => {
+    const samePlatform = hop.from_platform === hop.to_platform;
+    const currencyChange = hop.from_currency !== hop.to_currency;
+    let text: string;
+    if (i === 0) {
+      const amtStr = amount ? Number(amount).toLocaleString() : "";
+      if (samePlatform && currencyChange) {
+        text = `Open ${hop.from_platform} and send ${amtStr} ${hop.from_currency}. It will be automatically converted to ${hop.to_currency} within the app.`;
+      } else if (!samePlatform) {
+        text = `Open ${hop.from_platform} and send ${amtStr} ${hop.from_currency} to your ${hop.to_platform} account.`;
+      } else {
+        text = `Open ${hop.from_platform} with your ${hop.from_currency} balance ready.`;
+      }
+    } else {
+      if (samePlatform && currencyChange) {
+        text = `In ${hop.from_platform}, convert your ${hop.from_currency} balance to ${hop.to_currency}.`;
+      } else if (!samePlatform && !currencyChange) {
+        text = `Transfer your ${hop.from_currency} from ${hop.from_platform} to your ${hop.to_platform} account.`;
+      } else if (!samePlatform && currencyChange) {
+        text = `Send your ${hop.from_currency} from ${hop.from_platform} to ${hop.to_platform} — it will arrive as ${hop.to_currency}.`;
+      } else {
+        text = `On ${hop.from_platform}, send your ${hop.from_currency} to ${hop.to_platform}.`;
+      }
+    }
+    return { platform: hop.from_platform, url: hop.from_url, toPlatform: hop.to_platform, toUrl: hop.to_url, text, fee: hop.fee_label };
+  });
+}
+
 function RouteCard({
   route,
   adjustedCost,
@@ -440,6 +472,7 @@ function RouteCard({
   bestAdjustedCost,
   toCurrency,
   fromCurrency,
+  amount,
   midRateData,
   selectedAccounts,
   isExpanded,
@@ -451,6 +484,7 @@ function RouteCard({
   bestAdjustedCost: number;
   toCurrency: string;
   fromCurrency: string;
+  amount: string;
   midRateData: MidRate | null;
   selectedAccounts: Set<string>;
   isExpanded: boolean;
@@ -467,6 +501,7 @@ function RouteCard({
   const easeExplanation = route.ease_explanation ?? easeFallback?.explanation;
 
   const [isCostExpanded, setIsCostExpanded] = useState(false);
+  const [selectOpen, setSelectOpen] = useState(false);
 
   const rateDisplay = midRateData
     ? formatDisplayRate(midRateData.rate, fromCurrency, toCurrency)
@@ -581,36 +616,97 @@ function RouteCard({
           ))}
         </div>
 
-        <button
-          onClick={() => {
-            const urls = new Set<string>();
-            for (const hop of route.hops) {
-              if (hop.from_url) urls.add(hop.from_url);
-              if (hop.to_url) urls.add(hop.to_url);
-            }
-            urls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer"));
-          }}
-          className={`w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all mb-3 ${
-            isBest
-              ? "bg-teal text-[#0F1729] hover:bg-teal/90 shadow-[0_0_16px_rgba(0,212,170,0.3)] hover:shadow-[0_0_24px_rgba(0,212,170,0.45)]"
-              : "bg-teal/15 text-teal border border-teal/30 hover:bg-teal/25"
-          }`}
-          data-testid={`button-select-${route.id}`}
-        >
-          Select
-          <ExternalLink className="w-3.5 h-3.5" />
-        </button>
-
-        <button
-          onClick={onToggleExpand}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground w-full pt-2 border-t border-white/8 transition-colors"
-          data-testid={`button-price-tracker-${route.id}`}
-        >
-          {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          Is this a good price?
-          <TrendingDown className="w-3.5 h-3.5 ml-auto" />
-        </button>
+        <div className="flex items-center justify-between pt-2 border-t border-white/8 gap-3">
+          <button
+            onClick={onToggleExpand}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors flex-1 min-w-0"
+            data-testid={`button-price-tracker-${route.id}`}
+          >
+            {isExpanded ? <ChevronUp className="w-3.5 h-3.5 flex-shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" />}
+            Is this a good price?
+            <TrendingDown className="w-3.5 h-3.5 ml-1 flex-shrink-0" />
+          </button>
+          <button
+            onClick={() => setSelectOpen(true)}
+            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+              isBest
+                ? "bg-teal text-[#0F1729] hover:bg-teal/90 shadow-[0_0_12px_rgba(0,212,170,0.25)] hover:shadow-[0_0_20px_rgba(0,212,170,0.4)]"
+                : "bg-teal/15 text-teal border border-teal/30 hover:bg-teal/25"
+            }`}
+            data-testid={`button-select-${route.id}`}
+          >
+            Select
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
+
+      {/* Tutorial dialog */}
+      <Dialog open={selectOpen} onOpenChange={setSelectOpen}>
+        <DialogContent className="bg-[#0F1729] border border-white/10 text-foreground max-w-lg max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold text-foreground flex items-center gap-2">
+              How to complete this transfer
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+              {fromCurrency} → {toCurrency} &nbsp;·&nbsp; Total cost: <span className="text-foreground font-mono">{sym}{total.toFixed(2)}</span> &nbsp;·&nbsp; {formatTime(route.estimated_hours)}
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Steps */}
+          <div className="mt-2 space-y-4">
+            {buildSteps(route.hops, amount, fromCurrency).map((step, i) => (
+              <div key={i} className="flex gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal/20 border border-teal/40 flex items-center justify-center text-teal text-xs font-bold mt-0.5">
+                  {i + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-foreground leading-relaxed">{step.text}</p>
+                  {step.fee && step.fee !== "free" && (
+                    <p className="text-xs text-amber-400/80 mt-0.5">Fee: {step.fee}</p>
+                  )}
+                  {step.fee === "free" && (
+                    <p className="text-xs text-emerald-400/80 mt-0.5">No fee for this step</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Platform links */}
+          <div className="mt-5 pt-4 border-t border-white/8">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Open platforms</p>
+            <div className="flex flex-wrap gap-2">
+              {(() => {
+                const seen = new Map<string, string | null>();
+                for (const hop of route.hops) {
+                  if (!seen.has(hop.from_platform)) seen.set(hop.from_platform, hop.from_url);
+                  if (!seen.has(hop.to_platform)) seen.set(hop.to_platform, hop.to_url);
+                }
+                return Array.from(seen.entries()).map(([name, url]) =>
+                  url ? (
+                    <a
+                      key={name}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm text-foreground transition-colors"
+                      data-testid={`link-platform-${name.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      {name}
+                      <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                    </a>
+                  ) : (
+                    <span key={name} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/8 bg-white/3 text-sm text-muted-foreground">
+                      {name}
+                    </span>
+                  )
+                );
+              })()}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {isExpanded && (
         <div className="px-5 pb-5">
@@ -1048,6 +1144,7 @@ export default function RouteFinder() {
                     bestAdjustedCost={bestAdjustedCost}
                     toCurrency={searchParams?.to ?? "GBP"}
                     fromCurrency={searchParams?.from ?? "COP"}
+                    amount={searchParams?.amount ?? ""}
                     midRateData={midRateData ?? null}
                     selectedAccounts={selectedAccounts}
                     isExpanded={expandedCard === route.id}
