@@ -1215,9 +1215,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -1269,9 +1269,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -1323,9 +1323,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -1377,9 +1377,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -1431,9 +1431,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -1459,9 +1459,9 @@
       "estimated_hours": 24,
       "hop_count": 1,
       "is_best": true,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step via Grey — a Nigerian fintech with competitive USD rates"
     },
     {
@@ -1539,9 +1539,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -1863,9 +1863,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -2057,9 +2057,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],
@@ -2251,9 +2251,9 @@
       "estimated_hours": 72,
       "hop_count": 1,
       "is_best": false,
-      "ease_label": "Straightforward",
-      "ease_score": 2,
-      "ease_color": "lime",
+      "ease_label": "Simple",
+      "ease_score": 3,
+      "ease_color": "green",
       "ease_explanation": "One step — send through Remitly"
     }
   ],

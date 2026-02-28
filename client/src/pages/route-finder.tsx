@@ -42,9 +42,8 @@ function formatDisplayRate(midRate: number, from: string, to: string) {
 function effectiveDisplayRate(midRate: number, totalPercent: number, inverted: boolean) {
   const displayMid = inverted ? 1 / midRate : midRate;
   const effective = displayMid / (1 - totalPercent / 100);
-  return inverted
-    ? Math.round(effective).toLocaleString('en-US')
-    : (effective >= 100 ? Math.round(effective).toLocaleString('en-US') : effective.toFixed(4));
+  if (effective >= 100) return Math.round(effective).toLocaleString('en-US');
+  return effective.toFixed(4);
 }
 
 function formatEffectiveRateLabel(midRate: number, totalPercent: number, from: string, to: string, inverted: boolean) {
