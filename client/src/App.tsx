@@ -7,16 +7,23 @@ import { useState } from "react";
 import RouteFinder from "@/pages/route-finder";
 import zendioLogo from "@assets/zendio-logo.png";
 
-function ZendioLogo() {
+function ZendioLogo({ onClick }: { onClick?: () => void }) {
   return (
-    <img src={zendioLogo} alt="Zendio" className="h-10 w-auto" />
+    <button
+      onClick={onClick}
+      className="focus:outline-none"
+      data-testid="button-logo-home"
+      aria-label="Go to home"
+    >
+      <img src={zendioLogo} alt="Zendio" className="h-10 w-auto" />
+    </button>
   );
 }
 
-function Header({ onHowItWorks }: { onHowItWorks: () => void }) {
+function Header({ onHowItWorks, onLogoClick }: { onHowItWorks: () => void; onLogoClick: () => void }) {
   return (
     <header className="flex h-14 items-center justify-between px-5 md:px-8 border-b border-white/8">
-      <ZendioLogo />
+      <ZendioLogo onClick={onLogoClick} />
       <button
         onClick={onHowItWorks}
         className="text-sm text-muted-foreground transition-colors"
@@ -30,14 +37,15 @@ function Header({ onHowItWorks }: { onHowItWorks: () => void }) {
 
 export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <div className="min-h-screen flex flex-col bg-background">
-          <Header onHowItWorks={() => setModalOpen(true)} />
+          <Header onHowItWorks={() => setModalOpen(true)} onLogoClick={() => setResetKey((k) => k + 1)} />
           <main className="flex-1">
-            <RouteFinder />
+            <RouteFinder key={resetKey} />
           </main>
           <footer className="px-6 py-4 text-center text-xs text-muted-foreground border-t border-white/8">
             Zendio does not provide financial advice. Information is for comparison purposes only.

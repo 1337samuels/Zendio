@@ -19,6 +19,7 @@ import {
 import {
   ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted,
 } from "@/components/corridor-select";
+import zendioLogo from "@assets/zendio-logo.png";
 
 // ─── rate formatting helpers ──────────────────────────────────────────────────
 
@@ -41,8 +42,22 @@ function effectiveDisplayRate(midRate: number, totalPercent: number, inverted: b
   const displayMid = inverted ? 1 / midRate : midRate;
   const effective = displayMid / (1 - totalPercent / 100);
   return inverted
-    ? Math.round(effective).toLocaleString()
-    : (effective >= 100 ? Math.round(effective).toLocaleString() : effective.toFixed(4));
+    ? Math.round(effective).toLocaleString('en-US')
+    : (effective >= 100 ? Math.round(effective).toLocaleString('en-US') : effective.toFixed(4));
+}
+
+function formatEffectiveRateLabel(midRate: number, totalPercent: number, from: string, to: string, inverted: boolean) {
+  const fromSym = getCurrencySymbol(from);
+  const toSym = getCurrencySymbol(to);
+  const effectiveVal = effectiveDisplayRate(midRate, totalPercent, inverted);
+  if (inverted) {
+    return `${toSym}1 ${to} = ${effectiveVal} ${from}`;
+  }
+  return `${fromSym}1 ${from} = ${effectiveVal} ${to}`;
+}
+
+function formatMoney(value: number): string {
+  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 // ─── constants ───────────────────────────────────────────────────────────────
@@ -544,7 +559,7 @@ function RouteCard({
                 className="font-heading text-2xl font-bold text-foreground"
                 data-testid={`text-total-cost-${route.id}`}
               >
-                {sym}{total.toFixed(2)}
+                {sym}{formatMoney(total)}
               </span>
               <span className="text-sm text-muted-foreground">total cost</span>
               <span
@@ -552,6 +567,11 @@ function RouteCard({
                 title={verdict.label}
                 data-testid={`dot-verdict-${route.id}`}
               />
+              {rateDisplay && midRateData && (
+                <span className="text-xs text-muted-foreground" data-testid={`text-effective-rate-${route.id}`}>
+                  — {formatEffectiveRateLabel(midRateData.rate, route.total_percent, fromCurrency, toCurrency, rateDisplay.inverted)}
+                </span>
+              )}
             </div>
             <button
               onClick={() => setIsCostExpanded((v) => !v)}
@@ -564,7 +584,7 @@ function RouteCard({
             {isCostExpanded && (
               <div className="mt-2 space-y-1.5" data-testid={`cost-breakdown-${route.id}`}>
                 <div className="text-xs text-muted-foreground">
-                  Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
+                  Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{formatMoney(fxCost)}</span>
                   {rateDisplay && (
                     <span className="ml-1" data-testid={`text-rate-${route.id}`}>
                       (<span className={`font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
@@ -572,7 +592,7 @@ function RouteCard({
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Costs due to platform fees: <span className="font-mono text-foreground/80">{sym}{feeCost.toFixed(2)}</span>
+                  Costs due to platform fees: <span className="font-mono text-foreground/80">{sym}{formatMoney(feeCost)}</span>
                 </div>
               </div>
             )}
@@ -587,7 +607,7 @@ function RouteCard({
               </span>
             ) : (
               <span className="text-xs text-muted-foreground">
-                +{sym}{diff.toFixed(2)} more
+                +{sym}{formatMoney(diff)} more
               </span>
             )}
             <EaseBadge routeId={route.id} label={easeLabel} color={easeColor} />
@@ -655,9 +675,31 @@ function RouteCard({
               How to complete this transfer
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-              {fromCurrency} → {toCurrency} &nbsp;·&nbsp; Total cost: <span className="text-foreground font-mono">{sym}{total.toFixed(2)}</span> &nbsp;·&nbsp; {formatTime(route.estimated_hours)}
+              {fromCurrency} → {toCurrency} &nbsp;·&nbsp; Total cost: <span className="text-foreground font-mono">{sym}{formatMoney(total)}</span> &nbsp;·&nbsp; {formatTime(route.estimated_hours)}
             </DialogDescription>
           </DialogHeader>
+
+          {/* Received amount summary */}
+          {midRateData && (() => {
+            const sendAmount = parseFloat(amount);
+            const received = sendAmount * midRateData.rate - total;
+            if (!isNaN(received) && received > 0) {
+              return (
+                <div className="rounded-xl border border-teal/30 bg-teal/5 px-4 py-3 flex items-center justify-between gap-3" data-testid={`summary-received-${route.id}`}>
+                  <div>
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Recipient gets</p>
+                    <p className="text-xl font-bold font-heading text-foreground">{sym}{formatMoney(received)}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{toCurrency} after all fees &amp; FX costs</p>
+                  </div>
+                  <div className="text-right text-xs text-muted-foreground">
+                    <p>You send</p>
+                    <p className="font-mono text-foreground font-semibold">{getCurrencySymbol(fromCurrency)}{Number(amount).toLocaleString('en-US')} {fromCurrency}</p>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           {/* Steps */}
           <div className="mt-2 space-y-4">
@@ -883,6 +925,9 @@ export default function RouteFinder() {
     <div className="max-w-2xl mx-auto px-4 py-12 md:py-16">
       {!hasResults && (
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-5">
+            <img src={zendioLogo} alt="Zendio" className="h-16 md:h-20 w-auto" data-testid="img-hero-logo" />
+          </div>
           <h1 className="font-heading font-bold text-3xl md:text-4xl text-foreground mb-3 leading-tight">
             Find the cheapest way to
             <br className="hidden sm:block" /> send money abroad
@@ -942,8 +987,8 @@ export default function RouteFinder() {
               <input
                 type="text"
                 inputMode="numeric"
-                value={amount}
-                onChange={(e) => { setAmount(e.target.value.replace(/[^0-9]/g, "")); setSearchParams(null); }}
+                value={amount ? Number(amount).toLocaleString('en-US') : ''}
+                onChange={(e) => { const raw = e.target.value.replace(/,/g, '').replace(/[^0-9]/g, ''); setAmount(raw); setSearchParams(null); }}
                 className="w-full h-11 pl-7 pr-2 rounded-md border border-white/10 bg-white/5 text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal/40"
                 data-testid="input-amount"
                 placeholder="0"
