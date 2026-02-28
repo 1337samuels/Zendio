@@ -74,48 +74,48 @@ const OTHER_PLATFORMS = ["Dollar App", "Binance", "Coinbase", "Payoneer", "Globa
 type EaseLevel = { label: string; score: number; color: string; explanation: string };
 const EASE: Record<string, EaseLevel> = {
   "cop-gbp-1": { label: "A few steps", score: 3, color: "amber", explanation: "4 steps across well-known apps — straightforward once set up" },
-  "cop-gbp-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
-  "cop-gbp-3": { label: "Involved", score: 4, color: "red", explanation: "Requires a Binance account with identity verification" },
-  "cop-gbp-4": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps via XE — easy to set up" },
-  "cop-gbp-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "cop-usd-1": { label: "Straightforward", score: 2, color: "lime", explanation: "One step — just need Dollar App" },
-  "cop-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
-  "cop-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "cop-usd-4": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps via XE and OFX" },
-  "cop-usd-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "mxn-usd-1": { label: "Involved", score: 4, color: "red", explanation: "Requires crypto exchange accounts" },
-  "mxn-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
-  "mxn-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "mxn-usd-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through XE" },
-  "mxn-usd-5": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through MoneyGram" },
-  "mxn-gbp-1": { label: "Involved", score: 4, color: "red", explanation: "Requires a Binance account — involves crypto steps" },
-  "mxn-gbp-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
-  "mxn-gbp-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through XE" },
-  "mxn-gbp-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "brl-usd-1": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps — Nubank to Wise to Revolut" },
-  "brl-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "brl-usd-3": { label: "Involved", score: 4, color: "red", explanation: "Requires Binance with crypto — identity verification needed" },
-  "brl-usd-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "brl-eur-1": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps — Nubank then Wise to Revolut" },
-  "brl-eur-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through XE" },
-  "brl-eur-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through OFX" },
-  "php-usd-1": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "php-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Wise" },
-  "php-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "php-usd-4": { label: "Involved", score: 4, color: "red", explanation: "Requires Binance and Coinbase accounts with identity checks" },
-  "php-gbp-1": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps via GCash and Wise" },
-  "php-gbp-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through XE" },
-  "php-gbp-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through MoneyGram" },
-  "inr-gbp-1": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps — HDFC Bank then Wise to Revolut" },
-  "inr-gbp-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "inr-gbp-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Skrill" },
-  "inr-gbp-4": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
-  "inr-usd-1": { label: "Straightforward", score: 2, color: "lime", explanation: "Two steps — HDFC Bank then Wise to Revolut" },
-  "inr-usd-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "inr-usd-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through XE" },
-  "ngn-gbp-1": { label: "Involved", score: 4, color: "red", explanation: "Requires Binance account — involves crypto steps" },
-  "ngn-gbp-2": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Remitly" },
-  "ngn-gbp-3": { label: "Simple", score: 1, color: "green", explanation: "One step — just send through Western Union" },
+  "cop-gbp-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Wise" },
+  "cop-gbp-3": { label: "Complicated", score: 2, color: "red", explanation: "Requires a Binance account with identity verification" },
+  "cop-gbp-4": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps via XE — easy to set up" },
+  "cop-gbp-5": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "cop-usd-1": { label: "Straightforward", score: 4, color: "lime", explanation: "One step — just need Dollar App" },
+  "cop-usd-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Wise" },
+  "cop-usd-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "cop-usd-4": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps via XE and OFX" },
+  "cop-usd-5": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Western Union" },
+  "mxn-usd-1": { label: "Complicated", score: 2, color: "red", explanation: "Requires crypto exchange accounts" },
+  "mxn-usd-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Wise" },
+  "mxn-usd-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "mxn-usd-4": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through XE" },
+  "mxn-usd-5": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through MoneyGram" },
+  "mxn-gbp-1": { label: "Complicated", score: 2, color: "red", explanation: "Requires a Binance account — involves crypto steps" },
+  "mxn-gbp-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Wise" },
+  "mxn-gbp-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through XE" },
+  "mxn-gbp-4": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Western Union" },
+  "brl-usd-1": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps — Nubank to Wise to Revolut" },
+  "brl-usd-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "brl-usd-3": { label: "Complicated", score: 2, color: "red", explanation: "Requires Binance with crypto — identity verification needed" },
+  "brl-usd-4": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Western Union" },
+  "brl-eur-1": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps — Nubank then Wise to Revolut" },
+  "brl-eur-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through XE" },
+  "brl-eur-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through OFX" },
+  "php-usd-1": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "php-usd-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Wise" },
+  "php-usd-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Western Union" },
+  "php-usd-4": { label: "Complicated", score: 2, color: "red", explanation: "Requires Binance and Coinbase accounts with identity checks" },
+  "php-gbp-1": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps via GCash and Wise" },
+  "php-gbp-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through XE" },
+  "php-gbp-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through MoneyGram" },
+  "inr-gbp-1": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps — HDFC Bank then Wise to Revolut" },
+  "inr-gbp-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "inr-gbp-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Skrill" },
+  "inr-gbp-4": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Western Union" },
+  "inr-usd-1": { label: "Straightforward", score: 4, color: "lime", explanation: "Two steps — HDFC Bank then Wise to Revolut" },
+  "inr-usd-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "inr-usd-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through XE" },
+  "ngn-gbp-1": { label: "Complicated", score: 2, color: "red", explanation: "Requires Binance account — involves crypto steps" },
+  "ngn-gbp-2": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Remitly" },
+  "ngn-gbp-3": { label: "Simple", score: 5, color: "green", explanation: "One step — just send through Western Union" },
 };
 
 const PRICE_RANGES: Record<string, { min: number; max: number; avg: number }> = {
@@ -436,29 +436,35 @@ function PriceTracker({
   );
 }
 
-function buildSteps(hops: Hop[], amount: string, fromCurrency: string) {
+function buildSteps(hops: Hop[], amount: string, fromCurrency: string, toCurrency: string) {
   return hops.map((hop, i) => {
     const samePlatform = hop.from_platform === hop.to_platform;
-    const currencyChange = hop.from_currency !== hop.to_currency;
+    const fromCurr = hop.from_currency ?? (i === 0 ? fromCurrency : null);
+    const toCurr = hop.to_currency ?? (i === hops.length - 1 ? toCurrency : null);
+    const currencyChange = fromCurr !== toCurr;
     let text: string;
     if (i === 0) {
-      const amtStr = amount ? Number(amount).toLocaleString() : "";
-      if (samePlatform && currencyChange) {
-        text = `Open ${hop.from_platform} and send ${amtStr} ${hop.from_currency}. It will be automatically converted to ${hop.to_currency} within the app.`;
+      const amtStr = amount ? Number(amount).toLocaleString() : "your funds";
+      if (samePlatform && currencyChange && fromCurr && toCurr) {
+        text = `Open ${hop.from_platform} and send ${amtStr} ${fromCurr}. It will be automatically converted to ${toCurr} within the app.`;
+      } else if (!samePlatform && fromCurr) {
+        text = `Open ${hop.from_platform} and send ${amtStr} ${fromCurr} to your ${hop.to_platform} account.`;
       } else if (!samePlatform) {
-        text = `Open ${hop.from_platform} and send ${amtStr} ${hop.from_currency} to your ${hop.to_platform} account.`;
+        text = `Open ${hop.from_platform} and initiate a transfer of ${amtStr} to your ${hop.to_platform} account.`;
       } else {
-        text = `Open ${hop.from_platform} with your ${hop.from_currency} balance ready.`;
+        text = `Open ${hop.from_platform} with your balance ready to send.`;
       }
     } else {
-      if (samePlatform && currencyChange) {
-        text = `In ${hop.from_platform}, convert your ${hop.from_currency} balance to ${hop.to_currency}.`;
-      } else if (!samePlatform && !currencyChange) {
-        text = `Transfer your ${hop.from_currency} from ${hop.from_platform} to your ${hop.to_platform} account.`;
-      } else if (!samePlatform && currencyChange) {
-        text = `Send your ${hop.from_currency} from ${hop.from_platform} to ${hop.to_platform} — it will arrive as ${hop.to_currency}.`;
+      if (samePlatform && currencyChange && fromCurr && toCurr) {
+        text = `In ${hop.from_platform}, convert your ${fromCurr} balance to ${toCurr}.`;
+      } else if (samePlatform && currencyChange) {
+        text = `In ${hop.from_platform}, convert your balance to the destination currency.`;
+      } else if (!samePlatform && fromCurr) {
+        text = `Transfer your ${fromCurr} from ${hop.from_platform} to your ${hop.to_platform} account.`;
+      } else if (!samePlatform) {
+        text = `Transfer your funds from ${hop.from_platform} to your ${hop.to_platform} account.`;
       } else {
-        text = `On ${hop.from_platform}, send your ${hop.from_currency} to ${hop.to_platform}.`;
+        text = `In ${hop.from_platform}, complete the conversion.`;
       }
     }
     return { platform: hop.from_platform, url: hop.from_url, toPlatform: hop.to_platform, toUrl: hop.to_url, text, fee: hop.fee_label };
@@ -655,7 +661,7 @@ function RouteCard({
 
           {/* Steps */}
           <div className="mt-2 space-y-4">
-            {buildSteps(route.hops, amount, fromCurrency).map((step, i) => (
+            {buildSteps(route.hops, amount, fromCurrency, toCurrency).map((step, i) => (
               <div key={i} className="flex gap-3">
                 <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal/20 border border-teal/40 flex items-center justify-center text-teal text-xs font-bold mt-0.5">
                   {i + 1}
@@ -842,7 +848,7 @@ export default function RouteFinder() {
   const sortedRoutes = useMemo(() => {
     const sorted = [...processedRoutes];
     if (sortMode === "simplest") {
-      sorted.sort((a, b) => a.easeScore - b.easeScore || a.adjustedCost - b.adjustedCost);
+      sorted.sort((a, b) => b.easeScore - a.easeScore || a.adjustedCost - b.adjustedCost);
     } else {
       sorted.sort((a, b) => a.adjustedCost - b.adjustedCost);
     }

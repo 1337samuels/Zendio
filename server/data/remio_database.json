@@ -777,7 +777,7 @@
         "edges": ["e007", "e008", "e009"],
         "platforms_needed": ["bancolombia", "binance", "barclays"],
         "ease_score": 2,
-        "ease_label": "Involved",
+        "ease_label": "Complicated",
         "ease_description": "Requires a Binance account with identity verification"
       },
       {
@@ -829,7 +829,7 @@
         "edges": ["e007", "e017", "e018"],
         "platforms_needed": ["bancolombia", "binance", "coinbase"],
         "ease_score": 2,
-        "ease_label": "Involved",
+        "ease_label": "Complicated",
         "ease_description": "Requires crypto exchange accounts with verification"
       }
     ],
@@ -861,7 +861,7 @@
         "edges": ["e016", "e017", "e018"],
         "platforms_needed": ["bbva_mx", "binance", "coinbase"],
         "ease_score": 2,
-        "ease_label": "Involved",
+        "ease_label": "Complicated",
         "ease_description": "Requires crypto exchange accounts"
       },
       {
@@ -903,7 +903,7 @@
         "edges": ["e016", "e008", "e026"],
         "platforms_needed": ["bbva_mx", "binance", "revolut"],
         "ease_score": 2,
-        "ease_label": "Involved",
+        "ease_label": "Complicated",
         "ease_description": "Requires Binance with identity verification"
       }
     ],
@@ -935,7 +935,7 @@
         "edges": ["e017", "e008", "e026"],
         "platforms_needed": ["binance", "revolut"],
         "ease_score": 2,
-        "ease_label": "Involved",
+        "ease_label": "Complicated",
         "ease_description": "Requires Binance account"
       }
     ]
