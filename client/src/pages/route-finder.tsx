@@ -13,7 +13,7 @@ import {
   Check, TrendingDown,
 } from "lucide-react";
 import {
-  FROM_OPTIONS, TO_OPTIONS, getCurrencySymbol, getApproxConverted,
+  ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted,
 } from "@/components/corridor-select";
 
 // ─── constants ───────────────────────────────────────────────────────────────
@@ -582,6 +582,7 @@ export default function RouteFinder() {
   const [perks, setPerks] = useState<Perks>({ revolut: false, wise: false, binance: false });
   const [sortMode, setSortMode] = useState<"cheapest" | "simplest">("cheapest");
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [customAccount, setCustomAccount] = useState("");
 
   const approxConverted = getApproxConverted(amount, from, to);
 
@@ -613,22 +614,21 @@ export default function RouteFinder() {
 
   function handleFromChange(val: string) {
     setFrom(val);
-    const opt = FROM_OPTIONS.find((o) => o.value === val);
-    if (opt) setAmount(opt.defaultAmount);
+    const opt = ALL_CURRENCIES.find((o) => o.value === val);
+    if (opt?.defaultAmount) setAmount(opt.defaultAmount);
     setSearchParams(null);
     setSelectedAccounts(new Set());
   }
 
   function handleSwap() {
-    const toIsValidFrom = FROM_OPTIONS.some((o) => o.value === to);
-    const fromIsValidTo = TO_OPTIONS.some((o) => o.value === from);
-    if (toIsValidFrom && fromIsValidTo) {
-      setFrom(to); setTo(from);
-      const newFromOpt = FROM_OPTIONS.find((o) => o.value === to);
-      if (newFromOpt) setAmount(newFromOpt.defaultAmount);
-      setSearchParams(null);
-      setSelectedAccounts(new Set());
-    }
+    const prevFrom = from;
+    const prevTo = to;
+    setFrom(prevTo);
+    setTo(prevFrom);
+    const newFromOpt = ALL_CURRENCIES.find((o) => o.value === prevTo);
+    if (newFromOpt?.defaultAmount) setAmount(newFromOpt.defaultAmount);
+    setSearchParams(null);
+    setSelectedAccounts(new Set());
   }
 
   function handleSearch() {
@@ -695,9 +695,9 @@ export default function RouteFinder() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#0F1729] border-white/10">
-                {FROM_OPTIONS.map((opt) => (
+                {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-from-${opt.value}`}>
-                    {opt.flag} {opt.country} ({opt.currency})
+                    {opt.symbol} {opt.country} ({opt.currency})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -715,9 +715,9 @@ export default function RouteFinder() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-[#0F1729] border-white/10">
-                {TO_OPTIONS.map((opt) => (
+                {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-to-${opt.value}`}>
-                    {opt.flag} {opt.country} ({opt.currency})
+                    {opt.symbol} {opt.country} ({opt.currency})
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -729,7 +729,7 @@ export default function RouteFinder() {
         <div>
           <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount</label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono select-none">{from}</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono select-none">{CURRENCY_SYMBOLS[from] ?? from}</span>
             <input
               type="text"
               inputMode="numeric"
@@ -747,109 +747,136 @@ export default function RouteFinder() {
           )}
         </div>
 
-        {/* Account selection */}
-        <div className="pt-1 border-t border-white/8">
-          <p className="text-[11px] text-muted-foreground mb-3">
-            Have existing accounts? Select them for better results <span className="opacity-60">(optional)</span>
-          </p>
-
-          {originChips.length > 0 && (
-            <div className="mb-3">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                Your accounts in {FROM_OPTIONS.find((o) => o.value === from)?.country}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {originChips.map((name) => (
-                  <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {destChips.length > 0 && (
-            <div className="mb-3">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                Your accounts in {TO_OPTIONS.find((o) => o.value === to)?.country}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {destChips.map((name) => (
-                  <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="mb-3">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Other platforms you use</p>
-            <div className="flex flex-wrap gap-2">
-              {OTHER_PLATFORMS.map((name) => (
-                <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
-              ))}
-            </div>
-          </div>
-
-          {(showRevolut || showWise || showBinance) && (
-            <div className="mt-3 pt-3 border-t border-white/8 space-y-2">
-              {showRevolut && (
-                <label className="flex items-center gap-2.5 cursor-pointer group" data-testid="perk-revolut">
-                  <div
-                    onClick={() => togglePerk("revolut")}
-                    className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}
-                  >
-                    {perks.revolut && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
-                  </div>
-                  <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-foreground/60">(fee-free FX up to £1,000/mo)</span></span>
-                </label>
-              )}
-              {showWise && (
-                <label className="flex items-center gap-2.5 cursor-pointer group" data-testid="perk-wise">
-                  <div
-                    onClick={() => togglePerk("wise")}
-                    className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}
-                  >
-                    {perks.wise && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
-                  </div>
-                  <span className="text-xs text-muted-foreground">Wise Business <span className="text-foreground/60">(lower fees)</span></span>
-                </label>
-              )}
-              {showBinance && (
-                <label className="flex items-center gap-2.5 cursor-pointer group" data-testid="perk-binance">
-                  <div
-                    onClick={() => togglePerk("binance")}
-                    className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}
-                  >
-                    {perks.binance && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
-                  </div>
-                  <span className="text-xs text-muted-foreground">Binance VIP <span className="text-foreground/60">(reduced spreads)</span></span>
-                </label>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* More options */}
+        {/* More options toggle */}
         <div>
           <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid="button-toggle-options">
             {showOptions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             {showOptions ? "Hide options" : "More options"}
           </button>
+
           {showOptions && (
-            <div className="mt-3">
-              <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
-                I need money there within
-              </label>
-              <Select value={maxHours} onValueChange={(val) => { setMaxHours(val); setSearchParams(null); }}>
-                <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-10 text-sm" data-testid="select-max-hours">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-[#0F1729] border-white/10">
-                  {TIME_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
-                      {opt.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="mt-4 space-y-4">
+              {/* Time filter */}
+              <div>
+                <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                  I need money there within
+                </label>
+                <Select value={maxHours} onValueChange={(val) => { setMaxHours(val); setSearchParams(null); }}>
+                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-10 text-sm" data-testid="select-max-hours">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0F1729] border-white/10">
+                    {TIME_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Account selection */}
+              <div className="pt-3 border-t border-white/8">
+                <p className="text-[11px] text-muted-foreground mb-3">
+                  Have existing accounts? Select them for better results <span className="opacity-60">(optional)</span>
+                </p>
+
+                {originChips.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                      Your accounts in {ALL_CURRENCIES.find((o) => o.value === from)?.country}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {originChips.map((name) => (
+                        <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {destChips.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
+                      Your accounts in {ALL_CURRENCIES.find((o) => o.value === to)?.country}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {destChips.map((name) => (
+                        <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-3">
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Other platforms you use</p>
+                  <div className="flex flex-wrap gap-2">
+                    {OTHER_PLATFORMS.map((name) => (
+                      <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom platform input */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground flex-shrink-0">Other:</span>
+                  <input
+                    type="text"
+                    value={customAccount}
+                    onChange={(e) => setCustomAccount(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && customAccount.trim()) {
+                        toggleAccount(customAccount.trim());
+                        setCustomAccount("");
+                      }
+                    }}
+                    placeholder="Type a platform name and press Enter"
+                    className="flex-1 text-xs bg-transparent border-b border-white/20 focus:outline-none focus:border-teal/50 text-foreground placeholder:text-muted-foreground/50 py-1"
+                    data-testid="input-custom-account"
+                  />
+                </div>
+
+                {/* Selected custom accounts (not in the predefined lists) */}
+                {(() => {
+                  const predefined = new Set([...originChips, ...destChips, ...OTHER_PLATFORMS]);
+                  const customs = Array.from(selectedAccounts).filter((a) => !predefined.has(a));
+                  return customs.length > 0 ? (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {customs.map((name) => (
+                        <AccountChip key={name} name={name} selected={true} onToggle={() => toggleAccount(name)} />
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
+
+                {(showRevolut || showWise || showBinance) && (
+                  <div className="mt-3 pt-3 border-t border-white/8 space-y-2">
+                    {showRevolut && (
+                      <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-revolut">
+                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
+                          {perks.revolut && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
+                        </div>
+                        <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-foreground/60">(fee-free FX up to £1,000/mo)</span></span>
+                      </label>
+                    )}
+                    {showWise && (
+                      <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-wise">
+                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
+                          {perks.wise && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
+                        </div>
+                        <span className="text-xs text-muted-foreground">Wise Business <span className="text-foreground/60">(lower fees)</span></span>
+                      </label>
+                    )}
+                    {showBinance && (
+                      <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-binance">
+                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
+                          {perks.binance && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
+                        </div>
+                        <span className="text-xs text-muted-foreground">Binance VIP <span className="text-foreground/60">(reduced spreads)</span></span>
+                      </label>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -918,7 +945,7 @@ export default function RouteFinder() {
 
               {selectedAccounts.size === 0 && (
                 <p className="text-xs text-muted-foreground text-center mt-5">
-                  Select your accounts above for personalized results
+                  Open "More options" to select your accounts for personalized results
                 </p>
               )}
               <p className="text-xs text-muted-foreground text-center mt-2">
