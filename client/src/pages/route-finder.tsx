@@ -16,6 +16,31 @@ import {
   ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted,
 } from "@/components/corridor-select";
 
+// ─── rate formatting helpers ──────────────────────────────────────────────────
+
+type MidRate = { rate: number; date: string; from: string; to: string; source: string };
+
+function formatDisplayRate(midRate: number, from: string, to: string) {
+  const fromSym = getCurrencySymbol(from);
+  const toSym = getCurrencySymbol(to);
+  if (midRate < 1) {
+    // e.g. COP→GBP: rate=0.000191, show "£1 = 5,247 COP"
+    const inv = Math.round(1 / midRate);
+    return { label: `${toSym}1 ${to} = ${inv.toLocaleString()} ${from}`, inverted: true, displayRate: inv, strongSym: toSym, strongCode: to, weakCode: from };
+  }
+  // e.g. GBP→COP: rate=5247, show "£1 = 5,247 COP"
+  const formatted = midRate >= 100 ? Math.round(midRate).toLocaleString() : midRate.toFixed(4);
+  return { label: `${fromSym}1 ${from} = ${formatted} ${to}`, inverted: false, displayRate: midRate, strongSym: fromSym, strongCode: from, weakCode: to };
+}
+
+function effectiveDisplayRate(midRate: number, totalPercent: number, inverted: boolean) {
+  const displayMid = inverted ? 1 / midRate : midRate;
+  const effective = displayMid / (1 - totalPercent / 100);
+  return inverted
+    ? Math.round(effective).toLocaleString()
+    : (effective >= 100 ? Math.round(effective).toLocaleString() : effective.toFixed(4));
+}
+
 // ─── constants ───────────────────────────────────────────────────────────────
 
 const TIME_OPTIONS = [
@@ -412,6 +437,8 @@ function RouteCard({
   isBest,
   bestAdjustedCost,
   toCurrency,
+  fromCurrency,
+  midRateData,
   selectedAccounts,
   isExpanded,
   onToggleExpand,
@@ -421,6 +448,8 @@ function RouteCard({
   isBest: boolean;
   bestAdjustedCost: number;
   toCurrency: string;
+  fromCurrency: string;
+  midRateData: MidRate | null;
   selectedAccounts: Set<string>;
   isExpanded: boolean;
   onToggleExpand: () => void;
@@ -431,6 +460,18 @@ function RouteCard({
   const feeCost = Math.round((total - fxCost) * 100) / 100;
   const diff = Math.round((total - bestAdjustedCost) * 100) / 100;
   const ease = EASE[route.id];
+
+  const rateDisplay = midRateData
+    ? formatDisplayRate(midRateData.rate, fromCurrency, toCurrency)
+    : null;
+  const effectiveRate = rateDisplay
+    ? effectiveDisplayRate(midRateData!.rate, route.total_percent, rateDisplay.inverted)
+    : null;
+  const midDisplayRate = rateDisplay
+    ? (rateDisplay.inverted
+        ? Math.round(1 / midRateData!.rate).toLocaleString()
+        : (rateDisplay.displayRate >= 100 ? Math.round(rateDisplay.displayRate).toLocaleString() : rateDisplay.displayRate.toFixed(4)))
+    : null;
 
   const platforms = getRoutePlatforms(route);
   const firstPlatform = route.hops[0]?.from_platform;
@@ -473,8 +514,21 @@ function RouteCard({
               />
             </div>
             <div className="text-xs text-muted-foreground">
-              FX rate: {sym}{fxCost.toFixed(2)} &middot; Fees: {sym}{feeCost.toFixed(2)}
+              FX cost: {sym}{fxCost.toFixed(2)} &middot; Fees: {sym}{feeCost.toFixed(2)}
             </div>
+            {rateDisplay && effectiveRate && (
+              <div className="text-xs mt-1" data-testid={`text-rate-${route.id}`}>
+                <span className="text-muted-foreground">Route rate: </span>
+                <span className="font-mono text-foreground">
+                  {rateDisplay.strongSym}1 {rateDisplay.strongCode} = {effectiveRate} {rateDisplay.weakCode}
+                </span>
+                <span className="text-muted-foreground"> vs </span>
+                <span className="font-mono text-muted-foreground/80">{midDisplayRate} mid-market</span>
+                <span className={`ml-1.5 font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>
+                  +{route.total_percent.toFixed(2)}%
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {isBest ? (
@@ -598,6 +652,19 @@ export default function RouteFinder() {
       return Array.isArray(json) ? json : (json.routes ?? []);
     },
     enabled: !!searchParams,
+  });
+
+  const { data: midRateData } = useQuery<MidRate>({
+    queryKey: ["/api/midmarket-rate", searchParams?.from, searchParams?.to],
+    queryFn: async () => {
+      if (!searchParams) throw new Error("No params");
+      const params = new URLSearchParams({ from: searchParams.from, to: searchParams.to });
+      const res = await fetch(`/api/midmarket-rate?${params}`);
+      if (!res.ok) throw new Error("Failed to fetch mid-market rate");
+      return res.json();
+    },
+    enabled: !!searchParams,
+    staleTime: 60 * 60 * 1000,
   });
 
   function toggleAccount(name: string) {
@@ -894,6 +961,23 @@ export default function RouteFinder() {
       {/* Results */}
       {hasResults && (
         <div>
+          {midRateData && (() => {
+            const d = formatDisplayRate(midRateData.rate, midRateData.from, midRateData.to);
+            const dateLabel = new Date(midRateData.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+            return (
+              <div className="mb-4 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-between gap-3 flex-wrap" data-testid="banner-midmarket-rate">
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Mid-market rate</p>
+                  <p className="text-sm font-mono font-semibold text-foreground">{d.label}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[10px] text-muted-foreground">Updated {dateLabel}</p>
+                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">Route rates below show actual cost vs this benchmark</p>
+                </div>
+              </div>
+            );
+          })()}
+
           {sortedRoutes.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground">
               <p className="text-base mb-1">No routes found for this corridor</p>
@@ -936,6 +1020,8 @@ export default function RouteFinder() {
                     isBest={idx === 0}
                     bestAdjustedCost={bestAdjustedCost}
                     toCurrency={searchParams?.to ?? "GBP"}
+                    fromCurrency={searchParams?.from ?? "COP"}
+                    midRateData={midRateData ?? null}
                     selectedAccounts={selectedAccounts}
                     isExpanded={expandedCard === route.id}
                     onToggleExpand={() => setExpandedCard(expandedCard === route.id ? null : route.id)}

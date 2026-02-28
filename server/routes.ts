@@ -2,6 +2,29 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import routesData from "./data/routes.json";
 
+// ─── mid-market rate cache ────────────────────────────────────────────────────
+const rateCache = new Map<string, { rate: number; date: string; fetchedAt: number }>();
+const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+async function fetchMidMarketRate(from: string, to: string): Promise<{ rate: number; date: string } | null> {
+  const key = `${from}-${to}`;
+  const cached = rateCache.get(key);
+  if (cached && Date.now() - cached.fetchedAt < CACHE_TTL_MS) {
+    return { rate: cached.rate, date: cached.date };
+  }
+  try {
+    const res = await fetch(`https://api.frankfurter.app/latest?amount=1&from=${from}&to=${to}`);
+    if (!res.ok) return null;
+    const json = await res.json() as { rates: Record<string, number>; date: string };
+    const rate = json.rates[to];
+    if (!rate) return null;
+    rateCache.set(key, { rate, date: json.date, fetchedAt: Date.now() });
+    return { rate, date: json.date };
+  } catch {
+    return null;
+  }
+}
+
 function seededRandom(seed: number) {
   let s = seed;
   return () => {
@@ -129,6 +152,21 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       sentiment, sentimentText, percentile: Math.round((1 - percentile) * 100),
       history: data, from, to,
     });
+  });
+
+  app.get("/api/midmarket-rate", async (req, res) => {
+    const { from = "COP", to = "GBP" } = req.query as Record<string, string>;
+    const result = await fetchMidMarketRate(from, to);
+    if (!result) {
+      // Fall back to seeded end value so the UI still works offline
+      const key = `${from}-${to}`;
+      const cfg = RATE_CONFIGS[key];
+      if (cfg) {
+        return res.json({ rate: cfg.end, date: new Date().toISOString().split("T")[0], from, to, source: "fallback" });
+      }
+      return res.status(404).json({ error: "Corridor not found" });
+    }
+    res.json({ rate: result.rate, date: result.date, from, to, source: "live" });
   });
 
   app.get("/api/smart-timing", (req, res) => {
