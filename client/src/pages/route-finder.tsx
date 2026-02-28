@@ -258,9 +258,9 @@ function verdictDotClass(color: string) {
 }
 
 function verdictBannerClass(color: string) {
-  if (color === "green") return "bg-emerald-50 border-emerald-200 text-emerald-700";
-  if (color === "yellow") return "bg-amber-50 border-amber-200 text-amber-700";
-  return "bg-rose-50 border-rose-200 text-rose-700";
+  if (color === "green") return "bg-emerald-500/15 border-emerald-500/25 text-emerald-300";
+  if (color === "yellow") return "bg-amber-500/15 border-amber-500/25 text-amber-300";
+  return "bg-rose-500/15 border-rose-500/25 text-rose-300";
 }
 
 // ─── sub-components ───────────────────────────────────────────────────────────
@@ -269,10 +269,10 @@ function EaseBadge({ routeId }: { routeId: string }) {
   const ease = EASE[routeId];
   if (!ease) return null;
   const classes: Record<string, string> = {
-    green: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    lime: "bg-lime-50 text-lime-700 border-lime-200",
-    amber: "bg-amber-50 text-amber-700 border-amber-200",
-    red: "bg-rose-50 text-rose-700 border-rose-200",
+    green: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    lime: "bg-lime-500/20 text-lime-300 border-lime-500/30",
+    amber: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    red: "bg-rose-500/20 text-rose-300 border-rose-500/30",
   };
   return (
     <span
@@ -349,7 +349,7 @@ function PriceTracker({
     const fxPart = Math.round(cost * 0.62 * 100) / 100;
     const feePart = Math.round((cost - fxPart) * 100) / 100;
     return (
-      <div className="bg-white border border-[#D5E8DA] rounded-lg p-3 text-xs shadow-lg">
+      <div className="bg-[#0F1729] border border-white/10 rounded-lg p-3 text-xs shadow-xl">
         <div className="font-semibold text-foreground mb-1">{label}</div>
         <div className="text-foreground font-mono">{sym}{cost.toFixed(2)} total</div>
         <div className="text-muted-foreground mt-1">FX: {sym}{fxPart.toFixed(2)} · Fees: {sym}{feePart.toFixed(2)}</div>
@@ -359,13 +359,13 @@ function PriceTracker({
 
   const CustomDot = (props: { cx?: number; cy?: number; index?: number }) => {
     const { cx, cy, index } = props;
-    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#0D7A49" stroke="#ffffff" strokeWidth={2} />;
-    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="#ffffff" strokeWidth={1.5} />;
+    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#00D4AA" stroke="#0F1729" strokeWidth={2} />;
+    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="#0F1729" strokeWidth={1.5} />;
     return <circle r={0} cx={cx} cy={cy} fill="none" />;
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-[#D5E8DA]">
+    <div className="mt-3 pt-3 border-t border-white/8">
       <div
         className={`rounded-lg border px-3 py-2.5 mb-3 ${verdictBannerClass(verdict.color)}`}
         data-testid={`verdict-${routeId}`}
@@ -390,13 +390,13 @@ function PriceTracker({
             <XAxis
               dataKey="date"
               ticks={tickDates}
-              tick={{ fill: "#5A7A65", fontSize: 10 }}
+              tick={{ fill: "#8A9BB5", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={["auto", "auto"]}
-              tick={{ fill: "#5A7A65", fontSize: 10 }}
+              tick={{ fill: "#8A9BB5", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               width={36}
@@ -405,10 +405,10 @@ function PriceTracker({
             <RechartTooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={avg}
-              stroke="#9BB5A2"
+              stroke="#8A9BB5"
               strokeDasharray="4 3"
               strokeWidth={1}
-              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "#5A7A65", fontSize: 9, position: "insideTopRight" }}
+              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "#8A9BB5", fontSize: 9, position: "insideTopRight" }}
             />
             <Area
               type="monotone"
@@ -485,8 +485,8 @@ function RouteCard({
     <div
       className={`rounded-xl border transition-all duration-200 ${
         isBest
-          ? "border-[#7DCCA5] bg-[#F0FAF5] shadow-[0_0_20px_rgba(13,122,73,0.08)]"
-          : "border-[#D5E8DA] bg-white shadow-sm"
+          ? "border-teal/40 bg-teal/5 shadow-[0_0_24px_rgba(0,212,170,0.07)]"
+          : "border-white/8 bg-white/[0.03]"
       }`}
       data-testid={`card-route-${route.id}`}
     >
@@ -534,7 +534,7 @@ function RouteCard({
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {isBest ? (
               <span
-                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#D8F0E5] text-[#0A6A3C] border border-[#7DCCA5]"
+                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal/20 text-teal border border-teal/30"
                 data-testid="badge-best-route"
               >
                 Best route
