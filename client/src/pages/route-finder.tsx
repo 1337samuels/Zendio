@@ -173,8 +173,13 @@ type Hop = {
 type Route = {
   id: string;
   total_cost_destination: number;
+  total_percent: number;
   estimated_hours: number;
   hops: Hop[];
+  ease_label?: string;
+  ease_score?: number;
+  ease_color?: string;
+  ease_explanation?: string;
 };
 
 type PricePoint = {
@@ -218,11 +223,6 @@ function applyPerks(baseCost: number, platforms: string[], perks: Perks): number
 }
 
 function generatePriceHistory(routeId: string, currentCost: number): PricePoint[] {
-  const range = PRICE_RANGES[routeId] ?? {
-    min: currentCost * 0.6,
-    max: currentCost * 1.5,
-    avg: currentCost * 1.05,
-  };
   const seed = routeId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const today = new Date();
   const data: PricePoint[] = [];
@@ -234,8 +234,8 @@ function generatePriceHistory(routeId: string, currentCost: number): PricePoint[
     const cost =
       i === 0
         ? currentCost
-        : range.min + seededRandom(seed + i * 11) * (range.max - range.min);
-    data.push({ date: label, cost: Math.round(cost * 100) / 100, avg: range.avg });
+        : currentCost * (1 + (seededRandom(seed + i * 11) - 0.5) * 0.30);
+    data.push({ date: label, cost: Math.round(Math.max(0.01, cost) * 100) / 100, avg: currentCost });
   }
   return data;
 }
@@ -265,9 +265,11 @@ function verdictBannerClass(color: string) {
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
-function EaseBadge({ routeId }: { routeId: string }) {
-  const ease = EASE[routeId];
-  if (!ease) return null;
+function EaseBadge({ routeId, label, color }: { routeId: string; label?: string; color?: string }) {
+  const fallback = EASE[routeId];
+  const easeLabel = label ?? fallback?.label;
+  const easeColor = color ?? fallback?.color;
+  if (!easeLabel) return null;
   const classes: Record<string, string> = {
     green: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     lime: "bg-lime-500/20 text-lime-300 border-lime-500/30",
@@ -276,10 +278,10 @@ function EaseBadge({ routeId }: { routeId: string }) {
   };
   return (
     <span
-      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${classes[ease.color] ?? classes.amber}`}
+      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${classes[easeColor ?? "amber"] ?? classes.amber}`}
       data-testid={`badge-ease-${routeId}`}
     >
-      {ease.label}
+      {easeLabel}
     </span>
   );
 }
@@ -459,7 +461,10 @@ function RouteCard({
   const fxCost = Math.round(total * 0.62 * 100) / 100;
   const feeCost = Math.round((total - fxCost) * 100) / 100;
   const diff = Math.round((total - bestAdjustedCost) * 100) / 100;
-  const ease = EASE[route.id];
+  const easeFallback = EASE[route.id];
+  const easeLabel = route.ease_label ?? easeFallback?.label;
+  const easeColor = route.ease_color ?? easeFallback?.color;
+  const easeExplanation = route.ease_explanation ?? easeFallback?.explanation;
 
   const [isCostExpanded, setIsCostExpanded] = useState(false);
 
@@ -544,12 +549,12 @@ function RouteCard({
                 +{sym}{diff.toFixed(2)} more
               </span>
             )}
-            <EaseBadge routeId={route.id} />
+            <EaseBadge routeId={route.id} label={easeLabel} color={easeColor} />
           </div>
         </div>
 
-        {ease && (
-          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{ease.explanation}</p>
+        {easeExplanation && (
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{easeExplanation}</p>
         )}
 
         <div className="mb-3">
@@ -642,11 +647,14 @@ export default function RouteFinder() {
   const approxConverted = getApproxConverted(amount, from, to);
 
   const { data, isLoading } = useQuery<Route[]>({
-    queryKey: ["/api/routes", searchParams?.from, searchParams?.to, searchParams?.maxHours],
+    queryKey: ["/api/routes", searchParams?.from, searchParams?.to, searchParams?.maxHours, searchParams?.amount, perks.revolut, perks.wise, perks.binance],
     queryFn: async () => {
       if (!searchParams) return [];
-      const params = new URLSearchParams({ from: searchParams.from, to: searchParams.to });
+      const params = new URLSearchParams({ from: searchParams.from, to: searchParams.to, amount: searchParams.amount });
       if (searchParams.maxHours !== "any") params.set("maxHours", searchParams.maxHours);
+      if (perks.revolut) params.set("revolut", "true");
+      if (perks.wise) params.set("wise", "true");
+      if (perks.binance) params.set("binance", "true");
       const res = await fetch(`/api/routes?${params}`);
       if (!res.ok) throw new Error("Failed to fetch routes");
       const json = await res.json();
@@ -708,12 +716,12 @@ export default function RouteFinder() {
 
   const processedRoutes = useMemo(() => {
     return rawRoutes.map((route) => {
-      const platforms = getRoutePlatforms(route);
-      const adjustedCost = applyPerks(route.total_cost_destination, platforms, perks);
-      const ease = EASE[route.id];
-      return { ...route, adjustedCost, easeScore: ease?.score ?? 99 };
+      const adjustedCost = route.total_cost_destination;
+      const easeFallback = EASE[route.id];
+      const easeScore = route.ease_score ?? easeFallback?.score ?? 99;
+      return { ...route, adjustedCost, easeScore };
     });
-  }, [rawRoutes, perks]);
+  }, [rawRoutes]);
 
   const sortedRoutes = useMemo(() => {
     const sorted = [...processedRoutes];

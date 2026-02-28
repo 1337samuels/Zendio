@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import routesData from "./data/routes.json";
+import remioDb from "./data/remio_database.json";
 
 // ─── mid-market rate cache ────────────────────────────────────────────────────
 const rateCache = new Map<string, { rate: number; date: string; fetchedAt: number }>();
@@ -85,10 +86,251 @@ const RATE_CONFIGS: Record<string, { start: number; end: number; stdDev: number;
   "NGN-GBP": { start: 2050, end: 2010, stdDev: 18, seed: 177 },
 };
 
+// ─── remio database cost calculator ──────────────────────────────────────────
+
+type SpreadTier = { min_usd: number; max_usd: number; spread_percent: number };
+type VarTier = { min_usd: number; max_usd: number; percent: number };
+
+interface EdgeFeeStructure {
+  fixed_fee: number;
+  fixed_fee_currency: string;
+  variable_fee_percent: number;
+  fx_spread_percent: number;
+  fx_spread_tiers?: SpreadTier[];
+  variable_fee_tiers?: VarTier[];
+  premium_override?: {
+    revolut_premium?: { fx_spread_tiers?: SpreadTier[] };
+    wise_business?: { variable_fee_tiers?: VarTier[] };
+  };
+}
+
+interface RemioEdge {
+  id: string;
+  from_platform: string;
+  from_currency: string;
+  to_platform: string;
+  to_currency: string;
+  fee_structure: EdgeFeeStructure;
+  time_hours: number;
+}
+
+interface RemioRoute {
+  id: string;
+  name: string;
+  edges: string[];
+  platforms_needed: string[];
+  ease_score: number;
+  ease_label: string;
+  ease_description: string;
+}
+
+const remioFxRates = remioDb.metadata.fx_rates as Record<string, number>;
+
+const PLATFORM_URLS: Record<string, string | null> = {
+  bancolombia: "https://www.bancolombia.com",
+  davivienda: "https://www.davivienda.com",
+  nequi: "https://www.nequi.com.co",
+  bbva_co: "https://www.bbva.com.co",
+  bbva_mx: "https://www.bbva.mx",
+  banorte: "https://www.banorte.com",
+  nu_mx: "https://nu.com.mx",
+  wise: "https://wise.com",
+  revolut: "https://www.revolut.com",
+  dolarapp: "https://www.dollarapp.mx",
+  binance: "https://www.binance.com",
+  coinbase: "https://www.coinbase.com",
+  monzo: "https://www.monzo.com",
+  starling: "https://www.starlingbank.com",
+  barclays: "https://www.barclays.co.uk",
+  chase_us: "https://www.chase.com",
+  global66: "https://global66.com",
+  remitly: "https://www.remitly.com",
+};
+
+const EASE_COLORS: Record<string, string> = {
+  "Simple": "green",
+  "Straightforward": "lime",
+  "A few steps": "amber",
+  "Involved": "red",
+};
+
+function normalizeCurrency(c: string): string {
+  return c === "USDT" || c === "USDC" ? "USD" : c;
+}
+
+function remioConvert(amount: number, from: string, to: string): number {
+  const f = normalizeCurrency(from);
+  const t = normalizeCurrency(to);
+  if (f === t) return amount;
+  const direct = remioFxRates[`${f}_${t}`];
+  if (direct !== undefined) return amount * direct;
+  const inv = remioFxRates[`${t}_${f}`];
+  if (inv !== undefined) return amount / inv;
+  // Via USD
+  const fToUsd = remioFxRates[`${f}_USD`];
+  const usdToT = remioFxRates[`USD_${t}`];
+  if (fToUsd !== undefined && usdToT !== undefined) return amount * fToUsd * usdToT;
+  return amount;
+}
+
+function toUsd(amount: number, currency: string): number {
+  return remioConvert(amount, currency, "USD");
+}
+
+function getSpreadRate(tiers: SpreadTier[] | undefined, amountUsd: number, defaultRate: number): number {
+  if (!tiers || tiers.length === 0) return defaultRate;
+  for (const tier of tiers) {
+    if (amountUsd >= tier.min_usd && amountUsd < tier.max_usd) return tier.spread_percent;
+  }
+  return tiers[tiers.length - 1].spread_percent;
+}
+
+function getVarRate(tiers: VarTier[] | undefined, amountUsd: number, defaultRate: number): number {
+  if (!tiers || tiers.length === 0) return defaultRate;
+  for (const tier of tiers) {
+    if (amountUsd >= tier.min_usd && amountUsd < tier.max_usd) return tier.percent;
+  }
+  return tiers[tiers.length - 1].percent;
+}
+
+function calculateRouteCost(
+  route: RemioRoute,
+  amount: number,
+  fromCurrency: string,
+  toCurrency: string,
+  perks: { revolut: boolean; wise: boolean; binance: boolean },
+  edgeMap: Map<string, RemioEdge>
+): { totalCostDest: number; totalPercent: number; estimatedHours: number } {
+  let runningAmount = amount;
+  let runningCurrency = fromCurrency;
+  let totalCostDest = 0;
+  let estimatedHours = 0;
+
+  for (const edgeId of route.edges) {
+    const edge = edgeMap.get(edgeId);
+    if (!edge) continue;
+
+    const amountUsd = toUsd(runningAmount, runningCurrency);
+
+    // Apply premium overrides
+    let fs: EdgeFeeStructure = { ...edge.fee_structure };
+    const po = fs.premium_override;
+    if (po) {
+      if (perks.revolut && po.revolut_premium?.fx_spread_tiers) {
+        fs = { ...fs, fx_spread_tiers: po.revolut_premium.fx_spread_tiers };
+      }
+      if (perks.wise && po.wise_business?.variable_fee_tiers) {
+        fs = { ...fs, variable_fee_tiers: po.wise_business.variable_fee_tiers };
+      }
+    }
+
+    const spreadPct = getSpreadRate(fs.fx_spread_tiers, amountUsd, fs.fx_spread_percent ?? 0);
+    const varPct = getVarRate(fs.variable_fee_tiers, amountUsd, fs.variable_fee_percent ?? 0);
+
+    // Convert fixed fee to running currency
+    const fixedFeeInRunning = remioConvert(fs.fixed_fee ?? 0, fs.fixed_fee_currency, runningCurrency);
+    const edgeCostInRunning = fixedFeeInRunning + runningAmount * (varPct + spreadPct) / 100;
+
+    // Accumulate cost in destination currency
+    totalCostDest += remioConvert(edgeCostInRunning, runningCurrency, toCurrency);
+
+    // Advance to next hop
+    const amountAfterCost = Math.max(0, runningAmount - edgeCostInRunning);
+    runningAmount = remioConvert(amountAfterCost, runningCurrency, edge.to_currency);
+    runningCurrency = edge.to_currency;
+
+    estimatedHours += edge.time_hours ?? 0;
+  }
+
+  const originalInDest = remioConvert(amount, fromCurrency, toCurrency);
+  const totalPercent = originalInDest > 0 ? (totalCostDest / originalInDest) * 100 : 0;
+
+  return {
+    totalCostDest: Math.round(totalCostDest * 100) / 100,
+    totalPercent: Math.round(totalPercent * 100) / 100,
+    estimatedHours: Math.round(estimatedHours * 10) / 10,
+  };
+}
+
+// ─── routes ───────────────────────────────────────────────────────────────────
+
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
 
   app.get("/api/routes", (req, res) => {
-    const { from = "COP", to = "GBP", maxHours } = req.query as Record<string, string>;
+    const {
+      from = "COP",
+      to = "GBP",
+      maxHours,
+      amount = "5000000",
+      revolut,
+      wise,
+      binance,
+    } = req.query as Record<string, string>;
+
+    const remioKey = `${from}_${to}`;
+    const remioCorridorRaw = (remioDb.routes as Record<string, unknown>)[remioKey];
+
+    if (remioCorridorRaw) {
+      const perks = {
+        revolut: revolut === "true",
+        wise: wise === "true",
+        binance: binance === "true",
+      };
+      const sendAmount = parseFloat(amount) || 5000000;
+      const remioRoutes = Object.values(remioCorridorRaw) as RemioRoute[];
+      const edgeMap = new Map<string, RemioEdge>(
+        (remioDb.edges as RemioEdge[]).map((e) => [e.id, e])
+      );
+      const platformMeta = remioDb.platforms as Record<string, { name: string }>;
+
+      let calculated = remioRoutes.map((route) => {
+        const { totalCostDest, totalPercent, estimatedHours } = calculateRouteCost(
+          route, sendAmount, from, to, perks, edgeMap
+        );
+
+        // Build hops from edge sequence
+        const hops = route.edges.map((edgeId) => {
+          const edge = edgeMap.get(edgeId);
+          if (!edge) return null;
+          return {
+            from_platform: platformMeta[edge.from_platform]?.name ?? edge.from_platform,
+            to_platform: platformMeta[edge.to_platform]?.name ?? edge.to_platform,
+            from_url: PLATFORM_URLS[edge.from_platform] ?? null,
+            to_url: PLATFORM_URLS[edge.to_platform] ?? null,
+          };
+        }).filter(Boolean);
+
+        return {
+          id: route.id,
+          name: route.name,
+          total_cost_destination: totalCostDest,
+          total_cost_currency: to,
+          total_percent: totalPercent,
+          estimated_hours: estimatedHours,
+          hop_count: route.edges.length,
+          is_best: false,
+          ease_label: route.ease_label,
+          ease_score: route.ease_score,
+          ease_color: EASE_COLORS[route.ease_label] ?? "amber",
+          ease_explanation: route.ease_description,
+          hops,
+        };
+      });
+
+      // Filter by maxHours
+      if (maxHours && maxHours !== "any") {
+        const maxH = parseInt(maxHours, 10);
+        calculated = calculated.filter((r) => r.estimated_hours <= maxH);
+      }
+
+      // Sort by cost and mark best
+      calculated.sort((a, b) => a.total_cost_destination - b.total_cost_destination);
+      if (calculated.length > 0) calculated[0].is_best = true;
+
+      return res.json({ routes: calculated, from, to });
+    }
+
+    // Fall back to static routes.json for non-remio corridors
     const key = `${from}-${to}`;
     let routes = (routesData as Record<string, unknown[]>)[key] || [];
 
@@ -98,7 +340,6 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         const route = r as { estimated_hours: number };
         return route.estimated_hours <= maxH;
       });
-      // Re-mark best within filtered set
       if (routes.length > 0) {
         const sorted = [...routes].sort((a: unknown, b: unknown) => {
           const ra = a as { total_cost_destination: number };
@@ -158,7 +399,6 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     const { from = "COP", to = "GBP" } = req.query as Record<string, string>;
     const result = await fetchMidMarketRate(from, to);
     if (!result) {
-      // Fall back to seeded end value so the UI still works offline
       const key = `${from}-${to}`;
       const cfg = RATE_CONFIGS[key];
       if (cfg) {
