@@ -519,18 +519,15 @@ function RouteCard({
               <div className="mt-2 space-y-1.5" data-testid={`cost-breakdown-${route.id}`}>
                 <div className="text-xs text-muted-foreground">
                   Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
+                  {rateDisplay && (
+                    <span className="ml-1" data-testid={`text-rate-${route.id}`}>
+                      (<span className={`font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
+                    </span>
+                  )}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   Costs due to platform fees: <span className="font-mono text-foreground/80">{sym}{feeCost.toFixed(2)}</span>
                 </div>
-                {rateDisplay && (
-                  <div className="text-xs" data-testid={`text-rate-${route.id}`}>
-                    <span className="text-muted-foreground">vs mid-market rate: </span>
-                    <span className={`font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>
-                      +{route.total_percent.toFixed(2)}% above mid-market
-                    </span>
-                  </div>
-                )}
               </div>
             )}
           </div>
