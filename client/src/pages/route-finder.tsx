@@ -244,17 +244,32 @@ function applyPerks(baseCost: number, platforms: string[], perks: Perks): number
 function generatePriceHistory(routeId: string, currentCost: number): PricePoint[] {
   const seed = routeId.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
   const today = new Date();
-  const data: PricePoint[] = [];
 
+  const raw: number[] = [];
+  for (let i = 89; i >= 0; i--) {
+    const val = i === 0
+      ? currentCost
+      : currentCost * (1 + (seededRandom(seed + i * 11) - 0.5) * 0.18);
+    raw.push(Math.max(0.01, val));
+  }
+
+  const window = 9;
+  const half = Math.floor(window / 2);
+  const smoothed: number[] = raw.map((_, idx) => {
+    const start = Math.max(0, idx - half);
+    const end = Math.min(raw.length, idx + half + 1);
+    const slice = raw.slice(start, end);
+    return slice.reduce((a, b) => a + b, 0) / slice.length;
+  });
+  smoothed[smoothed.length - 1] = currentCost;
+
+  const data: PricePoint[] = [];
   for (let i = 89; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    const cost =
-      i === 0
-        ? currentCost
-        : currentCost * (1 + (seededRandom(seed + i * 11) - 0.5) * 0.30);
-    data.push({ date: label, cost: Math.round(Math.max(0.01, cost) * 100) / 100, avg: currentCost });
+    const idx = 89 - i;
+    data.push({ date: label, cost: Math.round(smoothed[idx] * 100) / 100, avg: currentCost });
   }
   return data;
 }
@@ -669,7 +684,7 @@ function RouteCard({
               How to complete this transfer
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-              {fromCurrency} → {toCurrency} &nbsp;·&nbsp; Total cost: <span className="text-foreground font-mono">{sym}{formatMoney(total)}</span> &nbsp;·&nbsp; {formatTime(route.estimated_hours)}
+              {fromCurrency} → {toCurrency} &nbsp;·&nbsp; Total fees for this transaction: <span className="text-foreground font-mono">{sym}{formatMoney(total)}</span> &nbsp;·&nbsp; {formatTime(route.estimated_hours)}
             </DialogDescription>
           </DialogHeader>
 
@@ -1108,14 +1123,14 @@ export default function RouteFinder() {
             const d = formatDisplayRate(midRateData.rate, midRateData.from, midRateData.to);
             const dateLabel = new Date(midRateData.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
             return (
-              <div className="mb-4 px-4 py-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] flex items-center justify-between gap-3 flex-wrap" data-testid="banner-midmarket-rate">
+              <div className="mb-4 flex items-center justify-between gap-3 flex-wrap" data-testid="banner-midmarket-rate">
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#065F46] mb-0.5">Mid-market rate</p>
-                  <p className="text-sm font-mono font-semibold text-[#065F46]">{d.label}</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Mid-market rate</p>
+                  <p className="text-sm font-mono font-semibold text-[#374151]">{d.label}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-[#065F46]/70">Updated {dateLabel}</p>
-                  <p className="text-[10px] text-[#065F46]/50 mt-0.5">Route rates below show actual cost vs this benchmark</p>
+                  <p className="text-[10px] text-muted-foreground">Updated {dateLabel}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Route rates below show actual cost vs this benchmark</p>
                 </div>
               </div>
             );
