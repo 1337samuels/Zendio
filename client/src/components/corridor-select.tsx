@@ -1,14 +1,30 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const FROM_CURRENCIES = [
-  { value: "COP", label: "COP — Colombian Peso", flag: "🇨🇴" },
-  { value: "MXN", label: "MXN — Mexican Peso", flag: "🇲🇽" },
+  { value: "COP", label: "COP — Colombian Peso" },
+  { value: "MXN", label: "MXN — Mexican Peso" },
+  { value: "BRL", label: "BRL — Brazilian Real" },
+  { value: "PHP", label: "PHP — Philippine Peso" },
+  { value: "INR", label: "INR — Indian Rupee" },
+  { value: "NGN", label: "NGN — Nigerian Naira" },
 ];
 
 export const TO_CURRENCIES = [
-  { value: "GBP", label: "GBP — British Pound", flag: "🇬🇧" },
-  { value: "USD", label: "USD — US Dollar", flag: "🇺🇸" },
+  { value: "GBP", label: "GBP — British Pound" },
+  { value: "USD", label: "USD — US Dollar" },
+  { value: "EUR", label: "EUR — Euro" },
 ];
+
+export function getCurrencySymbol(currency: string): string {
+  const map: Record<string, string> = {
+    GBP: "£",
+    USD: "$",
+    EUR: "€",
+    CAD: "CA$",
+    AUD: "A$",
+  };
+  return map[currency] ?? currency + " ";
+}
 
 interface CorridorSelectProps {
   fromValue: string;

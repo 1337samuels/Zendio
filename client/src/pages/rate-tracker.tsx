@@ -11,10 +11,9 @@ import {
   ResponsiveContainer,
   Dot,
 } from "recharts";
-import { TrendingUp, TrendingDown, Minus, Calendar, Info } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { CorridorSelect } from "@/components/corridor-select";
+import { CorridorSelect, getCurrencySymbol } from "@/components/corridor-select";
 import { format } from "date-fns";
 
 interface RateData {
@@ -81,12 +80,8 @@ function CustomTooltip({ active, payload, average }: { active?: boolean; payload
 
 function CustomDot(props: { cx?: number; cy?: number; index?: number; dataLength?: number }) {
   const { cx, cy, index, dataLength } = props;
-  if (index === (dataLength || 90) - 1) {
-    return (
-      <circle cx={cx} cy={cy} r={6} fill="#00D4AA" stroke="#0F1729" strokeWidth={2} />
-    );
-  }
-  return null;
+  if (index !== (dataLength || 90) - 1) return <circle r={0} cx={cx} cy={cy} fill="none" />;
+  return <circle cx={cx} cy={cy} r={6} fill="#00D4AA" stroke="#0F1729" strokeWidth={2} />;
 }
 
 export default function RateTracker() {
@@ -110,8 +105,8 @@ export default function RateTracker() {
     return rate.toFixed(2);
   };
 
-  const fromCurrLabel = from === "COP" ? "COP" : "MXN";
-  const toCurrLabel = to === "GBP" ? "GBP" : "USD";
+  const fromCurrLabel = from;
+  const toCurrLabel = to;
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl">
@@ -256,9 +251,9 @@ export default function RateTracker() {
                     <span className="font-semibold text-teal">{formatRate(data.min)}</span>.
                     You would have received{" "}
                     <span className="font-semibold">
-                      {to === "GBP" ? "£" : "$"}23 more
+                      {getCurrencySymbol(to)}23 more
                     </span>{" "}
-                    on a 5M {fromCurrLabel} transfer.
+                    on a standard {fromCurrLabel} transfer.
                   </p>
                 </div>
               </div>

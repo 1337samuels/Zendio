@@ -19,7 +19,7 @@ import { Info, ArrowRight, Bell } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CorridorSelect } from "@/components/corridor-select";
+import { CorridorSelect, getCurrencySymbol } from "@/components/corridor-select";
 import { Link } from "wouter";
 import { format } from "date-fns";
 
@@ -232,8 +232,8 @@ export default function SmartTiming() {
             <Card className="p-5 bg-white/5 border-white/10">
               <h2 className="font-heading font-semibold text-foreground mb-1">Your potential savings</h2>
               <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-                If you sent 5M COP every month and always used the best route on the best day, you&apos;d save approximately{" "}
-                <span className="text-teal font-semibold">£340/year</span> vs always using Wise direct.
+                If you sent regularly and always used the best route on the best day, you&apos;d save approximately{" "}
+                <span className="text-teal font-semibold">{getCurrencySymbol(to)}340/year</span> vs always using Wise direct.
               </p>
               <div className="h-36">
                 <ResponsiveContainer width="100%" height="100%">
@@ -244,7 +244,7 @@ export default function SmartTiming() {
                       contentStyle={{ background: "#0F1729", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8 }}
                       labelStyle={{ color: "#8A9BB5", fontSize: 11 }}
                       itemStyle={{ color: "#00D4AA", fontSize: 11 }}
-                      formatter={(v: number) => [`£${v}`, "Savings"]}
+                      formatter={(v: number) => [`${getCurrencySymbol(to)}${v}`, "Savings"]}
                     />
                     <Bar dataKey="savings" fill="#00D4AA" radius={[3, 3, 0, 0]} opacity={0.85} />
                   </BarChart>

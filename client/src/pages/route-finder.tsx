@@ -1,18 +1,21 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, GitBranch, ArrowRight, Star, TrendingDown, Zap } from "lucide-react";
+import { Clock, GitBranch, ArrowRight, Star, TrendingDown, Zap, ExternalLink, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { CorridorSelect } from "@/components/corridor-select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CorridorSelect, getCurrencySymbol } from "@/components/corridor-select";
 import { RadarPulse } from "@/components/radar-icon";
 
 interface Hop {
   from_platform: string;
+  from_url: string | null;
   from_currency: string;
   to_platform: string;
+  to_url: string | null;
   to_currency: string;
   type: "fintech" | "crypto" | "bank";
   fee_label: string;
@@ -25,14 +28,32 @@ interface Route {
   total_cost_currency: string;
   total_percent: number;
   estimated_time: string;
+  estimated_hours: number;
   hop_count: number;
   is_best: boolean;
 }
 
+const MAX_HOURS_OPTIONS = [
+  { value: "any", label: "Any duration", icon: null },
+  { value: "0", label: "Instant only" },
+  { value: "6", label: "Up to 6 hours" },
+  { value: "24", label: "Up to 1 day" },
+  { value: "72", label: "Up to 3 days" },
+];
+
+const DEFAULT_AMOUNTS: Record<string, string> = {
+  COP: "5000000",
+  MXN: "100000",
+  BRL: "10000",
+  PHP: "100000",
+  INR: "200000",
+  NGN: "5000000",
+};
+
 const HOP_COLORS = {
-  fintech: "bg-teal/20 border-teal/30 text-teal",
-  crypto: "bg-[#F5A623]/20 border-[#F5A623]/30 text-[#F5A623]",
-  bank: "bg-white/10 border-white/20 text-muted-foreground",
+  fintech: "bg-teal/10 border-teal/25 text-foreground",
+  crypto: "bg-[#F5A623]/10 border-[#F5A623]/25 text-foreground",
+  bank: "bg-white/5 border-white/15 text-foreground",
 };
 
 const HOP_DOT_COLORS = {
@@ -41,61 +62,75 @@ const HOP_DOT_COLORS = {
   bank: "bg-muted-foreground",
 };
 
-function HopNode({ hop, isLast }: { hop: Hop; isLast: boolean }) {
-  const colorClass = HOP_COLORS[hop.type];
-  const dotClass = HOP_DOT_COLORS[hop.type];
+const HOP_TYPE_LABELS = {
+  fintech: { label: "Fintech", color: "text-teal" },
+  crypto: { label: "Crypto", color: "text-[#F5A623]" },
+  bank: { label: "Bank", color: "text-muted-foreground" },
+};
 
-  return (
-    <div className="flex items-center gap-0 min-w-0">
-      <div className={`flex flex-col items-center px-3 py-2 rounded-lg border text-xs font-medium flex-shrink-0 ${colorClass}`}>
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotClass}`} />
-          <span className="font-semibold text-foreground whitespace-nowrap">{hop.from_platform}</span>
-        </div>
-        <span className="text-[10px] font-bold opacity-70">{hop.from_currency}</span>
+function PlatformPill({
+  name,
+  url,
+  currency,
+  type,
+}: {
+  name: string;
+  url: string | null;
+  currency: string;
+  type: "fintech" | "crypto" | "bank";
+}) {
+  const colorClass = HOP_COLORS[type];
+  const dotClass = HOP_DOT_COLORS[type];
+  const typeLabel = HOP_TYPE_LABELS[type];
+
+  const inner = (
+    <div className={`flex flex-col items-center px-2.5 py-2 rounded-lg border text-xs font-medium flex-shrink-0 transition-all ${colorClass} ${url ? "cursor-pointer group" : ""}`}>
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotClass}`} />
+        <span className="font-semibold text-foreground whitespace-nowrap">{name}</span>
+        {url && (
+          <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-60 transition-opacity text-muted-foreground flex-shrink-0" />
+        )}
       </div>
-      {!isLast && (
-        <div className="flex flex-col items-center mx-1 flex-shrink-0">
-          <span className="text-[9px] text-muted-foreground font-medium whitespace-nowrap mb-0.5">{hop.fee_label}</span>
-          <ArrowRight className="w-4 h-4 text-muted-foreground" />
-        </div>
-      )}
+      <span className={`text-[10px] font-bold ${typeLabel.color}`}>{currency}</span>
     </div>
   );
+
+  if (url) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" data-testid={`link-platform-${name.replace(/\s+/g, "-").toLowerCase()}`}>
+        {inner}
+      </a>
+    );
+  }
+  return inner;
 }
 
 function RoutePipeline({ hops }: { hops: Hop[] }) {
-  const allNodes = [
-    ...hops.map((h) => ({ platform: h.from_platform, currency: h.from_currency, type: h.type })),
-    { platform: hops[hops.length - 1].to_platform, currency: hops[hops.length - 1].to_currency, type: hops[hops.length - 1].type },
-  ];
-
   return (
     <div className="flex flex-wrap items-center gap-1">
       {hops.map((hop, idx) => (
-        <HopNode key={idx} hop={hop} isLast={false} />
-      ))}
-      <div className={`flex flex-col items-center px-3 py-2 rounded-lg border text-xs font-medium flex-shrink-0 ${HOP_COLORS[hops[hops.length - 1].type]}`}>
-        <div className="flex items-center gap-1.5 mb-0.5">
-          <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${HOP_DOT_COLORS[hops[hops.length - 1].type]}`} />
-          <span className="font-semibold text-foreground whitespace-nowrap">{hops[hops.length - 1].to_platform}</span>
+        <div key={idx} className="flex items-center gap-1">
+          <PlatformPill name={hop.from_platform} url={hop.from_url} currency={hop.from_currency} type={hop.type} />
+          <div className="flex flex-col items-center flex-shrink-0 mx-0.5">
+            <span className="text-[9px] text-muted-foreground font-medium whitespace-nowrap leading-tight mb-0.5">{hop.fee_label}</span>
+            <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/60" />
+          </div>
         </div>
-        <span className="text-[10px] font-bold opacity-70">{hops[hops.length - 1].to_currency}</span>
-      </div>
+      ))}
+      <PlatformPill
+        name={hops[hops.length - 1].to_platform}
+        url={hops[hops.length - 1].to_url}
+        currency={hops[hops.length - 1].to_currency}
+        type={hops[hops.length - 1].type}
+      />
     </div>
   );
 }
 
-function RouteCard({
-  route,
-  bestCost,
-  delay,
-}: {
-  route: Route;
-  bestCost: number;
-  delay: number;
-}) {
+function RouteCard({ route, bestCost, delay }: { route: Route; bestCost: number; delay: number }) {
   const extra = route.total_cost_destination - bestCost;
+  const sym = getCurrencySymbol(route.total_cost_currency);
 
   return (
     <motion.div
@@ -105,24 +140,18 @@ function RouteCard({
     >
       <Card
         className={`relative p-5 bg-white/5 border transition-all duration-300 hover-elevate ${
-          route.is_best
-            ? "border-teal/40"
-            : "border-white/10"
+          route.is_best ? "border-teal/40" : "border-white/10"
         }`}
-        style={
-          route.is_best
-            ? { boxShadow: "0 0 24px rgba(0, 212, 170, 0.12), 0 0 1px rgba(0, 212, 170, 0.4)" }
-            : {}
-        }
+        style={route.is_best ? { boxShadow: "0 0 24px rgba(0,212,170,0.10), 0 0 1px rgba(0,212,170,0.35)" } : {}}
         data-testid={`route-card-${route.id}`}
       >
         {route.is_best && (
           <div className="absolute -top-3 left-4">
-            <div className="relative overflow-hidden rounded-md px-3 py-1 bg-teal text-[#0F1729] text-[10px] font-bold uppercase tracking-widest">
+            <div className="relative rounded-md px-3 py-1 bg-teal text-[#0F1729] text-[10px] font-bold uppercase tracking-widest overflow-hidden">
               <div
-                className="absolute inset-0 animate-shimmer"
+                className="absolute inset-0 animate-shimmer pointer-events-none"
                 style={{
-                  background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
+                  background: "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.4) 50%,transparent 100%)",
                   backgroundSize: "200% 100%",
                 }}
               />
@@ -148,13 +177,13 @@ function RouteCard({
                 transition={{ delay: delay + 0.2 }}
                 data-testid={`text-total-cost-${route.id}`}
               >
-                {route.total_cost_currency === "GBP" ? "£" : "$"}{route.total_cost_destination.toFixed(2)}
+                {sym}{route.total_cost_destination.toFixed(2)}
               </motion.div>
               <div className="text-xs text-muted-foreground mt-0.5">total fees &amp; spread</div>
               <div className="text-xs font-semibold text-muted-foreground">{route.total_percent}% of transfer</div>
               {!route.is_best && extra > 0 && (
                 <div className="text-xs text-[#FF6B6B] font-medium mt-1">
-                  +{route.total_cost_currency === "GBP" ? "£" : "$"}{extra.toFixed(2)} more
+                  +{sym}{extra.toFixed(2)} more
                 </div>
               )}
             </div>
@@ -187,7 +216,7 @@ function RadarLoading() {
       <RadarPulse size={96} />
       <div className="text-center">
         <p className="text-lg font-heading font-semibold text-foreground">Scanning routes...</p>
-        <p className="text-sm text-muted-foreground mt-1 animate-pulse">Analyzing 47 routes across 6 platforms</p>
+        <p className="text-sm text-muted-foreground mt-1 animate-pulse">Analyzing 47 routes across 12 platforms</p>
       </div>
       <div className="w-64 h-1 bg-white/10 rounded-full overflow-hidden">
         <motion.div
@@ -205,17 +234,31 @@ export default function RouteFinder() {
   const [from, setFrom] = useState("COP");
   const [to, setTo] = useState("GBP");
   const [amount, setAmount] = useState("5000000");
+  const [maxHours, setMaxHours] = useState("any");
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
   const { data, refetch } = useQuery<{ routes: Route[]; from: string; to: string }>({
-    queryKey: ["/api/routes", from, to],
+    queryKey: ["/api/routes", from, to, maxHours],
     queryFn: async () => {
-      const res = await fetch(`/api/routes?from=${from}&to=${to}`);
+      const params = new URLSearchParams({ from, to });
+      if (maxHours !== "any") params.set("maxHours", maxHours);
+      const res = await fetch(`/api/routes?${params}`);
       return res.json();
     },
     enabled: false,
   });
+
+  const handleFromChange = (v: string) => {
+    setFrom(v);
+    setAmount(DEFAULT_AMOUNTS[v] ?? "10000");
+    setShowResults(false);
+  };
+
+  const handleToChange = (v: string) => {
+    setTo(v);
+    setShowResults(false);
+  };
 
   const handleSearch = async () => {
     setShowResults(false);
@@ -230,10 +273,14 @@ export default function RouteFinder() {
   const routes = data?.routes || [];
   const bestRoute = routes.find((r) => r.is_best);
   const bestCost = bestRoute?.total_cost_destination || 0;
-  const worstRoute = routes.reduce((worst, r) => (r.total_cost_destination > (worst?.total_cost_destination || 0) ? r : worst), routes[0]);
+  const worstRoute = routes.reduce(
+    (worst, r) => (r.total_cost_destination > (worst?.total_cost_destination || 0) ? r : worst),
+    routes[0]
+  );
   const saving = worstRoute ? worstRoute.total_cost_destination - bestCost : 0;
+  const currSym = getCurrencySymbol(to);
 
-  const currencySymbol = from === "MXN" ? (to === "GBP" ? "£" : "$") : to === "GBP" ? "£" : "$";
+  const selectedMaxLabel = MAX_HOURS_OPTIONS.find((o) => o.value === maxHours)?.label ?? "Any duration";
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-4xl">
@@ -244,25 +291,58 @@ export default function RouteFinder() {
 
       <Card className="p-5 bg-white/5 border-white/10">
         <div className="flex flex-col gap-4">
-          <CorridorSelect fromValue={from} toValue={to} onFromChange={setFrom} onToChange={setTo} />
-          <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
-              Amount ({from})
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">
-                {from === "COP" ? "COP" : "MXN"}
-              </span>
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="pl-14 bg-white/5 border-white/10 text-foreground text-sm"
-                placeholder="5000000"
-                data-testid="input-amount"
-              />
+          <CorridorSelect fromValue={from} toValue={to} onFromChange={handleFromChange} onToChange={handleToChange} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">
+                Amount ({from})
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground font-medium">
+                  {from}
+                </span>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="pl-14 bg-white/5 border-white/10 text-foreground text-sm"
+                  data-testid="input-amount"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <Timer className="w-3.5 h-3.5" />
+                Max transfer time
+              </label>
+              <Select value={maxHours} onValueChange={(v) => { setMaxHours(v); setShowResults(false); }}>
+                <SelectTrigger
+                  className="bg-white/5 border-white/10 text-foreground"
+                  data-testid="select-max-hours"
+                >
+                  <SelectValue placeholder="Any duration" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0F1729] border-white/10">
+                  {MAX_HOURS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value} data-testid={`option-hours-${opt.value}`}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+
+          {maxHours !== "any" && (
+            <div className="flex items-center gap-2 text-xs text-[#F5A623] bg-[#F5A623]/10 border border-[#F5A623]/20 rounded-lg px-3 py-2">
+              <Timer className="w-3.5 h-3.5 flex-shrink-0" />
+              Showing only routes that complete within{" "}
+              <span className="font-semibold">{selectedMaxLabel.toLowerCase()}</span> — some cheaper options may be hidden.
+            </div>
+          )}
+
           <Button
             onClick={handleSearch}
             className="bg-teal text-[#0F1729] font-semibold w-full sm:w-auto"
@@ -278,54 +358,68 @@ export default function RouteFinder() {
       <AnimatePresence mode="wait">
         {isSearching && <RadarLoading key="loading" />}
 
-        {showResults && !isSearching && routes.length > 0 && (
+        {showResults && !isSearching && (
           <motion.div
             key="results"
             className="flex flex-col gap-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <h2 className="font-heading font-semibold text-foreground">
-                {routes.length} routes found
-              </h2>
-              <Badge variant="secondary" className="text-xs">
-                Ranked by total cost
-              </Badge>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {routes.map((route, idx) => (
-                <RouteCard
-                  key={route.id}
-                  route={route}
-                  bestCost={bestCost}
-                  delay={idx * 0.12}
-                />
-              ))}
-            </div>
-
-            {bestRoute && saving > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="p-4 rounded-lg bg-teal/10 border border-teal/20"
-                data-testid="insight-savings"
-              >
-                <div className="flex items-start gap-3">
-                  <TrendingDown className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm text-foreground leading-relaxed">
-                      By using the optimal route, you save{" "}
-                      <span className="font-bold text-teal">
-                        {currencySymbol}{saving.toFixed(2)}
-                      </span>{" "}
-                      compared to sending directly through Wise. That&apos;s enough for a week of groceries.
-                    </p>
+            {routes.length === 0 ? (
+              <Card className="p-8 bg-white/5 border-white/10 text-center" data-testid="no-routes-message">
+                <Timer className="w-8 h-8 text-muted-foreground mx-auto mb-3 opacity-50" />
+                <p className="text-foreground font-semibold">No routes within this time limit</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Try relaxing the max transfer time filter to see more options.
+                </p>
+              </Card>
+            ) : (
+              <>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <h2 className="font-heading font-semibold text-foreground">
+                    {routes.length} route{routes.length !== 1 ? "s" : ""} found
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    {maxHours !== "any" && (
+                      <Badge variant="outline" className="text-xs border-[#F5A623]/40 text-[#F5A623]">
+                        <Timer className="w-3 h-3 mr-1" />
+                        {selectedMaxLabel}
+                      </Badge>
+                    )}
+                    <Badge variant="secondary" className="text-xs">Ranked by cost</Badge>
                   </div>
                 </div>
-              </motion.div>
+
+                <div className="text-xs text-muted-foreground flex items-center gap-1.5 -mt-1">
+                  <ExternalLink className="w-3 h-3" />
+                  Click any platform name to open its website
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  {routes.map((route, idx) => (
+                    <RouteCard key={route.id} route={route} bestCost={bestCost} delay={idx * 0.12} />
+                  ))}
+                </div>
+
+                {bestRoute && saving > 0.01 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="p-4 rounded-lg bg-teal/10 border border-teal/20"
+                    data-testid="insight-savings"
+                  >
+                    <div className="flex items-start gap-3">
+                      <TrendingDown className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-foreground leading-relaxed">
+                        By using the optimal route, you save{" "}
+                        <span className="font-bold text-teal">{currSym}{saving.toFixed(2)}</span>{" "}
+                        compared to the most expensive option shown. That&apos;s real money back in your pocket.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </>
             )}
           </motion.div>
         )}
