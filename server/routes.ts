@@ -148,10 +148,9 @@ const PLATFORM_URLS: Record<string, string | null> = {
 };
 
 const EASE_COLORS: Record<string, string> = {
-  "Simple": "green",
-  "Straightforward": "lime",
+  "Simplest": "green",
   "A few steps": "amber",
-  "Involved": "red",
+  "Complicated": "red",
 };
 
 function normalizeCurrency(c: string): string {

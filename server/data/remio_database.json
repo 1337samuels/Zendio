@@ -3,7 +3,13 @@
     "version": "1.0",
     "last_updated": "2026-02-28",
     "base_currency_for_usd_equivalent": "USD",
-    "supported_corridors": ["COP_GBP", "COP_USD", "MXN_USD", "MXN_GBP", "USD_GBP"],
+    "supported_corridors": [
+      "COP_GBP",
+      "COP_USD",
+      "MXN_USD",
+      "MXN_GBP",
+      "USD_GBP"
+    ],
     "fx_rates": {
       "COP_USD": 0.000273,
       "USD_COP": 3665,
@@ -18,136 +24,192 @@
     },
     "notes": "All fees are based on publicly available pricing from each platform as of early 2026. FX spreads are estimated from mid-market rate comparisons. Fees scale with amount using tiered structures."
   },
-
   "platforms": {
     "bancolombia": {
       "name": "Bancolombia",
       "type": "bank",
       "country": "CO",
-      "currencies": ["COP"],
+      "currencies": [
+        "COP"
+      ],
       "description": "Largest private bank in Colombia"
     },
     "davivienda": {
       "name": "Davivienda",
       "type": "bank",
       "country": "CO",
-      "currencies": ["COP"],
+      "currencies": [
+        "COP"
+      ],
       "description": "Major Colombian bank"
     },
     "nequi": {
       "name": "Nequi",
       "type": "wallet",
       "country": "CO",
-      "currencies": ["COP"],
+      "currencies": [
+        "COP"
+      ],
       "description": "Digital wallet by Bancolombia"
     },
     "bbva_co": {
       "name": "BBVA Colombia",
       "type": "bank",
       "country": "CO",
-      "currencies": ["COP"],
+      "currencies": [
+        "COP"
+      ],
       "description": "BBVA branch in Colombia"
     },
     "bbva_mx": {
       "name": "BBVA Mexico",
       "type": "bank",
       "country": "MX",
-      "currencies": ["MXN"],
+      "currencies": [
+        "MXN"
+      ],
       "description": "Largest bank in Mexico"
     },
     "banorte": {
       "name": "Banorte",
       "type": "bank",
       "country": "MX",
-      "currencies": ["MXN"],
+      "currencies": [
+        "MXN"
+      ],
       "description": "Major Mexican bank"
     },
     "nu_mx": {
       "name": "Nu Mexico",
       "type": "bank",
       "country": "MX",
-      "currencies": ["MXN"],
+      "currencies": [
+        "MXN"
+      ],
       "description": "Digital bank in Mexico"
     },
     "wise": {
       "name": "Wise",
       "type": "fintech",
       "country": "GLOBAL",
-      "currencies": ["USD", "GBP", "EUR", "COP", "MXN"],
+      "currencies": [
+        "USD",
+        "GBP",
+        "EUR",
+        "COP",
+        "MXN"
+      ],
       "description": "Multi-currency transfer platform, mid-market rate"
     },
     "revolut": {
       "name": "Revolut",
       "type": "fintech",
       "country": "GLOBAL",
-      "currencies": ["USD", "GBP", "EUR"],
+      "currencies": [
+        "USD",
+        "GBP",
+        "EUR"
+      ],
       "description": "Multi-currency fintech app"
     },
     "dolarapp": {
       "name": "Dollar App",
       "type": "fintech",
       "country": "LATAM",
-      "currencies": ["USD", "COP", "MXN"],
+      "currencies": [
+        "USD",
+        "COP",
+        "MXN"
+      ],
       "description": "Digital dollar account for Latin America"
     },
     "binance": {
       "name": "Binance",
       "type": "crypto",
       "country": "GLOBAL",
-      "currencies": ["USDT", "USDC", "BTC", "USD", "GBP", "COP", "MXN"],
+      "currencies": [
+        "USDT",
+        "USDC",
+        "BTC",
+        "USD",
+        "GBP",
+        "COP",
+        "MXN"
+      ],
       "description": "Crypto exchange with P2P marketplace"
     },
     "coinbase": {
       "name": "Coinbase",
       "type": "crypto",
       "country": "US",
-      "currencies": ["USD", "USDT", "USDC"],
+      "currencies": [
+        "USD",
+        "USDT",
+        "USDC"
+      ],
       "description": "US-based crypto exchange"
     },
     "monzo": {
       "name": "Monzo",
       "type": "bank",
       "country": "GB",
-      "currencies": ["GBP"],
+      "currencies": [
+        "GBP"
+      ],
       "description": "UK digital bank"
     },
     "starling": {
       "name": "Starling",
       "type": "bank",
       "country": "GB",
-      "currencies": ["GBP"],
+      "currencies": [
+        "GBP"
+      ],
       "description": "UK digital bank"
     },
     "barclays": {
       "name": "Barclays",
       "type": "bank",
       "country": "GB",
-      "currencies": ["GBP"],
+      "currencies": [
+        "GBP"
+      ],
       "description": "Major UK high street bank"
     },
     "chase_us": {
       "name": "Chase",
       "type": "bank",
       "country": "US",
-      "currencies": ["USD"],
+      "currencies": [
+        "USD"
+      ],
       "description": "Major US bank"
     },
     "global66": {
       "name": "Global66",
       "type": "fintech",
       "country": "LATAM",
-      "currencies": ["USD", "COP", "MXN", "GBP"],
+      "currencies": [
+        "USD",
+        "COP",
+        "MXN",
+        "GBP"
+      ],
       "description": "Latin American cross-border fintech"
     },
     "remitly": {
       "name": "Remitly",
       "type": "fintech",
       "country": "GLOBAL",
-      "currencies": ["USD", "GBP", "COP", "MXN"],
+      "currencies": [
+        "USD",
+        "GBP",
+        "COP",
+        "MXN"
+      ],
       "description": "Remittance-focused transfer service"
     }
   },
-
   "edges": [
     {
       "id": "e001",
@@ -162,9 +224,21 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.15,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 500, "spread_percent": 0.20 },
-          { "min_usd": 500, "max_usd": 5000, "spread_percent": 0.15 },
-          { "min_usd": 5000, "max_usd": 20000, "spread_percent": 0.12 }
+          {
+            "min_usd": 0,
+            "max_usd": 500,
+            "spread_percent": 0.2
+          },
+          {
+            "min_usd": 500,
+            "max_usd": 5000,
+            "spread_percent": 0.15
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "spread_percent": 0.12
+          }
         ]
       },
       "time_hours": 0.1,
@@ -179,7 +253,7 @@
       "to_currency": "USD",
       "transfer_type": "us_account_to_wise",
       "fee_structure": {
-        "fixed_fee": 3.00,
+        "fixed_fee": 3,
         "fixed_fee_currency": "USD",
         "variable_fee_percent": 0,
         "fx_spread_percent": 0
@@ -200,8 +274,16 @@
         "fixed_fee_currency": "USD",
         "variable_fee_percent": 0.41,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 5000, "percent": 0.55 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.41 }
+          {
+            "min_usd": 0,
+            "max_usd": 5000,
+            "percent": 0.55
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.41
+          }
         ],
         "fx_spread_percent": 0
       },
@@ -236,11 +318,23 @@
       "fee_structure": {
         "fixed_fee": 5800,
         "fixed_fee_currency": "COP",
-        "variable_fee_percent": 1.20,
+        "variable_fee_percent": 1.2,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "percent": 1.50 },
-          { "min_usd": 1000, "max_usd": 5000, "percent": 1.20 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.95 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "percent": 1.5
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "percent": 1.2
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.95
+          }
         ],
         "fx_spread_percent": 0
       },
@@ -260,9 +354,21 @@
         "fixed_fee_currency": "COP",
         "variable_fee_percent": 0.98,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "percent": 1.30 },
-          { "min_usd": 1000, "max_usd": 5000, "percent": 0.98 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.75 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "percent": 1.3
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "percent": 0.98
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.75
+          }
         ],
         "fx_spread_percent": 0
       },
@@ -283,10 +389,26 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.8,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 500, "spread_percent": 1.5 },
-          { "min_usd": 500, "max_usd": 2000, "spread_percent": 1.0 },
-          { "min_usd": 2000, "max_usd": 10000, "spread_percent": 0.8 },
-          { "min_usd": 10000, "max_usd": 20000, "spread_percent": 0.5 }
+          {
+            "min_usd": 0,
+            "max_usd": 500,
+            "spread_percent": 1.5
+          },
+          {
+            "min_usd": 500,
+            "max_usd": 2000,
+            "spread_percent": 1
+          },
+          {
+            "min_usd": 2000,
+            "max_usd": 10000,
+            "spread_percent": 0.8
+          },
+          {
+            "min_usd": 10000,
+            "max_usd": 20000,
+            "spread_percent": 0.5
+          }
         ]
       },
       "time_hours": 0.5,
@@ -303,7 +425,7 @@
       "fee_structure": {
         "fixed_fee": 0,
         "fixed_fee_currency": "USD",
-        "variable_fee_percent": 0.10,
+        "variable_fee_percent": 0.1,
         "fx_spread_percent": 0.05
       },
       "time_hours": 0.01,
@@ -318,7 +440,7 @@
       "to_currency": "GBP",
       "transfer_type": "fiat_withdrawal",
       "fee_structure": {
-        "fixed_fee": 1.50,
+        "fixed_fee": 1.5,
         "fixed_fee_currency": "GBP",
         "variable_fee_percent": 0,
         "fx_spread_percent": 0
@@ -369,19 +491,35 @@
       "to_currency": "GBP",
       "transfer_type": "us_to_revolut_convert",
       "fee_structure": {
-        "fixed_fee": 3.00,
+        "fixed_fee": 3,
         "fixed_fee_currency": "USD",
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.3,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "spread_percent": 0 },
-          { "min_usd": 1000, "max_usd": 20000, "spread_percent": 0.5 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "spread_percent": 0
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 20000,
+            "spread_percent": 0.5
+          }
         ],
         "premium_override": {
           "revolut_premium": {
             "fx_spread_tiers": [
-              { "min_usd": 0, "max_usd": 10000, "spread_percent": 0 },
-              { "min_usd": 10000, "max_usd": 20000, "spread_percent": 0.5 }
+              {
+                "min_usd": 0,
+                "max_usd": 10000,
+                "spread_percent": 0
+              },
+              {
+                "min_usd": 10000,
+                "max_usd": 20000,
+                "spread_percent": 0.5
+              }
             ]
           }
         }
@@ -403,9 +541,21 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.12,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 500, "spread_percent": 0.18 },
-          { "min_usd": 500, "max_usd": 5000, "spread_percent": 0.12 },
-          { "min_usd": 5000, "max_usd": 20000, "spread_percent": 0.10 }
+          {
+            "min_usd": 0,
+            "max_usd": 500,
+            "spread_percent": 0.18
+          },
+          {
+            "min_usd": 500,
+            "max_usd": 5000,
+            "spread_percent": 0.12
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "spread_percent": 0.1
+          }
         ]
       },
       "time_hours": 0.1,
@@ -424,9 +574,21 @@
         "fixed_fee_currency": "MXN",
         "variable_fee_percent": 0.55,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "percent": 0.75 },
-          { "min_usd": 1000, "max_usd": 5000, "percent": 0.55 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.42 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "percent": 0.75
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "percent": 0.55
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.42
+          }
         ],
         "fx_spread_percent": 0
       },
@@ -446,9 +608,21 @@
         "fixed_fee_currency": "MXN",
         "variable_fee_percent": 0.65,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "percent": 0.85 },
-          { "min_usd": 1000, "max_usd": 5000, "percent": 0.65 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.50 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "percent": 0.85
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "percent": 0.65
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.5
+          }
         ],
         "fx_spread_percent": 0
       },
@@ -469,10 +643,26 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.6,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 500, "spread_percent": 1.2 },
-          { "min_usd": 500, "max_usd": 2000, "spread_percent": 0.8 },
-          { "min_usd": 2000, "max_usd": 10000, "spread_percent": 0.6 },
-          { "min_usd": 10000, "max_usd": 20000, "spread_percent": 0.4 }
+          {
+            "min_usd": 0,
+            "max_usd": 500,
+            "spread_percent": 1.2
+          },
+          {
+            "min_usd": 500,
+            "max_usd": 2000,
+            "spread_percent": 0.8
+          },
+          {
+            "min_usd": 2000,
+            "max_usd": 10000,
+            "spread_percent": 0.6
+          },
+          {
+            "min_usd": 10000,
+            "max_usd": 20000,
+            "spread_percent": 0.4
+          }
         ]
       },
       "time_hours": 0.5,
@@ -543,14 +733,30 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.4,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "spread_percent": 0 },
-          { "min_usd": 1000, "max_usd": 20000, "spread_percent": 1.0 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "spread_percent": 0
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 20000,
+            "spread_percent": 1
+          }
         ],
         "premium_override": {
           "revolut_premium": {
             "fx_spread_tiers": [
-              { "min_usd": 0, "max_usd": 10000, "spread_percent": 0 },
-              { "min_usd": 10000, "max_usd": 20000, "spread_percent": 0.5 }
+              {
+                "min_usd": 0,
+                "max_usd": 10000,
+                "spread_percent": 0
+              },
+              {
+                "min_usd": 10000,
+                "max_usd": 20000,
+                "spread_percent": 0.5
+              }
             ]
           }
         }
@@ -584,7 +790,7 @@
       "to_currency": "USD",
       "transfer_type": "us_bank_transfer",
       "fee_structure": {
-        "fixed_fee": 3.00,
+        "fixed_fee": 3,
         "fixed_fee_currency": "USD",
         "variable_fee_percent": 0,
         "fx_spread_percent": 0
@@ -606,9 +812,21 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 1.8,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "spread_percent": 2.2 },
-          { "min_usd": 1000, "max_usd": 5000, "spread_percent": 1.8 },
-          { "min_usd": 5000, "max_usd": 20000, "spread_percent": 1.5 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "spread_percent": 2.2
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "spread_percent": 1.8
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "spread_percent": 1.5
+          }
         ]
       },
       "time_hours": 24,
@@ -628,9 +846,21 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 1.5,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "spread_percent": 2.0 },
-          { "min_usd": 1000, "max_usd": 5000, "spread_percent": 1.5 },
-          { "min_usd": 5000, "max_usd": 20000, "spread_percent": 1.2 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "spread_percent": 2
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "spread_percent": 1.5
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "spread_percent": 1.2
+          }
         ]
       },
       "time_hours": 72,
@@ -649,17 +879,41 @@
         "fixed_fee_currency": "USD",
         "variable_fee_percent": 0.41,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 5000, "percent": 0.55 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.41 },
-          { "min_usd": 20000, "max_usd": 100000, "percent": 0.31 }
+          {
+            "min_usd": 0,
+            "max_usd": 5000,
+            "percent": 0.55
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.41
+          },
+          {
+            "min_usd": 20000,
+            "max_usd": 100000,
+            "percent": 0.31
+          }
         ],
         "fx_spread_percent": 0,
         "premium_override": {
           "wise_business": {
             "variable_fee_tiers": [
-              { "min_usd": 0, "max_usd": 5000, "percent": 0.44 },
-              { "min_usd": 5000, "max_usd": 20000, "percent": 0.33 },
-              { "min_usd": 20000, "max_usd": 100000, "percent": 0.25 }
+              {
+                "min_usd": 0,
+                "max_usd": 5000,
+                "percent": 0.44
+              },
+              {
+                "min_usd": 5000,
+                "max_usd": 20000,
+                "percent": 0.33
+              },
+              {
+                "min_usd": 20000,
+                "max_usd": 100000,
+                "percent": 0.25
+              }
             ]
           }
         }
@@ -676,7 +930,7 @@
       "to_currency": "GBP",
       "transfer_type": "fiat_withdrawal",
       "fee_structure": {
-        "fixed_fee": 1.50,
+        "fixed_fee": 1.5,
         "fixed_fee_currency": "GBP",
         "variable_fee_percent": 0,
         "fx_spread_percent": 0
@@ -693,7 +947,7 @@
       "to_currency": "GBP",
       "transfer_type": "fiat_withdrawal",
       "fee_structure": {
-        "fixed_fee": 1.50,
+        "fixed_fee": 1.5,
         "fixed_fee_currency": "GBP",
         "variable_fee_percent": 0,
         "fx_spread_percent": 0
@@ -715,9 +969,21 @@
         "variable_fee_percent": 0,
         "fx_spread_percent": 0.15,
         "fx_spread_tiers": [
-          { "min_usd": 0, "max_usd": 500, "spread_percent": 0.20 },
-          { "min_usd": 500, "max_usd": 5000, "spread_percent": 0.15 },
-          { "min_usd": 5000, "max_usd": 20000, "spread_percent": 0.12 }
+          {
+            "min_usd": 0,
+            "max_usd": 500,
+            "spread_percent": 0.2
+          },
+          {
+            "min_usd": 500,
+            "max_usd": 5000,
+            "spread_percent": 0.15
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "spread_percent": 0.12
+          }
         ]
       },
       "time_hours": 0.1,
@@ -736,9 +1002,21 @@
         "fixed_fee_currency": "MXN",
         "variable_fee_percent": 0.65,
         "variable_fee_tiers": [
-          { "min_usd": 0, "max_usd": 1000, "percent": 0.85 },
-          { "min_usd": 1000, "max_usd": 5000, "percent": 0.65 },
-          { "min_usd": 5000, "max_usd": 20000, "percent": 0.50 }
+          {
+            "min_usd": 0,
+            "max_usd": 1000,
+            "percent": 0.85
+          },
+          {
+            "min_usd": 1000,
+            "max_usd": 5000,
+            "percent": 0.65
+          },
+          {
+            "min_usd": 5000,
+            "max_usd": 20000,
+            "percent": 0.5
+          }
         ],
         "fx_spread_percent": 0
       },
@@ -747,15 +1025,24 @@
       "notes": "Direct MXN to GBP via Wise."
     }
   ],
-
   "routes": {
     "COP_GBP": [
       {
         "id": "r001",
         "name": "Dollar App Bridge",
         "description": "Via Dollar App and Wise — best for amounts under £5,000",
-        "edges": ["e001", "e002", "e003", "e004"],
-        "platforms_needed": ["bancolombia", "dolarapp", "wise", "revolut"],
+        "edges": [
+          "e001",
+          "e002",
+          "e003",
+          "e004"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "dolarapp",
+          "wise",
+          "revolut"
+        ],
         "ease_score": 3,
         "ease_label": "A few steps",
         "ease_description": "4 steps across well-known apps — straightforward once set up"
@@ -764,18 +1051,31 @@
         "id": "r002",
         "name": "Wise Direct",
         "description": "Simple one-step transfer through Wise",
-        "edges": ["e005"],
-        "platforms_needed": ["bancolombia", "wise"],
+        "edges": [
+          "e005"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "wise"
+        ],
         "ease_score": 5,
-        "ease_label": "Simple",
+        "ease_label": "Simplest",
         "ease_description": "One step — just send through Wise"
       },
       {
         "id": "r003",
         "name": "Crypto Bridge",
         "description": "Via Binance P2P — potentially cheapest but volatile",
-        "edges": ["e007", "e008", "e009"],
-        "platforms_needed": ["bancolombia", "binance", "barclays"],
+        "edges": [
+          "e007",
+          "e008",
+          "e009"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "binance",
+          "barclays"
+        ],
         "ease_score": 2,
         "ease_label": "Complicated",
         "ease_description": "Requires a Binance account with identity verification"
@@ -784,20 +1084,30 @@
         "id": "r004",
         "name": "Global66 Direct",
         "description": "Latin American fintech — simple but higher spread",
-        "edges": ["e023"],
-        "platforms_needed": ["bancolombia", "global66"],
-        "ease_score": 4,
-        "ease_label": "Straightforward",
+        "edges": [
+          "e023"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "global66"
+        ],
+        "ease_score": 5,
+        "ease_label": "Simplest",
         "ease_description": "One step through Global66 — just need the app"
       },
       {
         "id": "r005",
         "name": "Remitly Transfer",
         "description": "Traditional remittance service",
-        "edges": ["e024"],
-        "platforms_needed": ["bancolombia", "remitly"],
-        "ease_score": 4,
-        "ease_label": "Straightforward",
+        "edges": [
+          "e024"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "remitly"
+        ],
+        "ease_score": 5,
+        "ease_label": "Simplest",
         "ease_description": "One step through Remitly — designed for international transfers"
       }
     ],
@@ -806,28 +1116,46 @@
         "id": "r010",
         "name": "Dollar App Direct",
         "description": "Fastest COP to USD via digital dollars",
-        "edges": ["e001"],
-        "platforms_needed": ["bancolombia", "dolarapp"],
-        "ease_score": 4,
-        "ease_label": "Straightforward",
+        "edges": [
+          "e001"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "dolarapp"
+        ],
+        "ease_score": 5,
+        "ease_label": "Simplest",
         "ease_description": "One step — just need Dollar App"
       },
       {
         "id": "r011",
         "name": "Wise Direct",
         "description": "Send COP directly to USD through Wise",
-        "edges": ["e006"],
-        "platforms_needed": ["bancolombia", "wise"],
+        "edges": [
+          "e006"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "wise"
+        ],
         "ease_score": 5,
-        "ease_label": "Simple",
+        "ease_label": "Simplest",
         "ease_description": "One step — just send through Wise"
       },
       {
         "id": "r012",
         "name": "Crypto Bridge",
         "description": "Via Binance P2P to USDT then USD",
-        "edges": ["e007", "e017", "e018"],
-        "platforms_needed": ["bancolombia", "binance", "coinbase"],
+        "edges": [
+          "e007",
+          "e017",
+          "e018"
+        ],
+        "platforms_needed": [
+          "bancolombia",
+          "binance",
+          "coinbase"
+        ],
         "ease_score": 2,
         "ease_label": "Complicated",
         "ease_description": "Requires crypto exchange accounts with verification"
@@ -838,28 +1166,46 @@
         "id": "r020",
         "name": "Dollar App Direct",
         "description": "SPEI to Dollar App — fast and cheap",
-        "edges": ["e013"],
-        "platforms_needed": ["bbva_mx", "dolarapp"],
-        "ease_score": 4,
-        "ease_label": "Straightforward",
+        "edges": [
+          "e013"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "dolarapp"
+        ],
+        "ease_score": 5,
+        "ease_label": "Simplest",
         "ease_description": "One step via SPEI — instant"
       },
       {
         "id": "r021",
         "name": "Wise Direct",
         "description": "Send MXN directly to USD through Wise",
-        "edges": ["e014"],
-        "platforms_needed": ["bbva_mx", "wise"],
+        "edges": [
+          "e014"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "wise"
+        ],
         "ease_score": 5,
-        "ease_label": "Simple",
+        "ease_label": "Simplest",
         "ease_description": "One step — just send through Wise"
       },
       {
         "id": "r022",
         "name": "Crypto Bridge",
         "description": "Via Binance P2P MXN to USDT to USD",
-        "edges": ["e016", "e017", "e018"],
-        "platforms_needed": ["bbva_mx", "binance", "coinbase"],
+        "edges": [
+          "e016",
+          "e017",
+          "e018"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "binance",
+          "coinbase"
+        ],
         "ease_score": 2,
         "ease_label": "Complicated",
         "ease_description": "Requires crypto exchange accounts"
@@ -868,8 +1214,17 @@
         "id": "r023",
         "name": "DolarApp to Wise to US Bank",
         "description": "Two-hop through DolarApp and Wise",
-        "edges": ["e013", "e002", "e021"],
-        "platforms_needed": ["bbva_mx", "dolarapp", "wise", "chase_us"],
+        "edges": [
+          "e013",
+          "e002",
+          "e021"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "dolarapp",
+          "wise",
+          "chase_us"
+        ],
         "ease_score": 3,
         "ease_label": "A few steps",
         "ease_description": "3 steps across mainstream apps"
@@ -880,18 +1235,33 @@
         "id": "r030",
         "name": "Wise Direct",
         "description": "Direct MXN to GBP through Wise",
-        "edges": ["e015"],
-        "platforms_needed": ["bbva_mx", "wise"],
+        "edges": [
+          "e015"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "wise"
+        ],
         "ease_score": 5,
-        "ease_label": "Simple",
+        "ease_label": "Simplest",
         "ease_description": "One step — just send through Wise"
       },
       {
         "id": "r031",
         "name": "DolarApp Bridge",
         "description": "MXN to USD via DolarApp, then Wise USD to GBP",
-        "edges": ["e013", "e002", "e003", "e004"],
-        "platforms_needed": ["bbva_mx", "dolarapp", "wise", "revolut"],
+        "edges": [
+          "e013",
+          "e002",
+          "e003",
+          "e004"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "dolarapp",
+          "wise",
+          "revolut"
+        ],
         "ease_score": 3,
         "ease_label": "A few steps",
         "ease_description": "4 steps across well-known apps"
@@ -900,8 +1270,16 @@
         "id": "r032",
         "name": "Crypto Bridge",
         "description": "Via Binance P2P MXN to USDT to GBP",
-        "edges": ["e016", "e008", "e026"],
-        "platforms_needed": ["bbva_mx", "binance", "revolut"],
+        "edges": [
+          "e016",
+          "e008",
+          "e026"
+        ],
+        "platforms_needed": [
+          "bbva_mx",
+          "binance",
+          "revolut"
+        ],
         "ease_score": 2,
         "ease_label": "Complicated",
         "ease_description": "Requires Binance with identity verification"
@@ -912,35 +1290,51 @@
         "id": "r040",
         "name": "Wise Direct",
         "description": "USD to GBP through Wise — benchmark rate",
-        "edges": ["e025", "e004"],
-        "platforms_needed": ["wise", "revolut"],
+        "edges": [
+          "e025",
+          "e004"
+        ],
+        "platforms_needed": [
+          "wise",
+          "revolut"
+        ],
         "ease_score": 5,
-        "ease_label": "Simple",
+        "ease_label": "Simplest",
         "ease_description": "One step — just convert in Wise"
       },
       {
         "id": "r041",
         "name": "Revolut Convert",
         "description": "Convert USD to GBP within Revolut",
-        "edges": ["e020"],
-        "platforms_needed": ["revolut"],
+        "edges": [
+          "e020"
+        ],
+        "platforms_needed": [
+          "revolut"
+        ],
         "ease_score": 5,
-        "ease_label": "Simple",
+        "ease_label": "Simplest",
         "ease_description": "One step — convert in Revolut app"
       },
       {
         "id": "r042",
         "name": "Crypto Bridge",
         "description": "USD to USDT to GBP via Binance",
-        "edges": ["e017", "e008", "e026"],
-        "platforms_needed": ["binance", "revolut"],
+        "edges": [
+          "e017",
+          "e008",
+          "e026"
+        ],
+        "platforms_needed": [
+          "binance",
+          "revolut"
+        ],
         "ease_score": 2,
         "ease_label": "Complicated",
         "ease_description": "Requires Binance account"
       }
     ]
   },
-
   "cost_calculator": {
     "description": "To calculate total cost for a route at a given amount: 1) Convert amount to USD equivalent. 2) For each edge in the route, find the applicable tier based on USD equivalent. 3) Calculate: edge_cost = fixed_fee_in_dest_currency + (amount × variable_fee_percent/100) + (amount × fx_spread_percent/100). 4) Sum all edge costs. 5) Total cost percentage = (sum of all edge costs / original amount) × 100.",
     "example": {
