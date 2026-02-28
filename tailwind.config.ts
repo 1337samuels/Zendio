@@ -81,9 +81,9 @@ export default {
           offline: "rgb(156 163 175)",
         },
         teal: {
-          DEFAULT: "#00D4AA",
-          dim: "rgba(0, 212, 170, 0.15)",
-          muted: "rgba(0, 212, 170, 0.08)",
+          DEFAULT: "#52C47A",
+          dim: "rgba(82, 196, 122, 0.15)",
+          muted: "rgba(82, 196, 122, 0.08)",
         },
         amber: {
           DEFAULT: "#F5A623",

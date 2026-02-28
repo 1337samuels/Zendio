@@ -7,6 +7,7 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip as RechartTooltip,
   ReferenceLine, ResponsiveContainer,
@@ -354,7 +355,7 @@ function PriceTracker({
     const fxPart = Math.round(cost * 0.62 * 100) / 100;
     const feePart = Math.round((cost - fxPart) * 100) / 100;
     return (
-      <div className="bg-[#0F1729] border border-white/10 rounded-lg p-3 text-xs shadow-xl">
+      <div className="bg-popover border border-white/10 rounded-lg p-3 text-xs shadow-xl">
         <div className="font-semibold text-foreground mb-1">{label}</div>
         <div className="text-foreground font-mono">{sym}{cost.toFixed(2)} total</div>
         <div className="text-muted-foreground mt-1">FX: {sym}{fxPart.toFixed(2)} · Fees: {sym}{feePart.toFixed(2)}</div>
@@ -364,8 +365,8 @@ function PriceTracker({
 
   const CustomDot = (props: { cx?: number; cy?: number; index?: number }) => {
     const { cx, cy, index } = props;
-    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#00D4AA" stroke="#0F1729" strokeWidth={2} />;
-    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="#0F1729" strokeWidth={1.5} />;
+    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#52C47A" stroke="#061209" strokeWidth={2} />;
+    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#7AE0A6" stroke="#061209" strokeWidth={1.5} />;
     return <circle r={0} cx={cx} cy={cy} fill="none" />;
   };
 
@@ -636,7 +637,7 @@ function RouteCard({
             onClick={() => setSelectOpen(true)}
             className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
               isBest
-                ? "bg-teal text-[#0F1729] hover:bg-teal/90 shadow-[0_0_12px_rgba(0,212,170,0.25)] hover:shadow-[0_0_20px_rgba(0,212,170,0.4)]"
+                ? "bg-teal text-background hover:bg-teal/90 shadow-[0_0_12px_rgba(82,196,122,0.25)] hover:shadow-[0_0_20px_rgba(82,196,122,0.4)]"
                 : "bg-teal/15 text-teal border border-teal/30 hover:bg-teal/25"
             }`}
             data-testid={`button-select-${route.id}`}
@@ -649,7 +650,7 @@ function RouteCard({
 
       {/* Tutorial dialog */}
       <Dialog open={selectOpen} onOpenChange={setSelectOpen}>
-        <DialogContent className="bg-[#0F1729] border border-white/10 text-foreground max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="bg-popover border border-white/10 text-foreground max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold text-foreground flex items-center gap-2">
               How to complete this transfer
@@ -723,28 +724,43 @@ function RouteCard({
   );
 }
 
-function AccountChip({
-  name,
-  selected,
-  onToggle,
+function MultiSelect({
+  label, options, selected, onToggle, testId,
 }: {
-  name: string;
-  selected: boolean;
-  onToggle: () => void;
+  label: string;
+  options: string[];
+  selected: Set<string>;
+  onToggle: (name: string) => void;
+  testId: string;
 }) {
+  const count = options.filter((o) => selected.has(o)).length;
   return (
-    <button
-      onClick={onToggle}
-      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
-        selected
-          ? "bg-teal/20 border-teal/50 text-teal"
-          : "border-white/15 text-muted-foreground"
-      }`}
-      data-testid={`chip-account-${name.toLowerCase().replace(/\s+/g, "-")}`}
-    >
-      {selected && <Check className="w-3 h-3 flex-shrink-0" />}
-      {name}
-    </button>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button
+          className="flex items-center justify-between gap-1.5 text-xs px-3 py-2 rounded-md border border-white/15 bg-white/5 text-foreground w-full transition-all hover:bg-white/8"
+          data-testid={testId}
+        >
+          <span className="truncate">{label}{count > 0 ? ` (${count})` : ""}</span>
+          <ChevronDown className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="bg-popover border border-white/10 p-1 w-52" align="start" sideOffset={4}>
+        {options.map((name) => (
+          <button
+            key={name}
+            onClick={() => onToggle(name)}
+            className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded hover:bg-white/8 text-xs text-foreground text-left"
+            data-testid={`option-account-${name.toLowerCase().replace(/\s+/g, "-")}`}
+          >
+            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${selected.has(name) ? "bg-teal border-teal" : "border-white/25 bg-transparent"}`}>
+              {selected.has(name) && <Check className="w-2 h-2 text-background" />}
+            </div>
+            {name}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -764,7 +780,6 @@ export default function RouteFinder() {
   const [perks, setPerks] = useState<Perks>({ revolut: false, wise: false, binance: false });
   const [sortMode, setSortMode] = useState<"cheapest" | "simplest">("cheapest");
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
-  const [customAccount, setCustomAccount] = useState("");
 
   const approxConverted = getApproxConverted(amount, from, to);
 
@@ -892,7 +907,7 @@ export default function RouteFinder() {
               <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-11" data-testid="select-from-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#0F1729] border-white/10">
+              <SelectContent className="bg-popover border-white/10">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-from-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -912,7 +927,7 @@ export default function RouteFinder() {
               <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-11" data-testid="select-to-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-[#0F1729] border-white/10">
+              <SelectContent className="bg-popover border-white/10">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-to-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -961,7 +976,7 @@ export default function RouteFinder() {
                   <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-10 text-sm" data-testid="select-max-hours">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0F1729] border-white/10">
+                  <SelectContent className="bg-popover border-white/10">
                     {TIME_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
                         {opt.label}
@@ -977,79 +992,40 @@ export default function RouteFinder() {
                   Have existing accounts? Select them for better results <span className="opacity-60">(optional)</span>
                 </p>
 
-                {originChips.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                      Your accounts in {ALL_CURRENCIES.find((o) => o.value === from)?.country}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {originChips.map((name) => (
-                        <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {destChips.length > 0 && (
-                  <div className="mb-3">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                      Your accounts in {ALL_CURRENCIES.find((o) => o.value === to)?.country}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {destChips.map((name) => (
-                        <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mb-3">
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2">Other platforms you use</p>
-                  <div className="flex flex-wrap gap-2">
-                    {OTHER_PLATFORMS.map((name) => (
-                      <AccountChip key={name} name={name} selected={selectedAccounts.has(name)} onToggle={() => toggleAccount(name)} />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Custom platform input */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground flex-shrink-0">Other:</span>
-                  <input
-                    type="text"
-                    value={customAccount}
-                    onChange={(e) => setCustomAccount(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && customAccount.trim()) {
-                        toggleAccount(customAccount.trim());
-                        setCustomAccount("");
-                      }
-                    }}
-                    placeholder="Type a platform name and press Enter"
-                    className="flex-1 text-xs bg-transparent border-b border-white/20 focus:outline-none focus:border-teal/50 text-foreground placeholder:text-muted-foreground/50 py-1"
-                    data-testid="input-custom-account"
+                <div className={`grid gap-2 ${originChips.length > 0 && destChips.length > 0 ? "grid-cols-3" : "grid-cols-2"}`}>
+                  {originChips.length > 0 && (
+                    <MultiSelect
+                      label={`${ALL_CURRENCIES.find((o) => o.value === from)?.country ?? from} accounts`}
+                      options={originChips}
+                      selected={selectedAccounts}
+                      onToggle={toggleAccount}
+                      testId="multiselect-source-accounts"
+                    />
+                  )}
+                  {destChips.length > 0 && (
+                    <MultiSelect
+                      label={`${ALL_CURRENCIES.find((o) => o.value === to)?.country ?? to} accounts`}
+                      options={destChips}
+                      selected={selectedAccounts}
+                      onToggle={toggleAccount}
+                      testId="multiselect-target-accounts"
+                    />
+                  )}
+                  <MultiSelect
+                    label="Other platforms"
+                    options={OTHER_PLATFORMS}
+                    selected={selectedAccounts}
+                    onToggle={toggleAccount}
+                    testId="multiselect-other-platforms"
                   />
                 </div>
-
-                {/* Selected custom accounts (not in the predefined lists) */}
-                {(() => {
-                  const predefined = new Set([...originChips, ...destChips, ...OTHER_PLATFORMS]);
-                  const customs = Array.from(selectedAccounts).filter((a) => !predefined.has(a));
-                  return customs.length > 0 ? (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {customs.map((name) => (
-                        <AccountChip key={name} name={name} selected={true} onToggle={() => toggleAccount(name)} />
-                      ))}
-                    </div>
-                  ) : null;
-                })()}
 
                 {(showRevolut || showWise || showBinance) && (
                   <div className="mt-3 pt-3 border-t border-white/8 space-y-2">
                     {showRevolut && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-revolut">
                         <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
-                          {perks.revolut && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
+                          {perks.revolut && <Check className="w-2.5 h-2.5 text-background" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-foreground/60">(fee-free FX up to £1,000/mo)</span></span>
                       </label>
@@ -1057,7 +1033,7 @@ export default function RouteFinder() {
                     {showWise && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-wise">
                         <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
-                          {perks.wise && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
+                          {perks.wise && <Check className="w-2.5 h-2.5 text-background" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Wise Business <span className="text-foreground/60">(lower fees)</span></span>
                       </label>
@@ -1065,7 +1041,7 @@ export default function RouteFinder() {
                     {showBinance && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-binance">
                         <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
-                          {perks.binance && <Check className="w-2.5 h-2.5 text-[#0F1729]" />}
+                          {perks.binance && <Check className="w-2.5 h-2.5 text-background" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Binance VIP <span className="text-foreground/60">(reduced spreads)</span></span>
                       </label>
@@ -1080,7 +1056,7 @@ export default function RouteFinder() {
         <Button
           onClick={handleSearch}
           disabled={isLoading || !amount}
-          className="w-full h-11 bg-teal text-[#0F1729] font-semibold text-sm rounded-lg"
+          className="w-full h-11 bg-teal text-background font-semibold text-sm rounded-lg"
           data-testid="button-find-routes"
         >
           {isLoading ? "Finding routes..." : "Find best route"}

@@ -34,7 +34,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen flex flex-col bg-[#0F1729]">
+        <div className="min-h-screen flex flex-col bg-background">
           <Header onHowItWorks={() => setModalOpen(true)} />
           <main className="flex-1">
             <RouteFinder />
