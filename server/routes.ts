@@ -73,17 +73,84 @@ function generateSmartTimingData(rateData: { rate: number; date: string; day: nu
 }
 
 const RATE_CONFIGS: Record<string, { start: number; end: number; stdDev: number; seed: number }> = {
-  "COP-GBP": { start: 5400, end: 5247, stdDev: 40, seed: 42 },
-  "COP-USD": { start: 4350, end: 4289, stdDev: 30, seed: 77 },
-  "MXN-USD": { start: 18.5, end: 17.8, stdDev: 0.2, seed: 99 },
-  "MXN-GBP": { start: 22.1, end: 21.4, stdDev: 0.25, seed: 55 },
-  "BRL-USD": { start: 5.15, end: 5.02, stdDev: 0.06, seed: 101 },
-  "BRL-EUR": { start: 5.68, end: 5.51, stdDev: 0.07, seed: 112 },
-  "PHP-USD": { start: 57.8, end: 56.2, stdDev: 0.4, seed: 131 },
-  "PHP-GBP": { start: 72.4, end: 70.8, stdDev: 0.5, seed: 144 },
-  "INR-GBP": { start: 105.2, end: 103.8, stdDev: 0.6, seed: 155 },
-  "INR-USD": { start: 84.1, end: 83.2, stdDev: 0.45, seed: 166 },
-  "NGN-GBP": { start: 2050, end: 2010, stdDev: 18, seed: 177 },
+  // Emerging → GBP  (values = FROM-currency per 1 GBP)
+  "COP-GBP": { start: 5060, end: 4937, stdDev: 38, seed: 42 },
+  "MXN-GBP": { start: 26.2,  end: 25.64, stdDev: 0.26, seed: 55 },
+  "BRL-GBP": { start: 7.35,  end: 7.18,  stdDev: 0.08, seed: 242 },
+  "PHP-GBP": { start: 79.0,  end: 77.2,  stdDev: 0.55, seed: 144 },
+  "INR-GBP": { start: 118.5, end: 116.0, stdDev: 0.65, seed: 155 },
+  "NGN-GBP": { start: 2220,  end: 2182,  stdDev: 19,   seed: 177 },
+  // Emerging → USD  (values = FROM-currency per 1 USD)
+  "COP-USD": { start: 3750,  end: 3665,  stdDev: 31,   seed: 77 },
+  "MXN-USD": { start: 19.5,  end: 19.01, stdDev: 0.22, seed: 99 },
+  "BRL-USD": { start: 5.50,  end: 5.33,  stdDev: 0.065,seed: 101 },
+  "PHP-USD": { start: 58.5,  end: 57.3,  stdDev: 0.42, seed: 131 },
+  "INR-USD": { start: 87.5,  end: 86.1,  stdDev: 0.48, seed: 166 },
+  "NGN-USD": { start: 1680,  end: 1620,  stdDev: 15,   seed: 245 },
+  // Emerging → EUR  (values = FROM-currency per 1 EUR)
+  "COP-EUR": { start: 4580,  end: 4450,  stdDev: 35,   seed: 240 },
+  "MXN-EUR": { start: 20.8,  end: 19.9,  stdDev: 0.22, seed: 241 },
+  "BRL-EUR": { start: 5.75,  end: 5.576, stdDev: 0.068,seed: 112 },
+  "PHP-EUR": { start: 61.5,  end: 59.9,  stdDev: 0.50, seed: 243 },
+  "INR-EUR": { start: 91.5,  end: 90.1,  stdDev: 0.80, seed: 244 },
+  "NGN-EUR": { start: 1758,  end: 1693,  stdDev: 16,   seed: 246 },
+  // Major pairs  (values = FROM-currency per 1 TO)
+  "GBP-EUR": { start: 0.892,  end: 0.876,  stdDev: 0.004,  seed: 200 },
+  "EUR-GBP": { start: 1.151,  end: 1.141,  stdDev: 0.005,  seed: 201 },
+  "USD-GBP": { start: 1.370,  end: 1.347,  stdDev: 0.008,  seed: 202 },
+  "GBP-USD": { start: 0.755,  end: 0.742,  stdDev: 0.006,  seed: 203 },
+  "USD-EUR": { start: 1.055,  end: 1.046,  stdDev: 0.005,  seed: 204 },
+  "EUR-USD": { start: 0.963,  end: 0.956,  stdDev: 0.005,  seed: 205 },
+  // Major → Emerging  (values = GBP/USD/EUR per 1 emerging unit)
+  "GBP-COP": { start: 0.000209, end: 0.000203, stdDev: 0.0000015, seed: 210 },
+  "GBP-MXN": { start: 0.0400,  end: 0.0390,  stdDev: 0.00025,  seed: 211 },
+  "GBP-BRL": { start: 0.143,   end: 0.139,   stdDev: 0.0010,   seed: 212 },
+  "GBP-PHP": { start: 0.01330, end: 0.01295, stdDev: 0.0001,   seed: 213 },
+  "GBP-INR": { start: 0.00888, end: 0.00862, stdDev: 0.00006,  seed: 214 },
+  "GBP-NGN": { start: 0.000472,end: 0.000458,stdDev: 0.000004, seed: 215 },
+  "USD-COP": { start: 0.000281,end: 0.000273,stdDev: 0.000002, seed: 220 },
+  "USD-MXN": { start: 0.0540,  end: 0.0526,  stdDev: 0.0003,   seed: 221 },
+  "USD-BRL": { start: 0.198,   end: 0.1876,  stdDev: 0.0012,   seed: 222 },
+  "USD-PHP": { start: 0.01770, end: 0.01745, stdDev: 0.00012,  seed: 223 },
+  "USD-INR": { start: 0.01183, end: 0.01162, stdDev: 0.00008,  seed: 224 },
+  "USD-NGN": { start: 0.000632,end: 0.000617,stdDev: 0.000005, seed: 225 },
+  "EUR-COP": { start: 0.000269,end: 0.000261,stdDev: 0.000002, seed: 230 },
+  "EUR-MXN": { start: 0.0516,  end: 0.0503,  stdDev: 0.0003,   seed: 231 },
+  "EUR-BRL": { start: 0.1839,  end: 0.1793,  stdDev: 0.0012,   seed: 232 },
+  "EUR-PHP": { start: 0.01706, end: 0.01669, stdDev: 0.00012,  seed: 233 },
+  "EUR-INR": { start: 0.01134, end: 0.01110, stdDev: 0.00008,  seed: 234 },
+  "EUR-NGN": { start: 0.000603,end: 0.000590,stdDev: 0.000005, seed: 235 },
+  // Emerging cross-pairs  (values = FROM per 1 TO)
+  "COP-MXN": { start: 198,    end: 193,    stdDev: 2.5,   seed: 300 },
+  "COP-BRL": { start: 710,    end: 688,    stdDev: 8.0,   seed: 301 },
+  "COP-PHP": { start: 65.5,   end: 63.9,   stdDev: 0.50,  seed: 302 },
+  "COP-INR": { start: 45.5,   end: 43.8,   stdDev: 0.40,  seed: 303 },
+  "COP-NGN": { start: 2.35,   end: 2.26,   stdDev: 0.020, seed: 304 },
+  "MXN-COP": { start: 0.00535,end: 0.00519,stdDev: 0.00004,seed: 305 },
+  "MXN-BRL": { start: 3.68,   end: 3.57,   stdDev: 0.030, seed: 306 },
+  "MXN-PHP": { start: 3.09,   end: 3.014,  stdDev: 0.025, seed: 307 },
+  "MXN-INR": { start: 4.64,   end: 4.527,  stdDev: 0.040, seed: 308 },
+  "MXN-NGN": { start: 87.5,   end: 85.25,  stdDev: 0.80,  seed: 309 },
+  "BRL-COP": { start: 0.001485,end:0.001454,stdDev: 0.000012,seed:310 },
+  "BRL-MXN": { start: 0.288,  end: 0.2804, stdDev: 0.0020,seed: 311 },
+  "BRL-PHP": { start: 10.95,  end: 10.75,  stdDev: 0.10,  seed: 312 },
+  "BRL-INR": { start: 16.45,  end: 16.14,  stdDev: 0.15,  seed: 313 },
+  "BRL-NGN": { start: 314,    end: 304,    stdDev: 3.0,   seed: 314 },
+  "PHP-COP": { start: 0.01595,end: 0.01565,stdDev: 0.00013,seed:315 },
+  "PHP-MXN": { start: 0.341,  end: 0.3318, stdDev: 0.0030,seed: 316 },
+  "PHP-BRL": { start: 0.0955, end: 0.09302,stdDev: 0.0007,seed: 317 },
+  "PHP-INR": { start: 1.535,  end: 1.502,  stdDev: 0.012, seed: 318 },
+  "PHP-NGN": { start: 29.2,   end: 28.28,  stdDev: 0.28,  seed: 319 },
+  "INR-COP": { start: 0.0233, end: 0.02278,stdDev: 0.0002,seed: 320 },
+  "INR-MXN": { start: 4.63,   end: 4.527,  stdDev: 0.040, seed: 321 },
+  "INR-BRL": { start: 0.0650, end: 0.06196,stdDev: 0.0005,seed: 322 },
+  "INR-PHP": { start: 0.680,  end: 0.6658, stdDev: 0.006, seed: 323 },
+  "INR-NGN": { start: 19.4,   end: 18.82,  stdDev: 0.18,  seed: 324 },
+  "NGN-COP": { start: 0.453,  end: 0.4423, stdDev: 0.004, seed: 325 },
+  "NGN-MXN": { start: 88.0,   end: 85.25,  stdDev: 0.80,  seed: 326 },
+  "NGN-BRL": { start: 314,    end: 304,    stdDev: 3.0,   seed: 327 },
+  "NGN-PHP": { start: 29.2,   end: 28.28,  stdDev: 0.28,  seed: 328 },
+  "NGN-INR": { start: 19.4,   end: 18.82,  stdDev: 0.18,  seed: 329 },
 };
 
 // ─── remio database cost calculator ──────────────────────────────────────────
@@ -402,6 +469,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
       const cfg = RATE_CONFIGS[key];
       if (cfg) {
         return res.json({ rate: 1 / cfg.end, date: new Date().toISOString().split("T")[0], from, to, source: "fallback" });
+      }
+      // Try deriving from fx_rates table
+      const derived = remioConvert(1, from, to);
+      if (derived && derived !== 1) {
+        return res.json({ rate: derived, date: new Date().toISOString().split("T")[0], from, to, source: "fallback" });
       }
       return res.status(404).json({ error: "Corridor not found" });
     }

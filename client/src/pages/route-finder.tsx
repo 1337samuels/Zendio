@@ -29,12 +29,13 @@ function formatDisplayRate(midRate: number, from: string, to: string) {
   const fromSym = getCurrencySymbol(from);
   const toSym = getCurrencySymbol(to);
   if (midRate < 1) {
-    // e.g. COP→GBP: rate=0.000191, show "£1 = 5,247 COP"
-    const inv = Math.round(1 / midRate);
-    return { label: `${toSym}1 ${to} = ${inv.toLocaleString()} ${from}`, inverted: true, displayRate: inv, strongSym: toSym, strongCode: to, weakCode: from };
+    // e.g. COP→GBP: rate=0.000191, show "£1 GBP = 5,247 COP"
+    const inv = 1 / midRate;
+    const invFormatted = inv >= 100 ? Math.round(inv).toLocaleString('en-US') : inv.toFixed(4);
+    return { label: `${toSym}1 ${to} = ${invFormatted} ${from}`, inverted: true, displayRate: inv, strongSym: toSym, strongCode: to, weakCode: from };
   }
-  // e.g. GBP→COP: rate=5247, show "£1 = 5,247 COP"
-  const formatted = midRate >= 100 ? Math.round(midRate).toLocaleString() : midRate.toFixed(4);
+  // e.g. GBP→EUR: rate=1.1412, show "£1 GBP = 1.1412 EUR"
+  const formatted = midRate >= 100 ? Math.round(midRate).toLocaleString('en-US') : midRate.toFixed(4);
   return { label: `${fromSym}1 ${from} = ${formatted} ${to}`, inverted: false, displayRate: midRate, strongSym: fromSym, strongCode: from, weakCode: to };
 }
 
