@@ -1014,11 +1014,6 @@ export default function RouteFinder() {
             </div>
           </div>
         </div>
-        {approxConverted && (
-          <p className="text-xs text-muted-foreground -mt-2 ml-0.5" data-testid="text-approx-converted">
-            ≈ {approxConverted} received
-          </p>
-        )}
 
         {/* More options toggle */}
         <div>
