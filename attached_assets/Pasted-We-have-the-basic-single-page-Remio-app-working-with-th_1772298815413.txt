@@ -1,0 +1,115 @@
+We have the basic single-page Remio app working with the search bar (From/To/Amount) and route result cards. Now add three features on top of what exists. Do NOT rebuild the search area or route cards — extend them.
+
+--- FEATURE 1: INLINE ACCOUNT SELECTION ---
+
+Add two new optional rows BELOW the existing From/To/Amount search row, inside the same search container:
+
+A thin label: "Have existing accounts? Select them for better results (optional)"
+
+Row A — "Your accounts in [origin country]":
+Show selectable chip/pill buttons for platforms available in the selected origin country:
+- Colombia: Bancolombia, Davivienda, Nequi, BBVA Colombia
+- Mexico: BBVA Mexico, Banorte, Nu Mexico
+These chips update when the user changes the "From" country.
+
+Row B — "Your accounts in [destination country]":
+Same chip format for destination:
+- UK: Wise, Revolut, Monzo, Starling, Barclays
+- US: Chase, Bank of America, Wise, Coinbase
+These update when the user changes the "To" country.
+
+Row C — "Other platforms you use":
+Static list regardless of country: Dollar App, Binance, Coinbase, Payoneer, Global66
+
+Chip behavior: unselected = outlined muted pill, selected = teal filled with ✓. Clicking toggles on/off.
+
+Row D — Conditional perks (only visible if relevant platforms are selected):
+Small inline checkboxes:
+- Shows "Revolut Premium (fee-free FX up to £1,000/mo)" only if Revolut is selected
+- Shows "Wise Business (lower fees)" only if Wise is selected
+- Shows "Binance VIP (reduced spreads)" only if Binance is selected
+
+When accounts are selected:
+- Routes using those platforms get a "Uses your accounts ✓" tag on the card
+- Routes requiring platforms the user doesn't have show "Requires [Platform]" in muted text
+- Revolut Premium checked: the Revolut leg fee becomes £0 (for first £1,000 equivalent), total cost recalculates
+- Wise Business checked: Wise conversion fees drop 20%, total cost recalculates
+- If perk changes affect ranking, cards reorder with animation
+
+When nothing is selected, results stay exactly as they are now. Show a subtle hint below results: "Select your accounts above for personalized results"
+
+
+--- FEATURE 2: EASE-OF-USE SCORE ---
+
+Add to each existing route card (don't rebuild the cards, just add these elements):
+
+A colored pill/badge next to the total cost:
+- Green: "Simple"
+- Light green: "Straightforward"
+- Amber: "A few steps"
+- Orange: "Involved"
+
+Below the badge, one plain-English line explaining why:
+- "One step — just send through Wise"
+- "4 steps across well-known apps — straightforward once set up"
+- "Requires a Binance account with identity verification"
+
+Add a sort toggle above the results (next to the existing results count text):
+- "💰 Cheapest" (default, current behavior)
+- "✨ Simplest" (sorts by ease score, then cost as tiebreaker)
+Toggling reorders cards with smooth animation.
+
+Ease scores for existing mock data:
+
+COP → GBP:
+- Bancolombia → Dollar App → Wise → Revolut: "A few steps" (amber) — "4 steps across well-known apps — straightforward once set up"
+- Bancolombia → Wise direct: "Simple" (green) — "One step — just send through Wise"
+- Bancolombia → Binance → UK Bank: "Involved" (orange) — "Requires a Binance account with identity verification"
+
+COP → USD:
+- Bancolombia → Dollar App: "Straightforward" (light green) — "One step — just need Dollar App"
+- Bancolombia → Wise: "Simple" (green) — "One step — just send through Wise"
+
+MXN → USD:
+- BBVA → Binance → Coinbase → US Bank: "Involved" (orange) — "Requires crypto exchange accounts"
+- BBVA → Wise: "Simple" (green) — "One step — just send through Wise"
+
+
+--- FEATURE 3: HOPPER-STYLE PRICE TRACKER (inside each route card) ---
+
+Add a clickable row at the bottom of each route card: "Is this a good price? ▾"
+
+Clicking expands the card to reveal:
+
+1. A colored verdict banner:
+- Green bg: "Great price — This route's total cost is lower than most of the last 3 months."
+- Yellow bg: "Typical price — Around the average cost for this route."
+- Red bg: "Higher than usual — This route has been cheaper recently."
+One sentence below: e.g., "Today's cost of £11.20 is cheaper than 78% of the last 90 days."
+Note: "Total cost = exchange rate + all fees combined"
+
+2. A small area chart (~150px tall, use recharts) showing the combined total cost (FX + all fees) for THIS route over 90 days:
+- Y-axis: cost in destination currency
+- X-axis: dates by month
+- Teal gradient fill
+- Dashed line at 90-day average
+- Today marked with teal dot
+- Lowest point marked green: "Best: £6.80 on Feb 12"
+- Tooltip on hover: date, total cost, breakdown (rate vs fees)
+
+3. Compact stats below chart: "Low: £6.80 · Average: £12.40 · High: £17.90"
+
+Only one card expanded at a time. Smooth slide animation. When collapsed, show a small green/yellow/red dot next to the cost as a hint.
+
+Generate 90-day mock data per route (deterministic/seeded so it's consistent):
+
+Bancolombia → Dollar App → Wise → Revolut:
+Range £6.80–£16.50, avg £11.80, current £11.20 → Green verdict
+
+Bancolombia → Wise direct:
+Range £42–£55, avg £48.00, current £48.30 → Yellow verdict
+
+Bancolombia → Binance → UK Bank:
+Range £8.20–£28.50, avg £16.40, current £15.80 → Yellow verdict
+
+Generate similar data for the other corridors.
