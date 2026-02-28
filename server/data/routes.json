@@ -1,0 +1,127 @@
+{
+  "COP-GBP": [
+    {
+      "id": "cop-gbp-1",
+      "hops": [
+        { "from_platform": "Bancolombia", "from_currency": "COP", "to_platform": "Dollar App", "to_currency": "USD", "type": "fintech", "fee_label": "0.15% spread" },
+        { "from_platform": "Dollar App", "from_currency": "USD", "to_platform": "Wise", "to_currency": "USD", "type": "fintech", "fee_label": "free" },
+        { "from_platform": "Wise", "from_currency": "USD", "to_platform": "Wise", "to_currency": "GBP", "type": "fintech", "fee_label": "0.33% + $1.50" },
+        { "from_platform": "Wise", "from_currency": "GBP", "to_platform": "Revolut", "to_currency": "GBP", "type": "fintech", "fee_label": "free" }
+      ],
+      "total_cost_destination": 11.20,
+      "total_cost_currency": "GBP",
+      "total_percent": 1.18,
+      "estimated_time": "~1 day",
+      "hop_count": 4,
+      "is_best": true
+    },
+    {
+      "id": "cop-gbp-3",
+      "hops": [
+        { "from_platform": "Bancolombia", "from_currency": "COP", "to_platform": "Binance P2P", "to_currency": "USDT", "type": "crypto", "fee_label": "0.1% spread" },
+        { "from_platform": "Binance", "from_currency": "USDT", "to_platform": "Binance", "to_currency": "GBP", "type": "crypto", "fee_label": "0.2% + $1" },
+        { "from_platform": "Binance", "from_currency": "GBP", "to_platform": "UK Bank", "to_currency": "GBP", "type": "bank", "fee_label": "$2 withdrawal" }
+      ],
+      "total_cost_destination": 15.80,
+      "total_cost_currency": "GBP",
+      "total_percent": 1.66,
+      "estimated_time": "~3 hours",
+      "hop_count": 3,
+      "is_best": false
+    },
+    {
+      "id": "cop-gbp-2",
+      "hops": [
+        { "from_platform": "Bancolombia", "from_currency": "COP", "to_platform": "Wise", "to_currency": "GBP", "type": "fintech", "fee_label": "1.2% + $4.50" }
+      ],
+      "total_cost_destination": 48.30,
+      "total_cost_currency": "GBP",
+      "total_percent": 5.08,
+      "estimated_time": "~2 days",
+      "hop_count": 1,
+      "is_best": false
+    }
+  ],
+  "COP-USD": [
+    {
+      "id": "cop-usd-1",
+      "hops": [
+        { "from_platform": "Bancolombia", "from_currency": "COP", "to_platform": "Dollar App", "to_currency": "USD", "type": "fintech", "fee_label": "0.2% spread" }
+      ],
+      "total_cost_destination": 4.80,
+      "total_cost_currency": "USD",
+      "total_percent": 0.40,
+      "estimated_time": "instant",
+      "hop_count": 1,
+      "is_best": true
+    },
+    {
+      "id": "cop-usd-2",
+      "hops": [
+        { "from_platform": "Bancolombia", "from_currency": "COP", "to_platform": "Wise", "to_currency": "USD", "type": "fintech", "fee_label": "0.8% + $3" }
+      ],
+      "total_cost_destination": 22.10,
+      "total_cost_currency": "USD",
+      "total_percent": 1.84,
+      "estimated_time": "~1 day",
+      "hop_count": 1,
+      "is_best": false
+    }
+  ],
+  "MXN-USD": [
+    {
+      "id": "mxn-usd-1",
+      "hops": [
+        { "from_platform": "BBVA Mexico", "from_currency": "MXN", "to_platform": "Binance P2P", "to_currency": "USDT", "type": "crypto", "fee_label": "0.1%" },
+        { "from_platform": "Binance", "from_currency": "USDT", "to_platform": "Coinbase", "to_currency": "USD", "type": "crypto", "fee_label": "0.15% + $1" },
+        { "from_platform": "Coinbase", "from_currency": "USD", "to_platform": "US Bank", "to_currency": "USD", "type": "bank", "fee_label": "free" }
+      ],
+      "total_cost_destination": 18.20,
+      "total_cost_currency": "USD",
+      "total_percent": 0.33,
+      "estimated_time": "~4 hours",
+      "hop_count": 3,
+      "is_best": true
+    },
+    {
+      "id": "mxn-usd-2",
+      "hops": [
+        { "from_platform": "BBVA Mexico", "from_currency": "MXN", "to_platform": "Wise", "to_currency": "USD", "type": "fintech", "fee_label": "0.5% + $4" }
+      ],
+      "total_cost_destination": 30.50,
+      "total_cost_currency": "USD",
+      "total_percent": 0.55,
+      "estimated_time": "~1 day",
+      "hop_count": 1,
+      "is_best": false
+    }
+  ],
+  "MXN-GBP": [
+    {
+      "id": "mxn-gbp-1",
+      "hops": [
+        { "from_platform": "BBVA Mexico", "from_currency": "MXN", "to_platform": "Binance P2P", "to_currency": "USDT", "type": "crypto", "fee_label": "0.1%" },
+        { "from_platform": "Binance", "from_currency": "USDT", "to_platform": "Wise", "to_currency": "GBP", "type": "fintech", "fee_label": "0.33% + $1.50" },
+        { "from_platform": "Wise", "from_currency": "GBP", "to_platform": "Revolut", "to_currency": "GBP", "type": "fintech", "fee_label": "free" }
+      ],
+      "total_cost_destination": 22.40,
+      "total_cost_currency": "GBP",
+      "total_percent": 0.44,
+      "estimated_time": "~4 hours",
+      "hop_count": 3,
+      "is_best": true
+    },
+    {
+      "id": "mxn-gbp-2",
+      "hops": [
+        { "from_platform": "BBVA Mexico", "from_currency": "MXN", "to_platform": "Wise", "to_currency": "GBP", "type": "fintech", "fee_label": "0.9% + $5" }
+      ],
+      "total_cost_destination": 50.10,
+      "total_cost_currency": "GBP",
+      "total_percent": 0.99,
+      "estimated_time": "~2 days",
+      "hop_count": 1,
+      "is_best": false
+    }
+  ]
+}
