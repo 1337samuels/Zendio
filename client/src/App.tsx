@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { HowItWorksModal } from "@/components/how-it-works-modal";
 import { useState } from "react";
 import RouteFinder from "@/pages/route-finder";
-import zendioLogo from "@assets/image_1772307582300.png";
+import zendioLogo from "@assets/zendio-logo.png";
 
 function ZendioLogo() {
   return (
