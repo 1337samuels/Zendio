@@ -561,7 +561,7 @@ function RouteCard({
           <RouteFlow hops={route.hops} />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-4">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Clock className="w-3.5 h-3.5 flex-shrink-0" />
             <span>{formatTime(route.estimated_hours)}</span>
@@ -580,6 +580,26 @@ function RouteCard({
             </span>
           ))}
         </div>
+
+        <button
+          onClick={() => {
+            const urls = new Set<string>();
+            for (const hop of route.hops) {
+              if (hop.from_url) urls.add(hop.from_url);
+              if (hop.to_url) urls.add(hop.to_url);
+            }
+            urls.forEach((url) => window.open(url, "_blank", "noopener,noreferrer"));
+          }}
+          className={`w-full h-11 rounded-lg font-semibold text-sm flex items-center justify-center gap-2 transition-all mb-3 ${
+            isBest
+              ? "bg-teal text-[#0F1729] hover:bg-teal/90 shadow-[0_0_16px_rgba(0,212,170,0.3)] hover:shadow-[0_0_24px_rgba(0,212,170,0.45)]"
+              : "bg-teal/15 text-teal border border-teal/30 hover:bg-teal/25"
+          }`}
+          data-testid={`button-select-${route.id}`}
+        >
+          Select
+          <ExternalLink className="w-3.5 h-3.5" />
+        </button>
 
         <button
           onClick={onToggleExpand}
@@ -762,7 +782,7 @@ export default function RouteFinder() {
           hasResults ? "mb-6" : ""
         }`}
       >
-        {/* From / To */}
+        {/* From / To / Amount — single row */}
         <div className="flex items-center gap-2">
           <div className="flex-1">
             <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">From</label>
@@ -799,29 +819,27 @@ export default function RouteFinder() {
               </SelectContent>
             </Select>
           </div>
-        </div>
-
-        {/* Amount */}
-        <div>
-          <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount</label>
-          <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm font-mono select-none">{CURRENCY_SYMBOLS[from] ?? from}</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={amount}
-              onChange={(e) => { setAmount(e.target.value.replace(/[^0-9]/g, "")); setSearchParams(null); }}
-              className="w-full h-11 pl-14 pr-4 rounded-md border border-white/10 bg-white/5 text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal/40"
-              data-testid="input-amount"
-              placeholder="0"
-            />
+          <div className="w-32 flex-shrink-0">
+            <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount</label>
+            <div className="relative">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-mono select-none">{CURRENCY_SYMBOLS[from] ?? from}</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={amount}
+                onChange={(e) => { setAmount(e.target.value.replace(/[^0-9]/g, "")); setSearchParams(null); }}
+                className="w-full h-11 pl-7 pr-2 rounded-md border border-white/10 bg-white/5 text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal/40"
+                data-testid="input-amount"
+                placeholder="0"
+              />
+            </div>
           </div>
-          {approxConverted && (
-            <p className="text-xs text-muted-foreground mt-1.5 ml-0.5" data-testid="text-approx-converted">
-              Approximately {approxConverted} received
-            </p>
-          )}
         </div>
+        {approxConverted && (
+          <p className="text-xs text-muted-foreground -mt-2 ml-0.5" data-testid="text-approx-converted">
+            ≈ {approxConverted} received
+          </p>
+        )}
 
         {/* More options toggle */}
         <div>
