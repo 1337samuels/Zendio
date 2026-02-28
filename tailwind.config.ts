@@ -81,9 +81,9 @@ export default {
           offline: "rgb(156 163 175)",
         },
         teal: {
-          DEFAULT: "#52C47A",
-          dim: "rgba(82, 196, 122, 0.15)",
-          muted: "rgba(82, 196, 122, 0.08)",
+          DEFAULT: "#4CAF82",
+          dim: "rgba(76, 175, 130, 0.15)",
+          muted: "rgba(76, 175, 130, 0.08)",
         },
         amber: {
           DEFAULT: "#F5A623",
@@ -95,10 +95,10 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["DM Sans", "var(--font-sans)", "sans-serif"],
+        sans: ["Inter", "var(--font-sans)", "sans-serif"],
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
-        heading: ["Bricolage Grotesque", "DM Sans", "sans-serif"],
+        heading: ["Inter", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {

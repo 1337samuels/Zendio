@@ -271,32 +271,26 @@ function getVerdictInfo(data: PricePoint[], currentCost: number) {
 }
 
 function verdictDotClass(color: string) {
-  if (color === "green") return "bg-emerald-400";
-  if (color === "yellow") return "bg-amber-400";
-  return "bg-rose-400";
+  if (color === "green") return "bg-[#22C55E]";
+  if (color === "yellow") return "bg-[#F59E0B]";
+  return "bg-[#EF4444]";
 }
 
 function verdictBannerClass(color: string) {
-  if (color === "green") return "bg-emerald-500/15 border-emerald-500/25 text-emerald-300";
-  if (color === "yellow") return "bg-amber-500/15 border-amber-500/25 text-amber-300";
-  return "bg-rose-500/15 border-rose-500/25 text-rose-300";
+  if (color === "green") return "bg-[#ECFDF5] border-[#A7F3D0] text-[#065F46]";
+  if (color === "yellow") return "bg-amber-50 border-amber-200 text-amber-800";
+  return "bg-rose-50 border-rose-200 text-rose-800";
 }
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
-function EaseBadge({ routeId, label, color }: { routeId: string; label?: string; color?: string }) {
+function EaseBadge({ routeId, label, color: _color }: { routeId: string; label?: string; color?: string }) {
   const fallback = EASE[routeId];
   const easeLabel = label ?? fallback?.label;
-  const easeColor = color ?? fallback?.color;
   if (!easeLabel) return null;
-  const classes: Record<string, string> = {
-    green: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-    amber: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-    red: "bg-rose-500/20 text-rose-300 border-rose-500/30",
-  };
   return (
     <span
-      className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${classes[easeColor ?? "amber"] ?? classes.amber}`}
+      className="text-[10px] font-semibold px-2 py-0.5 rounded-2xl border bg-[#F0F9FF] text-[#1E40AF] border-[#BFDBFE]"
       data-testid={`badge-ease-${routeId}`}
     >
       {easeLabel}
@@ -369,23 +363,23 @@ function PriceTracker({
     const fxPart = Math.round(cost * 0.62 * 100) / 100;
     const feePart = Math.round((cost - fxPart) * 100) / 100;
     return (
-      <div className="bg-popover border border-white/10 rounded-lg p-3 text-xs shadow-xl">
-        <div className="font-semibold text-foreground mb-1">{label}</div>
-        <div className="text-foreground font-mono">{sym}{cost.toFixed(2)} total</div>
-        <div className="text-muted-foreground mt-1">FX: {sym}{fxPart.toFixed(2)} · Fees: {sym}{feePart.toFixed(2)}</div>
+      <div className="bg-white border border-[#E5E7EB] rounded-lg p-3 text-xs shadow-md">
+        <div className="font-semibold text-[#1A1A2E] mb-1">{label}</div>
+        <div className="text-[#1A1A2E] font-mono">{sym}{cost.toFixed(2)} total</div>
+        <div className="text-[#6B7280] mt-1">FX: {sym}{fxPart.toFixed(2)} · Fees: {sym}{feePart.toFixed(2)}</div>
       </div>
     );
   };
 
   const CustomDot = (props: { cx?: number; cy?: number; index?: number }) => {
     const { cx, cy, index } = props;
-    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#52C47A" stroke="#061209" strokeWidth={2} />;
-    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#7AE0A6" stroke="#061209" strokeWidth={1.5} />;
+    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#4CAF82" stroke="#ffffff" strokeWidth={2} />;
+    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#22C55E" stroke="#ffffff" strokeWidth={1.5} />;
     return <circle r={0} cx={cx} cy={cy} fill="none" />;
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-white/8">
+    <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
       <div
         className={`rounded-lg border px-3 py-2.5 mb-3 ${verdictBannerClass(verdict.color)}`}
         data-testid={`verdict-${routeId}`}
@@ -403,20 +397,20 @@ function PriceTracker({
           <AreaChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id={`grad-${routeId}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#00D4AA" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#00D4AA" stopOpacity={0.01} />
+                <stop offset="5%" stopColor="#4CAF82" stopOpacity={0.20} />
+                <stop offset="95%" stopColor="#4CAF82" stopOpacity={0.01} />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="date"
               ticks={tickDates}
-              tick={{ fill: "#8A9BB5", fontSize: 10 }}
+              tick={{ fill: "#6B7280", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={["auto", "auto"]}
-              tick={{ fill: "#8A9BB5", fontSize: 10 }}
+              tick={{ fill: "#6B7280", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               width={36}
@@ -425,15 +419,15 @@ function PriceTracker({
             <RechartTooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={avg}
-              stroke="#8A9BB5"
+              stroke="#9CA3AF"
               strokeDasharray="4 3"
               strokeWidth={1}
-              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "#8A9BB5", fontSize: 9, position: "insideTopRight" }}
+              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "#9CA3AF", fontSize: 9, position: "insideTopRight" }}
             />
             <Area
               type="monotone"
               dataKey="cost"
-              stroke="#00D4AA"
+              stroke="#4CAF82"
               strokeWidth={1.5}
               fill={`url(#grad-${routeId})`}
               dot={(props) => <CustomDot {...props} />}
@@ -443,9 +437,9 @@ function PriceTracker({
       </div>
 
       <div className="flex gap-4 text-xs text-muted-foreground mt-2">
-        <span>Low: <span className="text-emerald-400 font-mono">{sym}{low.toFixed(2)}</span> on {bestDate}</span>
-        <span>Avg: <span className="font-mono text-foreground/70">{sym}{avg.toFixed(2)}</span></span>
-        <span>High: <span className="text-rose-400 font-mono">{sym}{high.toFixed(2)}</span></span>
+        <span>Low: <span className="text-[#22C55E] font-mono">{sym}{low.toFixed(2)}</span> on {bestDate}</span>
+        <span>Avg: <span className="font-mono text-[#374151]/70">{sym}{avg.toFixed(2)}</span></span>
+        <span>High: <span className="text-[#EF4444] font-mono">{sym}{high.toFixed(2)}</span></span>
       </div>
     </div>
   );
@@ -544,10 +538,10 @@ function RouteCard({
 
   return (
     <div
-      className={`rounded-xl border transition-all duration-200 ${
+      className={`rounded-xl border transition-all duration-200 shadow-[0_1px_3px_rgba(0,0,0,0.08)] ${
         isBest
-          ? "border-teal/40 bg-teal/5 shadow-[0_0_24px_rgba(0,212,170,0.07)]"
-          : "border-white/8 bg-white/[0.03]"
+          ? "border-teal/40 bg-[#F0FDF4]"
+          : "border-[#E5E7EB] bg-white"
       }`}
       data-testid={`card-route-${route.id}`}
     >
@@ -584,15 +578,15 @@ function RouteCard({
             {isCostExpanded && (
               <div className="mt-2 space-y-1.5" data-testid={`cost-breakdown-${route.id}`}>
                 <div className="text-xs text-muted-foreground">
-                  Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{formatMoney(fxCost)}</span>
+                  Costs due to currency rates: <span className="font-mono text-[#374151]">{sym}{formatMoney(fxCost)}</span>
                   {rateDisplay && (
                     <span className="ml-1" data-testid={`text-rate-${route.id}`}>
-                      (<span className={`font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
+                      (<span className={`font-medium ${route.total_percent <= 1 ? "text-[#22C55E]" : route.total_percent <= 2.5 ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
                     </span>
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Costs due to platform fees: <span className="font-mono text-foreground/80">{sym}{formatMoney(feeCost)}</span>
+                  Costs due to platform fees: <span className="font-mono text-[#374151]">{sym}{formatMoney(feeCost)}</span>
                 </div>
               </div>
             )}
@@ -600,7 +594,7 @@ function RouteCard({
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {isBest ? (
               <span
-                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal/20 text-teal border border-teal/30"
+                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
                 data-testid="badge-best-route"
               >
                 Best route
@@ -642,10 +636,10 @@ function RouteCard({
           ))}
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-white/8 gap-3">
+        <div className="flex items-center justify-between pt-2 border-t border-[#E5E7EB] gap-3">
           <button
             onClick={onToggleExpand}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors flex-1 min-w-0"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground transition-colors flex-1 min-w-0 hover:text-[#374151]"
             data-testid={`button-price-tracker-${route.id}`}
           >
             {isExpanded ? <ChevronUp className="w-3.5 h-3.5 flex-shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" />}
@@ -654,10 +648,10 @@ function RouteCard({
           </button>
           <button
             onClick={() => setSelectOpen(true)}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-[8px] text-sm font-semibold transition-all ${
               isBest
-                ? "bg-teal text-background hover:bg-teal/90 shadow-[0_0_12px_rgba(82,196,122,0.25)] hover:shadow-[0_0_20px_rgba(82,196,122,0.4)]"
-                : "bg-teal/15 text-teal border border-teal/30 hover:bg-teal/25"
+                ? "bg-teal text-white hover:bg-[#3D9970]"
+                : "bg-teal text-white hover:bg-[#3D9970]"
             }`}
             data-testid={`button-select-${route.id}`}
           >
@@ -669,7 +663,7 @@ function RouteCard({
 
       {/* Tutorial dialog */}
       <Dialog open={selectOpen} onOpenChange={setSelectOpen}>
-        <DialogContent className="bg-popover border border-white/10 text-foreground max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="bg-white border border-[#E5E7EB] text-[#374151] max-w-lg max-h-[85vh] overflow-y-auto shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold text-foreground flex items-center gap-2">
               How to complete this transfer
@@ -722,7 +716,7 @@ function RouteCard({
           </div>
 
           {/* Platform links */}
-          <div className="mt-5 pt-4 border-t border-white/8">
+          <div className="mt-5 pt-4 border-t border-[#E5E7EB]">
             <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Open platforms</p>
             <div className="flex flex-wrap gap-2">
               {(() => {
@@ -738,14 +732,14 @@ function RouteCard({
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-sm text-foreground transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E7EB] bg-white hover:bg-gray-50 text-sm text-[#374151] transition-colors"
                       data-testid={`link-platform-${name.toLowerCase().replace(/\s+/g, "-")}`}
                     >
                       {name}
                       <ExternalLink className="w-3 h-3 text-muted-foreground" />
                     </a>
                   ) : (
-                    <span key={name} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/8 bg-white/3 text-sm text-muted-foreground">
+                    <span key={name} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E7EB] bg-gray-50 text-sm text-muted-foreground">
                       {name}
                     </span>
                   )
@@ -779,23 +773,23 @@ function MultiSelect({
     <Popover>
       <PopoverTrigger asChild>
         <button
-          className="flex items-center justify-between gap-1.5 text-xs px-3 py-2 rounded-md border border-white/15 bg-white/5 text-foreground w-full transition-all hover:bg-white/8"
+          className="flex items-center justify-between gap-1.5 text-xs px-3 py-2 rounded-md border border-[#D1D5DB] bg-white text-[#374151] w-full transition-all hover:bg-gray-50"
           data-testid={testId}
         >
           <span className="truncate">{label}{count > 0 ? ` (${count})` : ""}</span>
           <ChevronDown className="w-3 h-3 text-muted-foreground flex-shrink-0" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="bg-popover border border-white/10 p-1 w-52" align="start" sideOffset={4}>
+      <PopoverContent className="bg-white border border-[#E5E7EB] p-1 w-52 shadow-md" align="start" sideOffset={4}>
         {options.map((name) => (
           <button
             key={name}
             onClick={() => onToggle(name)}
-            className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded hover:bg-white/8 text-xs text-foreground text-left"
+            className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded hover:bg-gray-50 text-xs text-[#374151] text-left transition-colors"
             data-testid={`option-account-${name.toLowerCase().replace(/\s+/g, "-")}`}
           >
-            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${selected.has(name) ? "bg-teal border-teal" : "border-white/25 bg-transparent"}`}>
-              {selected.has(name) && <Check className="w-2 h-2 text-background" />}
+            <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${selected.has(name) ? "bg-teal border-teal" : "border-[#D1D5DB] bg-transparent"}`}>
+              {selected.has(name) && <Check className="w-2 h-2 text-white" />}
             </div>
             {name}
           </button>
@@ -939,7 +933,7 @@ export default function RouteFinder() {
       )}
 
       <div
-        className={`rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm p-5 md:p-6 space-y-4 ${
+        className={`rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5 md:p-6 space-y-4 ${
           hasResults ? "mb-6" : ""
         }`}
       >
@@ -948,10 +942,10 @@ export default function RouteFinder() {
           <div className="flex-1">
             <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">From</label>
             <Select value={from} onValueChange={handleFromChange}>
-              <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-11" data-testid="select-from-currency">
+              <SelectTrigger className="w-full bg-white border-[#D1D5DB] text-[#1A1A2E] h-11 rounded-[8px] focus:border-teal focus:ring-teal/20" data-testid="select-from-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-white/10">
+              <SelectContent className="bg-white border-[#E5E7EB] shadow-md">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-from-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -961,17 +955,17 @@ export default function RouteFinder() {
             </Select>
           </div>
           <div className="pt-5">
-            <button onClick={handleSwap} className="w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-muted-foreground transition-colors" data-testid="button-swap">
+            <button onClick={handleSwap} className="w-9 h-9 rounded-full border border-[#E5E7EB] bg-white flex items-center justify-center text-muted-foreground hover:bg-gray-50 transition-colors" data-testid="button-swap">
               <ArrowLeftRight className="w-4 h-4" />
             </button>
           </div>
           <div className="flex-1">
             <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">To</label>
             <Select value={to} onValueChange={(val) => { setTo(val); setSearchParams(null); setSelectedAccounts(new Set()); }}>
-              <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-11" data-testid="select-to-currency">
+              <SelectTrigger className="w-full bg-white border-[#D1D5DB] text-[#1A1A2E] h-11 rounded-[8px] focus:border-teal focus:ring-teal/20" data-testid="select-to-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-popover border-white/10">
+              <SelectContent className="bg-white border-[#E5E7EB] shadow-md">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-to-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -989,7 +983,7 @@ export default function RouteFinder() {
                 inputMode="numeric"
                 value={amount ? Number(amount).toLocaleString('en-US') : ''}
                 onChange={(e) => { const raw = e.target.value.replace(/,/g, '').replace(/[^0-9]/g, ''); setAmount(raw); setSearchParams(null); }}
-                className="w-full h-11 pl-7 pr-2 rounded-md border border-white/10 bg-white/5 text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal/40"
+                className="w-full h-11 pl-7 pr-2 rounded-[8px] border border-[#D1D5DB] bg-white text-[#1A1A2E] text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal"
                 data-testid="input-amount"
                 placeholder="0"
               />
@@ -1004,7 +998,7 @@ export default function RouteFinder() {
 
         {/* More options toggle */}
         <div>
-          <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs text-muted-foreground" data-testid="button-toggle-options">
+          <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-[#374151] transition-colors" data-testid="button-toggle-options">
             {showOptions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             {showOptions ? "Hide options" : "More options"}
           </button>
@@ -1017,10 +1011,10 @@ export default function RouteFinder() {
                   I need money there within
                 </label>
                 <Select value={maxHours} onValueChange={(val) => { setMaxHours(val); setSearchParams(null); }}>
-                  <SelectTrigger className="w-full bg-white/5 border-white/10 text-foreground h-10 text-sm" data-testid="select-max-hours">
+                  <SelectTrigger className="w-full bg-white border-[#D1D5DB] text-[#1A1A2E] h-10 text-sm rounded-[8px]" data-testid="select-max-hours">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-white/10">
+                  <SelectContent className="bg-white border-[#E5E7EB] shadow-md">
                     {TIME_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
                         {opt.label}
@@ -1031,7 +1025,7 @@ export default function RouteFinder() {
               </div>
 
               {/* Account selection */}
-              <div className="pt-3 border-t border-white/8">
+              <div className="pt-3 border-t border-[#E5E7EB]">
                 <p className="text-[11px] text-muted-foreground mb-3">
                   Have existing accounts? Select them for better results <span className="opacity-60">(optional)</span>
                 </p>
@@ -1065,29 +1059,29 @@ export default function RouteFinder() {
                 </div>
 
                 {(showRevolut || showWise || showBinance) && (
-                  <div className="mt-3 pt-3 border-t border-white/8 space-y-2">
+                  <div className="mt-3 pt-3 border-t border-[#E5E7EB] space-y-2">
                     {showRevolut && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-revolut">
-                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
-                          {perks.revolut && <Check className="w-2.5 h-2.5 text-background" />}
+                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-teal border-teal" : "border-[#D1D5DB] bg-white"}`}>
+                          {perks.revolut && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
-                        <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-foreground/60">(fee-free FX up to £1,000/mo)</span></span>
+                        <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-[#6B7280]/60">(fee-free FX up to £1,000/mo)</span></span>
                       </label>
                     )}
                     {showWise && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-wise">
-                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
-                          {perks.wise && <Check className="w-2.5 h-2.5 text-background" />}
+                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-teal border-teal" : "border-[#D1D5DB] bg-white"}`}>
+                          {perks.wise && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
-                        <span className="text-xs text-muted-foreground">Wise Business <span className="text-foreground/60">(lower fees)</span></span>
+                        <span className="text-xs text-muted-foreground">Wise Business <span className="text-[#6B7280]/60">(lower fees)</span></span>
                       </label>
                     )}
                     {showBinance && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-binance">
-                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-teal border-teal" : "border-white/20 bg-white/5"}`}>
-                          {perks.binance && <Check className="w-2.5 h-2.5 text-background" />}
+                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-teal border-teal" : "border-[#D1D5DB] bg-white"}`}>
+                          {perks.binance && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
-                        <span className="text-xs text-muted-foreground">Binance VIP <span className="text-foreground/60">(reduced spreads)</span></span>
+                        <span className="text-xs text-muted-foreground">Binance VIP <span className="text-[#6B7280]/60">(reduced spreads)</span></span>
                       </label>
                     )}
                   </div>
@@ -1100,7 +1094,7 @@ export default function RouteFinder() {
         <Button
           onClick={handleSearch}
           disabled={isLoading || !amount}
-          className="w-full h-11 bg-teal text-background font-semibold text-sm rounded-lg"
+          className="w-full h-11 bg-teal text-white font-semibold text-sm rounded-[10px] hover:bg-[#3D9970] transition-colors"
           data-testid="button-find-routes"
         >
           {isLoading ? "Finding routes..." : "Find best route"}
@@ -1114,14 +1108,14 @@ export default function RouteFinder() {
             const d = formatDisplayRate(midRateData.rate, midRateData.from, midRateData.to);
             const dateLabel = new Date(midRateData.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
             return (
-              <div className="mb-4 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03] flex items-center justify-between gap-3 flex-wrap" data-testid="banner-midmarket-rate">
+              <div className="mb-4 px-4 py-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] flex items-center justify-between gap-3 flex-wrap" data-testid="banner-midmarket-rate">
                 <div>
-                  <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Mid-market rate</p>
-                  <p className="text-sm font-mono font-semibold text-foreground">{d.label}</p>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-[#065F46] mb-0.5">Mid-market rate</p>
+                  <p className="text-sm font-mono font-semibold text-[#065F46]">{d.label}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] text-muted-foreground">Updated {dateLabel}</p>
-                  <p className="text-[10px] text-muted-foreground/60 mt-0.5">Route rates below show actual cost vs this benchmark</p>
+                  <p className="text-[10px] text-[#065F46]/70">Updated {dateLabel}</p>
+                  <p className="text-[10px] text-[#065F46]/50 mt-0.5">Route rates below show actual cost vs this benchmark</p>
                 </div>
               </div>
             );
@@ -1138,11 +1132,11 @@ export default function RouteFinder() {
                 <p className="text-sm text-muted-foreground" data-testid="text-route-count">
                   {sortedRoutes.length} route{sortedRoutes.length !== 1 ? "s" : ""} found
                 </p>
-                <div className="flex gap-0.5 bg-white/5 border border-white/8 rounded-lg p-0.5">
+                <div className="flex gap-0.5 bg-gray-100 border border-[#E5E7EB] rounded-lg p-0.5">
                   <button
                     onClick={() => setSortMode("cheapest")}
                     className={`text-[11px] px-3 py-1.5 rounded-md font-medium transition-colors ${
-                      sortMode === "cheapest" ? "bg-white/10 text-foreground" : "text-muted-foreground"
+                      sortMode === "cheapest" ? "bg-white text-[#1A1A2E] shadow-sm" : "text-muted-foreground hover:text-[#374151]"
                     }`}
                     data-testid="button-sort-cheapest"
                   >
@@ -1151,7 +1145,7 @@ export default function RouteFinder() {
                   <button
                     onClick={() => setSortMode("simplest")}
                     className={`text-[11px] px-3 py-1.5 rounded-md font-medium transition-colors ${
-                      sortMode === "simplest" ? "bg-white/10 text-foreground" : "text-muted-foreground"
+                      sortMode === "simplest" ? "bg-white text-[#1A1A2E] shadow-sm" : "text-muted-foreground hover:text-[#374151]"
                     }`}
                     data-testid="button-sort-simplest"
                   >

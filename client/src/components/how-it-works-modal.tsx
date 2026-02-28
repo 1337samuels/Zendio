@@ -40,7 +40,7 @@ export function HowItWorksModal({ open, onOpenChange }: HowItWorksModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-w-md border border-white/10 bg-[#0F1729] text-foreground"
+        className="max-w-md border border-[#E5E7EB] bg-white text-[#374151] shadow-lg"
         aria-describedby="how-it-works-desc"
         data-testid="modal-how-it-works"
       >
@@ -57,7 +57,7 @@ export function HowItWorksModal({ open, onOpenChange }: HowItWorksModalProps) {
           {steps.map((step, idx) => (
             <div key={idx} className={`flex gap-4 p-4 rounded-lg border ${step.accent}`}>
               <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-md flex items-center justify-center bg-white/5">
+                <div className="w-8 h-8 rounded-md flex items-center justify-center bg-gray-100">
                   <step.icon className={`w-4 h-4 ${step.color}`} />
                 </div>
               </div>

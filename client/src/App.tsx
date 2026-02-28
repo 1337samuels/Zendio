@@ -22,7 +22,7 @@ function ZendioLogo({ onClick }: { onClick?: () => void }) {
 
 function Header({ onHowItWorks, onLogoClick }: { onHowItWorks: () => void; onLogoClick: () => void }) {
   return (
-    <header className="flex h-14 items-center justify-between px-5 md:px-8 border-b border-white/8">
+    <header className="flex h-14 items-center justify-between px-5 md:px-8 border-b border-[#E5E7EB] bg-white">
       <ZendioLogo onClick={onLogoClick} />
       <button
         onClick={onHowItWorks}
@@ -47,7 +47,7 @@ export default function App() {
           <main className="flex-1">
             <RouteFinder key={resetKey} />
           </main>
-          <footer className="px-6 py-4 text-center text-xs text-muted-foreground border-t border-white/8">
+          <footer className="px-6 py-4 text-center text-xs text-muted-foreground border-t border-[#E5E7EB] bg-white">
             Zendio does not provide financial advice. Information is for comparison purposes only.
           </footer>
         </div>

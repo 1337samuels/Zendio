@@ -1,0 +1,71 @@
+Change the visual design of the app — colors, fonts, and styling only. Do NOT modify any functionality, button logic, text content, component structure, or element positions. Here are the exact changes:
+Background & Layout:
+
+Main page background: #F8F9FA (warm off-white)
+Card/surface backgrounds: #FFFFFF with a subtle 1px solid #E5E7EB border and border-radius: 12px
+Add subtle box shadow to cards: 0 1px 3px rgba(0,0,0,0.08)
+
+Typography:
+
+Import and apply Inter from Google Fonts as the primary font family across the entire app
+Headings (h1, h2, h3): font-weight 700, color #1A1A2E
+Body text: font-weight 400, color #374151
+Secondary/muted text (labels like "FROM", "TO", "AMOUNT"): font-weight 600, color #6B7280, letter-spacing 0.05em
+
+Primary Buttons (like "Find best route"):
+
+Background: #4CAF82
+Text color: #FFFFFF, font-weight 600
+Hover state: #3D9970
+Border-radius: 10px
+Remove any existing green/mint gradient and use flat solid color
+
+Select Dropdowns & Input Fields:
+
+Background: #FFFFFF
+Border: 1px solid #D1D5DB
+Text color: #1A1A2E
+Border-radius: 8px
+Focus state: border color #4CAF82
+
+Route Result Cards:
+
+Background: #FFFFFF
+Border: 1px solid #E5E7EB
+"BEST ROUTE" badge: background #ECFDF5, text color #065F46, border 1px solid #A7F3D0, border-radius 20px
+Total cost number: font-weight 700, font-size larger, color #1A1A2E
+Step arrows and platform names: color #374151
+The "Select →" button: background #4CAF82, text white, border-radius 8px
+
+Price Indicator Colors:
+
+"Great price" / green indicator: #22C55E
+"Typical" / yellow indicator: #F59E0B
+"Higher than usual" / red indicator: #EF4444
+
+Mid-market rate bar:
+
+Background: #F0FDF4 (very light green tint)
+Border: 1px solid #BBF7D0
+Text color: #065F46
+
+Ease-of-use tags (like "A few steps", "Simple"):
+
+Background: #F0F9FF
+Text: #1E40AF
+Border-radius: 16px
+
+Zendio Logo area / nav bar:
+
+Background: #FFFFFF
+Bottom border: 1px solid #E5E7EB
+Logo text: #1A1A2E
+Logo "Z" accent: #4CAF82
+
+General:
+
+Remove all dark mode / dark background styling
+Ensure all hover states have smooth transition: all 0.15s ease
+Ensure minimum contrast ratio of 4.5:1 for all text on backgrounds
+
+Do not change: any text content, button placement, routing logic, API calls, component structure, data flow, or functionality of any kind.
