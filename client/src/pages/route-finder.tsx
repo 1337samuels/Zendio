@@ -466,14 +466,6 @@ function RouteCard({
   const rateDisplay = midRateData
     ? formatDisplayRate(midRateData.rate, fromCurrency, toCurrency)
     : null;
-  const effectiveRate = rateDisplay
-    ? effectiveDisplayRate(midRateData!.rate, route.total_percent, rateDisplay.inverted)
-    : null;
-  const midDisplayRate = rateDisplay
-    ? (rateDisplay.inverted
-        ? Math.round(1 / midRateData!.rate).toLocaleString()
-        : (rateDisplay.displayRate >= 100 ? Math.round(rateDisplay.displayRate).toLocaleString() : rateDisplay.displayRate.toFixed(4)))
-    : null;
 
   const platforms = getRoutePlatforms(route);
   const firstPlatform = route.hops[0]?.from_platform;
@@ -526,18 +518,16 @@ function RouteCard({
             {isCostExpanded && (
               <div className="mt-2 space-y-1.5" data-testid={`cost-breakdown-${route.id}`}>
                 <div className="text-xs text-muted-foreground">
-                  FX cost: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
-                  <span className="mx-1.5">&middot;</span>
-                  Fees: <span className="font-mono text-foreground/80">{sym}{feeCost.toFixed(2)}</span>
+                  Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
                 </div>
-                {rateDisplay && effectiveRate && (
+                <div className="text-xs text-muted-foreground">
+                  Costs due to platform fees: <span className="font-mono text-foreground/80">{sym}{feeCost.toFixed(2)}</span>
+                </div>
+                {rateDisplay && (
                   <div className="text-xs" data-testid={`text-rate-${route.id}`}>
-                    <span className="text-muted-foreground">Route rate: </span>
-                    <span className="font-mono text-foreground">{rateDisplay.strongSym}1 {rateDisplay.strongCode} = {effectiveRate} {rateDisplay.weakCode}</span>
-                    <span className="text-muted-foreground"> &middot; mid-market: </span>
-                    <span className="font-mono text-muted-foreground/80">{midDisplayRate}</span>
-                    <span className={`ml-1.5 font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>
-                      +{route.total_percent.toFixed(2)}% cost
+                    <span className="text-muted-foreground">vs mid-market rate: </span>
+                    <span className={`font-medium ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>
+                      +{route.total_percent.toFixed(2)}% above mid-market
                     </span>
                   </div>
                 )}
