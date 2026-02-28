@@ -1,0 +1,300 @@
+Build a full-stack web app called RemitRadar — "Google Flights for remittances."
+
+It helps diaspora workers find the cheapest multi-hop route to send money between countries. All data is mock/static for now (no real APIs). The app has 4 pages: Route Finder, Rate Tracker, Smart Timing, and Rate Alerts.
+
+## Tech Stack
+- Frontend: React with Vite, TypeScript, Tailwind CSS, shadcn/ui, recharts for charts
+- Backend: Express.js API serving mock data from JSON files
+- Use React Router for page navigation
+- Framer Motion for animations
+
+## Design System
+
+Theme: dark fintech aesthetic, premium but approachable.
+
+CSS variables:
+--bg-primary: #0F1729 (deep navy)
+--bg-card: rgba(255, 255, 255, 0.04) with backdrop-blur-xl
+--accent-teal: #00D4AA (primary actions, best route highlights)
+--accent-amber: #F5A623 (alerts, warnings)
+--accent-red: #FF6B6B (expensive routes, bad rates)
+--text-primary: #F0F0F0
+--text-muted: #8A9BB5
+
+Typography: Import "DM Sans" (body) and "Bricolage Grotesque" (headings) from Google Fonts. Never use Inter, Roboto, or system fonts.
+
+Cards: rounded-xl with bg-white/5 backdrop-blur-xl border border-white/10. On hover, subtle scale and border-white/20 transition.
+
+## Layout
+
+Desktop: sidebar navigation on the left (collapsed to icons, expands on hover) with 4 items:
+- 🔍 Route Finder
+- 📈 Rate Tracker  
+- ⏱️ Smart Timing
+- 🔔 Rate Alerts
+
+Mobile: bottom tab navigation with the same 4 items.
+
+Top header bar across all pages:
+- Left: "RemitRadar" logo text in Bricolage Grotesque with a small teal radar/pulse SVG icon. "Beta" badge next to it.
+- Right: "How it works" text link (opens a modal) and "Get Early Access" teal button.
+
+Footer on all pages:
+- "RemitRadar does not provide financial advice. Historical data is for informational purposes only."
+- "Built with ❤️ for the diaspora"
+
+## Page 1: Route Finder (default/home page)
+
+Top controls:
+- Two dropdown selects side by side: "Sending from" (COP - Colombian Peso, MXN - Mexican Peso) and "Receiving in" (GBP - British Pound, USD - US Dollar)
+- Amount input with currency symbol prefix
+- "Find Best Route" button in teal
+
+When the user clicks the button, show a 1.5-second loading animation: a radar sweep/pulse animation with text "Scanning 47 routes across 6 platforms..." Then reveal results with staggered card animations.
+
+Results: show route cards ranked by total cost. Each card has:
+
+A) HORIZONTAL PIPELINE showing each hop in the route:
+- Each node is a rounded pill: platform name on top, currency code below, with a small colored dot (teal for fintech, amber for crypto, gray for bank)
+- Nodes connected by a line/arrow with the fee for that leg shown above the line (e.g., "0.15%" or "$1.50" or "free")
+- On mobile, this pipeline should become VERTICAL (stepper style) if more than 2 hops
+
+B) RIGHT SIDE of each card:
+- Total cost in destination currency, large bold text (e.g., "£11.20")
+- Label "total fees & spread"
+- Estimated time with clock icon (e.g., "~1 day")
+- Number of hops with a steps icon (e.g., "4 hops")
+
+C) The cheapest card has:
+- Teal border glow (box-shadow: 0 0 20px rgba(0, 212, 170, 0.15))
+- "BEST ROUTE" badge with subtle shimmer CSS animation
+- Numbers animate/count up when appearing
+
+D) Non-cheapest cards show: "You'd pay £XX.XX more" in muted red below the total cost
+
+Below all cards, an insight box with dark teal background:
+"By using the optimal route, you save £37.10 compared to sending directly through Wise. That's enough for a week of groceries. 🎯"
+
+### Mock Data — Route Finder
+
+Store this in server/data/routes.json and serve via GET /api/routes?from=COP&to=GBP&amount=5000000
+
+COP → GBP (base amount: 5,000,000 COP, roughly £950):
+
+Route 1 (BEST):
+  hops: [
+    { from_platform: "Bancolombia", from_currency: "COP", to_platform: "Dollar App", to_currency: "USD", type: "fintech", fee_label: "0.15% spread" },
+    { from_platform: "Dollar App", from_currency: "USD", to_platform: "Wise", to_currency: "USD", type: "fintech", fee_label: "free" },
+    { from_platform: "Wise", from_currency: "USD", to_platform: "Wise", to_currency: "GBP", type: "fintech", fee_label: "0.33% + $1.50" },
+    { from_platform: "Wise", from_currency: "GBP", to_platform: "Revolut", to_currency: "GBP", type: "fintech", fee_label: "free" }
+  ]
+  total_cost_destination: 11.20
+  total_cost_currency: "GBP"
+  total_percent: 1.18
+  estimated_time: "~1 day"
+  hop_count: 4
+
+Route 2:
+  hops: [
+    { from_platform: "Bancolombia", from_currency: "COP", to_platform: "Wise", to_currency: "GBP", type: "fintech", fee_label: "1.2% + $4.50" }
+  ]
+  total_cost_destination: 48.30
+  total_cost_currency: "GBP"
+  total_percent: 5.08
+  estimated_time: "~2 days"
+  hop_count: 1
+
+Route 3:
+  hops: [
+    { from_platform: "Bancolombia", from_currency: "COP", to_platform: "Binance P2P", to_currency: "USDT", type: "crypto", fee_label: "0.1% spread" },
+    { from_platform: "Binance", from_currency: "USDT", to_platform: "Binance", to_currency: "GBP", type: "crypto", fee_label: "0.2% + $1" },
+    { from_platform: "Binance", from_currency: "GBP", to_platform: "UK Bank", to_currency: "GBP", type: "bank", fee_label: "$2 withdrawal" }
+  ]
+  total_cost_destination: 15.80
+  total_cost_currency: "GBP"
+  total_percent: 1.66
+  estimated_time: "~3 hours"
+  hop_count: 3
+
+COP → USD (base amount: 5,000,000 COP, roughly $1,200):
+
+Route 1 (BEST):
+  hops: [
+    { from_platform: "Bancolombia", from_currency: "COP", to_platform: "Dollar App", to_currency: "USD", type: "fintech", fee_label: "0.2% spread" }
+  ]
+  total_cost_destination: 4.80, currency: "USD", percent: 0.40, time: "instant", hops: 1
+
+Route 2:
+  hops: [
+    { from_platform: "Bancolombia", from_currency: "COP", to_platform: "Wise", to_currency: "USD", type: "fintech", fee_label: "0.8% + $3" }
+  ]
+  total_cost_destination: 22.10, currency: "USD", percent: 1.84, time: "~1 day", hops: 1
+
+MXN → USD (base amount: 100,000 MXN, roughly $5,500):
+
+Route 1 (BEST):
+  hops: [
+    { from_platform: "BBVA Mexico", from_currency: "MXN", to_platform: "Binance P2P", to_currency: "USDT", type: "crypto", fee_label: "0.1%" },
+    { from_platform: "Binance", from_currency: "USDT", to_platform: "Coinbase", to_currency: "USD", type: "crypto", fee_label: "0.15% + $1" },
+    { from_platform: "Coinbase", from_currency: "USD", to_platform: "US Bank", to_currency: "USD", type: "bank", fee_label: "free" }
+  ]
+  total_cost_destination: 18.20, currency: "USD", percent: 0.33, time: "~4 hours", hops: 3
+
+Route 2:
+  hops: [
+    { from_platform: "BBVA Mexico", from_currency: "MXN", to_platform: "Wise", to_currency: "USD", type: "fintech", fee_label: "0.5% + $4" }
+  ]
+  total_cost_destination: 30.50, currency: "USD", percent: 0.55, time: "~1 day", hops: 1
+
+
+## Page 2: Rate Tracker
+
+Top: same corridor selector dropdowns (origin → destination currency).
+
+Current rate card (large, centered):
+- Big number: "1 GBP = 5,247 COP" (or the equivalent for selected corridor)
+- Colored badge next to it:
+  - Green pulsing badge "Good time to send ✓" if mock rate is in bottom 30th percentile of 90-day data
+  - Amber badge "Average rates" if middle 40%
+  - Red badge "Rates are high" if top 30%
+- Subtext: "Today's rate is better than 73% of the last 90 days"
+
+Chart section:
+- Recharts AreaChart showing 90 days of mock FX data
+- Generate the mock data programmatically: start at 5,400 on day 1, apply a random walk (daily change = gaussian noise with std dev of ~40) with a slight downward drift ending near 5,247 on day 90. Seed the random so it's consistent.
+- Horizontal dashed ReferenceLine at the 90-day average
+- Area below average shaded with teal/green at low opacity
+- Area above average shaded with red at low opacity
+- Today's point marked with a large teal dot
+- Tooltip on hover: date + rate + "X% vs average"
+
+Stats row (3 small cards):
+- "90-day Low": 5,103 (Feb 12)
+- "90-day Average": 5,312
+- "90-day High": 5,589 (Feb 3)
+
+Bottom insight cards:
+- "Best day this month: Feb 12 — rate was 5,103. You would have received £23 more on a 5M COP transfer."
+- "Worst day this month: Feb 3 — rate was 5,589."
+
+Create similar mock data generators for COP/USD (range ~4,100-4,400) and MXN/USD (range ~17.5-19.2).
+
+Serve via GET /api/rates?from=COP&to=GBP
+
+
+## Page 3: Smart Timing (the differentiator)
+
+This page shows that the REAL cost of remittance includes both FX and platform fees, and that the cheapest route changes over time.
+
+Top: corridor selector + explanatory subtitle in muted text: "Raw exchange rates don't tell the full story. Platform fees and spreads change independently. We track the real cost of your optimal route over time."
+
+Main chart — Recharts LineChart with TWO lines:
+- Line 1 (gray, dashed, label "FX Rate Only"): raw exchange rate over 90 days (same data as Rate Tracker, but normalize to show as cost percentage, e.g., deviation from best possible rate)
+- Line 2 (teal, solid, thick, label "True Cost via Best Route"): total cost percentage including FX + all hop fees. Generate this so it generally tracks Line 1 but diverges at key moments.
+
+Create 3 annotation points on the chart where the lines diverge, rendered as small marker dots with tooltips:
+- Day ~30: True Cost dips to 0.8% while FX was average. Tooltip: "Binance P2P spread dropped — crypto route was cheapest this week"
+- Day ~60: FX rate was favorable but True Cost didn't improve much. Tooltip: "Wise increased fees — offset the good FX rate"  
+- Day ~75: Both lines hit their minimum. Tooltip: "Best day to send — 0.6% total cost"
+
+Insight cards below chart:
+
+Card 1 — "Route shifts this month" with a vertical mini timeline:
+- "Feb 1–8: Dollar App route was cheapest (0.9% avg)"
+- "Feb 9–15: Crypto route took over (0.7% avg)" 
+- "Feb 16–today: Dollar App route is cheapest again (0.85%)"
+Each segment has a colored left border (teal/amber) and the platform icons.
+
+Card 2 — "Your potential savings":
+- "If you sent 5M COP every month and always used the best route on the best day, you'd save approximately £340/year vs always using Wise direct."
+- Small Recharts BarChart: 12 months (Jan-Dec), each bar showing mock monthly savings (ranging £20-£45), bars in teal.
+
+Bottom CTA card with teal gradient background:
+"Want to know the best moment to send? Set up a Rate Alert →" (React Router link to /alerts)
+
+Serve data via GET /api/smart-timing?from=COP&to=GBP
+
+
+## Page 4: Rate Alerts
+
+Top heading: "Never miss a good rate"
+Subtitle: "Set your target and we'll tell you when it's time to send."
+
+Create Alert form (card with slightly lighter background):
+- Corridor selector dropdowns
+- Amount input
+- "Alert me when total cost drops below" — input field showing percentage with % suffix (default: 1.0%)
+- "Or alert when FX rate is better than" — input field (default: empty/placeholder with current 90-day low)
+- Toggle switch: "Alert on best route change" with description "Notify when a different route becomes cheapest"
+- "Create Alert" teal button
+- On submit, add the alert to the Active Alerts list below (store in React state, no persistence needed)
+
+Active Alerts section (show 2 pre-loaded mock alerts):
+
+Alert Card 1:
+- Title: "COP → GBP: Total cost < 0.9%"
+- Progress bar: current 1.1% toward target 0.9%, fill in amber, ~70% full
+- Status: amber dot + "Not triggered"
+- "Current best route: Bancolombia → Dollar App → Wise → Revolut"
+- "Created Feb 10, 2026"
+- Delete button (X icon, top right)
+
+Alert Card 2:
+- Title: "COP → USD: Rate better than 4,350"
+- Progress bar: current 4,289 toward 4,350, fill in amber, ~85%
+- Status: amber pulsing dot + "Almost there! Within 1.4% of target"
+- "Current best route: Bancolombia → Dollar App"
+- "Created Feb 18, 2026"
+- Delete button
+
+Alert History section:
+3 mock triggered alerts, each card with green left border and ✅ icon:
+
+- "Feb 15 — COP → GBP total cost hit 0.85%. Best route: Binance P2P path. Sending 5M COP would save ~£37 vs Wise direct."
+- "Feb 8 — COP → USD rate crossed 4,400. Dollar App route cost only 0.2%."
+- "Jan 28 — Route change alert: Crypto route became cheapest for COP → GBP (was Dollar App route). Savings: 0.3% improvement."
+
+Bottom info card with lightbulb icon:
+"Pro tip: Most remittance corridors have weekly patterns. COP/GBP tends to be cheapest early in the month when Colombian export revenues flow in."
+
+
+## "How it Works" Modal
+
+When user clicks "How it works" in the header, show a centered modal with:
+- Title: "How RemitRadar Works"
+- 3-step visual explanation:
+  1. "🔍 We scan routes" — "We compare transfer costs across platforms like Wise, Revolut, Dollar App, and Binance — including multi-hop combinations most people never find."
+  2. "🧮 We calculate true cost" — "Every route's real cost = FX spread + transfer fees + platform fees at each hop. We rank by what you actually pay."
+  3. "⏱️ We track timing" — "Exchange rates and platform fees change daily. We monitor both so you know when to send and which route to use."
+- Bottom text: "RemitRadar doesn't move your money. We show you the cheapest path — you execute the transfers yourself."
+- Close button
+
+
+## Animations & Micro-interactions
+- Route cards: stagger entrance with Framer Motion (each card delays 100ms)
+- Numbers/costs: animate counting up from 0 when they appear in viewport
+- "BEST ROUTE" badge: CSS shimmer animation (background gradient sweep)
+- Radar loading animation: SVG circle with a sweeping teal arc, rotating
+- Page transitions: fade in with slight upward slide
+- Chart data: animate drawing the line from left to right on mount
+- Hover on cards: scale(1.01) with border brightness increase
+- Alert progress bars: animate width on mount
+- Teal CTA buttons: subtle glow pulse on hover
+
+
+## API Routes Summary
+All served by Express from static mock data:
+
+GET /api/routes?from=COP&to=GBP&amount=5000000
+GET /api/rates?from=COP&to=GBP (returns 90 days of historical mock data + current rate + stats)
+GET /api/smart-timing?from=COP&to=GBP (returns dual-line data + annotations + route shifts + savings)
+GET /api/corridors (returns list of available corridors)
+
+Return proper JSON with consistent schemas. Include a small delay (200-500ms) on route responses to make the loading animation visible.
+
+
+## Final Notes
+- Make sure the app is fully responsive and looks great on mobile
+- Use proper TypeScript types for all data models
+- Keep the code clean and well-organized — this will become a real project
+- Deploy automatically on Replit so I get a live URL to share
