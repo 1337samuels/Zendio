@@ -12,7 +12,7 @@ const steps = [
     step: "1",
     title: "We scan dozens of routes",
     description:
-      "Remio analyzes every possible combination of fintech apps, crypto bridges, and bank transfers to find the optimal path for your money — across 12+ platforms.",
+      "Zendio analyzes every possible combination of fintech apps, crypto bridges, and bank transfers to find the optimal path for your money — across 12+ platforms.",
     color: "text-teal",
     accent: "border-teal/20 bg-teal/5",
   },
@@ -46,7 +46,7 @@ export function HowItWorksModal({ open, onOpenChange }: HowItWorksModalProps) {
       >
         <DialogHeader>
           <DialogTitle className="font-heading text-xl font-bold text-foreground">
-            How Remio works
+            How Zendio works
           </DialogTitle>
           <p id="how-it-works-desc" className="text-sm text-muted-foreground mt-0.5">
             Three steps. One goal: more money in your recipient's hands.
@@ -72,7 +72,7 @@ export function HowItWorksModal({ open, onOpenChange }: HowItWorksModalProps) {
           ))}
 
           <p className="text-[11px] text-muted-foreground text-center pt-1 leading-relaxed">
-            Remio does not provide financial advice. Information is for comparison purposes only.
+            Zendio does not provide financial advice. Information is for comparison purposes only.
           </p>
         </div>
       </DialogContent>

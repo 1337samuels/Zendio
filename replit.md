@@ -1,7 +1,7 @@
-# Remio — Find the Cheapest Way to Send Money Abroad
+# Zendio — Find the Cheapest Way to Send Money Abroad
 
 ## Overview
-Remio helps diaspora workers find the cheapest multi-hop route to send money internationally. It compares routes across fintech apps, crypto bridges, and bank transfers. All data is mock/static. The app is a single page with a clean search-engine aesthetic.
+Zendio helps diaspora workers find the cheapest multi-hop route to send money internationally. It compares routes across fintech apps, crypto bridges, and bank transfers. All data is mock/static. The app is a single page with a clean search-engine aesthetic.
 
 ## Architecture
 - **Frontend**: React + Vite, TypeScript, Tailwind CSS, shadcn/ui, Wouter (unused, single page), framer-motion
@@ -13,10 +13,10 @@ Remio helps diaspora workers find the cheapest multi-hop route to send money int
 
 ## Key Components
 - `client/src/components/corridor-select.tsx` — currency + country data, APPROX_RATES, getCurrencySymbol, getApproxConverted
-- `client/src/components/how-it-works-modal.tsx` — 3-step explainer modal (branded Remio)
+- `client/src/components/how-it-works-modal.tsx` — 3-step explainer modal (branded Zendio)
 
 ## Layout
-- No sidebar. Header: Remio logo + "How it works" link. Footer: disclaimer text.
+- No sidebar. Header: Zendio logo + "How it works" link. Footer: disclaimer text.
 - Search form centered (hero feel before search, stays at top after results appear)
 - Route cards: total cost + FX/fees split, platform flow (names + arrows), time estimate, Best route badge
 
