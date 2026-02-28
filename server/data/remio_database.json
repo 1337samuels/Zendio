@@ -1077,7 +1077,8 @@
         ],
         "ease_score": 1,
         "ease_label": "Complex",
-        "ease_description": "4 steps across multiple apps — takes time to set up"
+        "ease_description": "4 steps across multiple apps — takes time to set up",
+        "ease_color": "orange"
       },
       {
         "id": "r002",
@@ -1092,7 +1093,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step — just send through Wise"
+        "ease_description": "One step — just send through Wise",
+        "ease_color": "green"
       },
       {
         "id": "r003",
@@ -1108,9 +1110,10 @@
           "binance",
           "barclays"
         ],
-        "ease_score": 1,
-        "ease_label": "Complex",
-        "ease_description": "Requires a Binance account with identity verification and crypto steps"
+        "ease_score": 2,
+        "ease_label": "A few steps",
+        "ease_description": "Requires a Binance account with identity verification and crypto steps",
+        "ease_color": "yellow"
       },
       {
         "id": "r004",
@@ -1123,9 +1126,10 @@
           "bancolombia",
           "global66"
         ],
-        "ease_score": 1,
-        "ease_label": "Complex",
-        "ease_description": "Specialist platform most users will not have — requires new account setup"
+        "ease_score": 3,
+        "ease_label": "Simple",
+        "ease_description": "Specialist platform most users will not have — requires new account setup",
+        "ease_color": "green"
       },
       {
         "id": "r005",
@@ -1140,7 +1144,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step through Remitly — designed for international transfers"
+        "ease_description": "One step through Remitly — designed for international transfers",
+        "ease_color": "green"
       }
     ],
     "COP_USD": [
@@ -1157,7 +1162,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step — just need Dollar App"
+        "ease_description": "One step — just need Dollar App",
+        "ease_color": "green"
       },
       {
         "id": "r011",
@@ -1172,7 +1178,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step — just send through Wise"
+        "ease_description": "One step — just send through Wise",
+        "ease_color": "green"
       },
       {
         "id": "r012",
@@ -1188,9 +1195,10 @@
           "binance",
           "coinbase"
         ],
-        "ease_score": 1,
-        "ease_label": "Complex",
-        "ease_description": "Requires crypto exchange accounts with verification"
+        "ease_score": 2,
+        "ease_label": "A few steps",
+        "ease_description": "Requires crypto exchange accounts with verification",
+        "ease_color": "yellow"
       }
     ],
     "MXN_USD": [
@@ -1207,7 +1215,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step via SPEI — instant"
+        "ease_description": "One step via SPEI — instant",
+        "ease_color": "green"
       },
       {
         "id": "r021",
@@ -1222,7 +1231,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step — just send through Wise"
+        "ease_description": "One step — just send through Wise",
+        "ease_color": "green"
       },
       {
         "id": "r022",
@@ -1238,9 +1248,10 @@
           "binance",
           "coinbase"
         ],
-        "ease_score": 1,
-        "ease_label": "Complex",
-        "ease_description": "Requires crypto exchange accounts"
+        "ease_score": 2,
+        "ease_label": "A few steps",
+        "ease_description": "Requires crypto exchange accounts",
+        "ease_color": "yellow"
       },
       {
         "id": "r023",
@@ -1259,7 +1270,8 @@
         ],
         "ease_score": 2,
         "ease_label": "A few steps",
-        "ease_description": "3 steps across mainstream apps"
+        "ease_description": "3 steps across mainstream apps",
+        "ease_color": "yellow"
       }
     ],
     "MXN_GBP": [
@@ -1276,7 +1288,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step — just send through Wise"
+        "ease_description": "One step — just send through Wise",
+        "ease_color": "green"
       },
       {
         "id": "r031",
@@ -1296,7 +1309,8 @@
         ],
         "ease_score": 1,
         "ease_label": "Complex",
-        "ease_description": "4 steps across multiple apps — takes time to set up"
+        "ease_description": "4 steps across multiple apps — takes time to set up",
+        "ease_color": "orange"
       },
       {
         "id": "r032",
@@ -1312,9 +1326,10 @@
           "binance",
           "revolut"
         ],
-        "ease_score": 1,
-        "ease_label": "Complex",
-        "ease_description": "Requires Binance with identity verification and crypto steps"
+        "ease_score": 2,
+        "ease_label": "A few steps",
+        "ease_description": "Requires Binance with identity verification and crypto steps",
+        "ease_color": "yellow"
       }
     ],
     "USD_GBP": [
@@ -1332,7 +1347,8 @@
         ],
         "ease_score": 2,
         "ease_label": "A few steps",
-        "ease_description": "Two mainstream fiat steps — Wise then Revolut"
+        "ease_description": "Two mainstream fiat steps — Wise then Revolut",
+        "ease_color": "yellow"
       },
       {
         "id": "r041",
@@ -1346,7 +1362,8 @@
         ],
         "ease_score": 3,
         "ease_label": "Simple",
-        "ease_description": "One step — convert in Revolut app"
+        "ease_description": "One step — convert in Revolut app",
+        "ease_color": "green"
       },
       {
         "id": "r042",
@@ -1361,9 +1378,10 @@
           "binance",
           "revolut"
         ],
-        "ease_score": 1,
-        "ease_label": "Complex",
-        "ease_description": "Requires Binance account with crypto steps"
+        "ease_score": 2,
+        "ease_label": "A few steps",
+        "ease_description": "Requires Binance account with crypto steps",
+        "ease_color": "yellow"
       }
     ]
   },

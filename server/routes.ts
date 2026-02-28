@@ -216,8 +216,8 @@ const PLATFORM_URLS: Record<string, string | null> = {
 
 const EASE_COLORS: Record<string, string> = {
   "Simple": "green",
-  "A few steps": "amber",
-  "Complex": "red",
+  "A few steps": "yellow",
+  "Complex": "orange",
 };
 
 function normalizeCurrency(c: string): string {

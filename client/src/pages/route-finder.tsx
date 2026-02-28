@@ -90,47 +90,47 @@ const OTHER_PLATFORMS = ["Dollar App", "Binance", "Coinbase", "Payoneer", "Globa
 
 type EaseLevel = { label: string; score: number; color: string; explanation: string };
 const EASE: Record<string, EaseLevel> = {
-  "cop-gbp-1": { label: "Complex", score: 1, color: "red", explanation: "4 steps across multiple apps — takes time to set up" },
+  "cop-gbp-1": { label: "Complex", score: 1, color: "orange", explanation: "4 steps across multiple apps — takes time to set up" },
   "cop-gbp-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Wise" },
-  "cop-gbp-3": { label: "Complex", score: 1, color: "red", explanation: "Requires a Binance account with identity verification and crypto steps" },
-  "cop-gbp-4": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps — easy to set up" },
+  "cop-gbp-3": { label: "A few steps", score: 2, color: "yellow", explanation: "3 steps across multiple apps" },
+  "cop-gbp-4": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps — easy to set up" },
   "cop-gbp-5": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
   "cop-usd-1": { label: "Simple", score: 3, color: "green", explanation: "One step — just need Dollar App" },
   "cop-usd-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Wise" },
   "cop-usd-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
-  "cop-usd-4": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps via XE and OFX" },
+  "cop-usd-4": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps via XE and OFX" },
   "cop-usd-5": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Western Union" },
-  "mxn-usd-1": { label: "Complex", score: 1, color: "red", explanation: "Requires crypto exchange accounts and multiple steps" },
+  "mxn-usd-1": { label: "A few steps", score: 2, color: "yellow", explanation: "3 steps across multiple accounts" },
   "mxn-usd-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Wise" },
   "mxn-usd-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
   "mxn-usd-4": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through XE" },
   "mxn-usd-5": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through MoneyGram" },
-  "mxn-gbp-1": { label: "Complex", score: 1, color: "red", explanation: "Requires a Binance account — involves crypto steps" },
+  "mxn-gbp-1": { label: "A few steps", score: 2, color: "yellow", explanation: "3 steps across multiple accounts" },
   "mxn-gbp-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Wise" },
   "mxn-gbp-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through XE" },
   "mxn-gbp-4": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Western Union" },
-  "brl-usd-1": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps — Nubank then Wise" },
+  "brl-usd-1": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps — Nubank then Wise" },
   "brl-usd-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
-  "brl-usd-3": { label: "Complex", score: 1, color: "red", explanation: "Requires Binance with crypto — identity verification needed" },
+  "brl-usd-3": { label: "A few steps", score: 2, color: "yellow", explanation: "3 steps involving crypto transfer" },
   "brl-usd-4": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Western Union" },
-  "brl-eur-1": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps — Nubank then Wise" },
+  "brl-eur-1": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps — Nubank then Wise" },
   "brl-eur-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through XE" },
   "brl-eur-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through OFX" },
   "php-usd-1": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
   "php-usd-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Wise" },
   "php-usd-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Western Union" },
-  "php-usd-4": { label: "Complex", score: 1, color: "red", explanation: "Requires Binance and Coinbase accounts with crypto steps" },
-  "php-gbp-1": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps — GCash then Wise" },
+  "php-usd-4": { label: "A few steps", score: 2, color: "yellow", explanation: "3 steps involving multiple platforms" },
+  "php-gbp-1": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps — GCash then Wise" },
   "php-gbp-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through XE" },
   "php-gbp-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through MoneyGram" },
-  "inr-gbp-1": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps — HDFC Bank then Wise" },
+  "inr-gbp-1": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps — HDFC Bank then Wise" },
   "inr-gbp-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
   "inr-gbp-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Skrill" },
   "inr-gbp-4": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Western Union" },
-  "inr-usd-1": { label: "A few steps", score: 2, color: "amber", explanation: "Two mainstream fiat steps — HDFC Bank then Wise" },
+  "inr-usd-1": { label: "A few steps", score: 2, color: "yellow", explanation: "Two mainstream fiat steps — HDFC Bank then Wise" },
   "inr-usd-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
   "inr-usd-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through XE" },
-  "ngn-gbp-1": { label: "Complex", score: 1, color: "red", explanation: "Requires Binance account — involves crypto steps" },
+  "ngn-gbp-1": { label: "Complex", score: 1, color: "orange", explanation: "4 steps across multiple apps — takes time to set up" },
   "ngn-gbp-2": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Remitly" },
   "ngn-gbp-3": { label: "Simple", score: 3, color: "green", explanation: "One step — just send through Western Union" },
 };
@@ -300,13 +300,22 @@ function verdictBannerClass(color: string) {
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 
-function EaseBadge({ routeId, label, color: _color }: { routeId: string; label?: string; color?: string }) {
+function EaseBadge({ routeId, label, color }: { routeId: string; label?: string; color?: string }) {
   const fallback = EASE[routeId];
   const easeLabel = label ?? fallback?.label;
+  const easeColor = color ?? fallback?.color;
   if (!easeLabel) return null;
+  const colorClass =
+    easeColor === "green"
+      ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
+      : easeColor === "yellow"
+      ? "bg-[#FEFCE8] text-[#854D0E] border-[#FEF08A]"
+      : easeColor === "orange"
+      ? "bg-[#FFF7ED] text-[#9A3412] border-[#FED7AA]"
+      : "bg-[#F0F9FF] text-[#1E40AF] border-[#BFDBFE]";
   return (
     <span
-      className="text-[10px] font-semibold px-2 py-0.5 rounded-2xl border bg-[#F0F9FF] text-[#1E40AF] border-[#BFDBFE]"
+      className={`text-[10px] font-semibold px-2 py-0.5 rounded-2xl border ${colorClass}`}
       data-testid={`badge-ease-${routeId}`}
     >
       {easeLabel}
