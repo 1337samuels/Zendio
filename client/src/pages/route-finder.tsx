@@ -278,9 +278,9 @@ function verdictDotClass(color: string) {
 }
 
 function verdictBannerClass(color: string) {
-  if (color === "green") return "bg-emerald-50 border-emerald-200 text-emerald-700";
-  if (color === "yellow") return "bg-amber-50 border-amber-200 text-amber-700";
-  return "bg-rose-50 border-rose-200 text-rose-700";
+  if (color === "green") return "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+  if (color === "yellow") return "bg-amber-500/10 border-amber-500/20 text-amber-400";
+  return "bg-rose-500/10 border-rose-500/20 text-rose-400";
 }
 
 function getCurrencySymbol(code: string) {
@@ -323,10 +323,10 @@ function EaseBadge({ routeId }: { routeId: string }) {
   const ease = EASE[routeId];
   if (!ease) return null;
   const classes: Record<string, string> = {
-    green: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    lime: "bg-lime-50 text-lime-700 border-lime-200",
-    amber: "bg-amber-50 text-amber-700 border-amber-200",
-    red: "bg-rose-50 text-rose-700 border-rose-200",
+    green: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+    lime: "bg-lime-500/10 text-lime-400 border-lime-500/20",
+    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+    red: "bg-rose-500/10 text-rose-400 border-rose-500/20",
   };
   return (
     <span
@@ -405,7 +405,7 @@ function PriceTracker({
     const fxPart = Math.round(cost * 0.62 * 100) / 100;
     const feePart = Math.round((cost - fxPart) * 100) / 100;
     return (
-      <div className="bg-white border border-[#D5E8DA] rounded-lg p-3 text-xs shadow-lg">
+      <div className="bg-card border border-border rounded-lg p-3 text-xs shadow-lg">
         <div className="font-semibold text-foreground mb-1">{label}</div>
         <div className="text-foreground font-mono">{sym}{cost.toFixed(2)} total</div>
         <div className="text-muted-foreground mt-1">FX: {sym}{fxPart.toFixed(2)} · Fees: {sym}{feePart.toFixed(2)}</div>
@@ -415,13 +415,13 @@ function PriceTracker({
 
   const CustomDot = (props: { cx?: number; cy?: number; index?: number }) => {
     const { cx, cy, index } = props;
-    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="#0D7A49" stroke="#ffffff" strokeWidth={2} />;
-    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="#ffffff" strokeWidth={1.5} />;
+    if (index === 89) return <circle cx={cx} cy={cy} r={5} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={2} />;
+    if (index === bestIdx) return <circle cx={cx} cy={cy} r={4} fill="#34d399" stroke="hsl(var(--background))" strokeWidth={1.5} />;
     return <circle r={0} cx={cx} cy={cy} fill="none" />;
   };
 
   return (
-    <div className="mt-3 pt-3 border-t border-[#D5E8DA]">
+    <div className="mt-3 pt-3 border-t border-border">
       <div
         className={`rounded-lg border px-3 py-2.5 mb-3 ${verdictBannerClass(verdict.color)}`}
         data-testid={`verdict-${routeId}`}
@@ -439,20 +439,20 @@ function PriceTracker({
           <AreaChart data={data} margin={{ top: 6, right: 4, bottom: 0, left: 0 }}>
             <defs>
               <linearGradient id={`grad-${routeId}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0D7A49" stopOpacity={0.15} />
-                <stop offset="95%" stopColor="#0D7A49" stopOpacity={0.01} />
+                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.15} />
+                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.01} />
               </linearGradient>
             </defs>
             <XAxis
               dataKey="date"
               ticks={tickDates}
-              tick={{ fill: "#5A7A65", fontSize: 10 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
               domain={["auto", "auto"]}
-              tick={{ fill: "#5A7A65", fontSize: 10 }}
+              tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               width={36}
@@ -461,15 +461,15 @@ function PriceTracker({
             <RechartTooltip content={<CustomTooltip />} />
             <ReferenceLine
               y={avg}
-              stroke="#9BB5A2"
+              stroke="hsl(var(--muted))"
               strokeDasharray="4 3"
               strokeWidth={1}
-              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "#5A7A65", fontSize: 9, position: "insideTopRight" }}
+              label={{ value: `avg ${sym}${avg.toFixed(2)}`, fill: "hsl(var(--muted-foreground))", fontSize: 9, position: "insideTopRight" }}
             />
             <Area
               type="monotone"
               dataKey="cost"
-              stroke="#0D7A49"
+              stroke="hsl(var(--primary))"
               strokeWidth={2}
               fill={`url(#grad-${routeId})`}
               dot={(props) => <CustomDot {...props} />}
@@ -479,9 +479,9 @@ function PriceTracker({
       </div>
 
       <div className="flex gap-4 text-xs text-muted-foreground mt-2">
-        <span>Low: <span className="text-emerald-600 font-mono font-bold">{sym}{low.toFixed(2)}</span> on {bestDate}</span>
+        <span>Low: <span className="text-emerald-400 font-mono font-bold">{sym}{low.toFixed(2)}</span> on {bestDate}</span>
         <span>Avg: <span className="font-mono text-foreground/70">{sym}{avg.toFixed(2)}</span></span>
-        <span>High: <span className="text-rose-600 font-mono">{sym}{high.toFixed(2)}</span></span>
+        <span>High: <span className="text-rose-400 font-mono">{sym}{high.toFixed(2)}</span></span>
       </div>
     </div>
   );
@@ -541,8 +541,8 @@ function RouteCard({
     <div
       className={`rounded-xl border transition-all duration-200 ${
         isBest
-          ? "border-[#7DCCA5] bg-[#F0FAF5] shadow-[0_4px_20px_rgba(13,122,73,0.12)]"
-          : "border-[#D5E8DA] bg-white shadow-sm hover:border-[#7DCCA5]/50"
+          ? "border-primary bg-primary/5 shadow-[0_4px_20px_rgba(0,212,170,0.12)]"
+          : "border-border bg-card shadow-sm hover:border-primary/50"
       }`}
       data-testid={`card-route-${route.id}`}
     >
@@ -577,7 +577,7 @@ function RouteCard({
                   Costs due to currency rates: <span className="font-mono text-foreground/80">{sym}{fxCost.toFixed(2)}</span>
                   {rateDisplay && (
                     <span className="ml-1" data-testid={`text-rate-${route.id}`}>
-                      (<span className={`font-bold ${route.total_percent <= 1 ? "text-emerald-600" : route.total_percent <= 2.5 ? "text-amber-600" : "text-rose-600"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
+                      (<span className={`font-bold ${route.total_percent <= 1 ? "text-emerald-400" : route.total_percent <= 2.5 ? "text-amber-400" : "text-rose-400"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
                     </span>
                   )}
                 </div>
@@ -590,7 +590,7 @@ function RouteCard({
           <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
             {isBest ? (
               <span
-                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#D8F0E5] text-[#0A6A3C] border border-[#7DCCA5]"
+                className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary/20 text-primary border border-primary/30"
                 data-testid="badge-best-route"
               >
                 Best route
@@ -619,7 +619,7 @@ function RouteCard({
           </div>
           {usesAccounts && (
             <span
-              className="flex items-center gap-1 text-xs text-[#0D7A49] font-bold"
+              className="flex items-center gap-1 text-xs text-primary font-bold"
               data-testid={`tag-uses-accounts-${route.id}`}
             >
               <Check className="w-3 h-3" /> Uses your accounts
@@ -634,7 +634,7 @@ function RouteCard({
 
         <button
           onClick={onToggleExpand}
-          className="flex items-center gap-1.5 text-xs font-bold text-[#0D7A49] w-full pt-3 border-t border-[#D5E8DA] hover:text-[#0A6A3C] transition-colors"
+          className="flex items-center gap-1.5 text-xs font-bold text-primary w-full pt-3 border-t border-border hover:text-primary/80 transition-colors"
           data-testid={`button-price-tracker-${route.id}`}
         >
           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -666,8 +666,8 @@ function AccountChip({
       onClick={onToggle}
       className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-all ${
         selected
-          ? "bg-[#D8F0E5] border-[#7DCCA5] text-[#0A6A3C]"
-          : "border-[#D5E8DA] bg-white text-muted-foreground hover:border-[#7DCCA5]"
+          ? "bg-primary/20 border-primary text-primary"
+          : "border-border bg-card text-muted-foreground hover:border-primary"
       }`}
       data-testid={`chip-account-${name.toLowerCase().replace(/\s+/g, "-")}`}
     >
@@ -793,7 +793,7 @@ export default function RouteFinder() {
       )}
 
       <div
-        className={`rounded-xl border border-[#D5E8DA] bg-[#F0FAF5] p-4 shadow-md max-w-5xl mx-auto ${
+        className={`rounded-xl border border-border bg-card p-4 shadow-md max-w-5xl mx-auto ${
           hasResults ? "mb-8" : "mb-4"
         }`}
       >
@@ -801,10 +801,10 @@ export default function RouteFinder() {
           <div className="flex-1 min-w-[120px]">
             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1 block">From</label>
             <Select value={from} onValueChange={handleFromChange}>
-              <SelectTrigger className="w-full bg-white border-[#D5E8DA] text-foreground h-10 px-3 shadow-sm" data-testid="select-from-currency">
+              <SelectTrigger className="w-full bg-background border-border text-foreground h-10 px-3 shadow-sm" data-testid="select-from-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#D5E8DA]">
+              <SelectContent className="bg-popover border-popover-border">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-from-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -817,7 +817,7 @@ export default function RouteFinder() {
           <div className="pb-1 flex-shrink-0 flex items-center justify-center">
             <button 
               onClick={handleSwap} 
-              className="w-8 h-8 rounded-full border border-[#D5E8DA] bg-white flex items-center justify-center text-muted-foreground hover:text-[#0D7A49] transition-all shadow-sm" 
+              className="w-8 h-8 rounded-full border border-border bg-background flex items-center justify-center text-muted-foreground hover:text-primary transition-all shadow-sm" 
               data-testid="button-swap"
             >
               <ArrowLeftRight className="w-3.5 h-3.5" />
@@ -827,10 +827,10 @@ export default function RouteFinder() {
           <div className="flex-1 min-w-[120px]">
             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight mb-1 block">To</label>
             <Select value={to} onValueChange={(val) => { setTo(val); setSearchParams(null); setSelectedAccounts(new Set()); }}>
-              <SelectTrigger className="w-full bg-white border-[#D5E8DA] text-foreground h-10 px-3 shadow-sm" data-testid="select-to-currency">
+              <SelectTrigger className="w-full bg-background border-border text-foreground h-10 px-3 shadow-sm" data-testid="select-to-currency">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white border-[#D5E8DA]">
+              <SelectContent className="bg-popover border-popover-border">
                 {ALL_CURRENCIES.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value} data-testid={`option-to-${opt.value}`}>
                     {opt.symbol} {opt.country} ({opt.currency})
@@ -849,7 +849,7 @@ export default function RouteFinder() {
                 inputMode="numeric"
                 value={amount}
                 onChange={(e) => { setAmount(e.target.value.replace(/[^0-9]/g, "")); setSearchParams(null); }}
-                className="w-full h-10 pl-7 pr-3 rounded-md border border-[#D5E8DA] bg-white text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#0D7A49]/20 shadow-sm"
+                className="w-full h-10 pl-7 pr-3 rounded-md border border-border bg-background text-foreground text-sm font-mono focus:outline-none focus:ring-1 focus:ring-primary/20 shadow-sm"
                 data-testid="input-amount"
                 placeholder="0"
               />
@@ -860,7 +860,7 @@ export default function RouteFinder() {
             <Button
               onClick={handleSearch}
               disabled={isLoading || !amount}
-              className="h-10 px-6 bg-[#0D7A49] hover:bg-[#0A6A3C] text-white font-bold text-sm rounded-md flex items-center gap-2 shadow-md transition-all active:scale-[0.98]"
+              className="h-10 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-md flex items-center gap-2 shadow-md transition-all active:scale-[0.98]"
               data-testid="button-find-routes"
             >
               {isLoading ? "..." : (
@@ -877,7 +877,7 @@ export default function RouteFinder() {
         <Button
           onClick={handleSearch}
           disabled={isLoading || !amount}
-          className="w-full h-12 bg-[#0D7A49] hover:bg-[#0A6A3C] text-white font-bold text-base rounded-lg flex items-center justify-center gap-2 shadow-md"
+          className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-base rounded-lg flex items-center justify-center gap-2 shadow-md"
           data-testid="button-find-routes-mobile"
         >
           {isLoading ? "..." : (
@@ -890,7 +890,7 @@ export default function RouteFinder() {
 
       {/* More options toggle */}
       <div className="max-w-5xl mx-auto flex justify-end mb-8 mt-2 md:mt-0">
-        <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs font-semibold text-[#0D7A49] hover:underline transition-all" data-testid="button-toggle-options">
+        <button onClick={() => setShowOptions((v) => !v)} className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline transition-all" data-testid="button-toggle-options">
           {showOptions ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           {showOptions ? "Fewer options" : "More options"}
         </button>
@@ -898,17 +898,17 @@ export default function RouteFinder() {
 
       {showOptions && (
         <div className="max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="bg-white rounded-xl border border-[#D5E8DA] p-6 shadow-sm space-y-4">
+          <div className="bg-card rounded-xl border border-border p-6 shadow-sm space-y-4">
             {/* Time filter */}
             <div>
               <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
                 Maximum transfer time
               </label>
               <Select value={maxHours} onValueChange={(val) => { setMaxHours(val); setSearchParams(null); }}>
-                <SelectTrigger className="w-full bg-background border-[#D5E8DA] h-10 text-sm" data-testid="select-max-hours">
+                <SelectTrigger className="w-full bg-background border-border h-10 text-sm" data-testid="select-max-hours">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-[#D5E8DA]">
+                <SelectContent className="bg-popover border-popover-border">
                   {TIME_OPTIONS.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value} data-testid={`option-time-${opt.value}`}>
                       {opt.label}
@@ -919,7 +919,7 @@ export default function RouteFinder() {
             </div>
 
             {/* Account selection */}
-            <div className="pt-4 border-t border-[#D5E8DA]">
+            <div className="pt-4 border-t border-border">
               <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">
                 Your existing accounts <span className="font-normal lowercase opacity-60">(optional)</span>
               </p>
@@ -973,7 +973,7 @@ export default function RouteFinder() {
                       }
                     }}
                     placeholder="Type a platform name and press Enter"
-                    className="flex-1 text-xs bg-transparent border-b border-[#D5E8DA] focus:outline-none focus:border-[#0D7A49] text-foreground placeholder:text-muted-foreground/50 py-1"
+                    className="flex-1 text-xs bg-transparent border-b border-border focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/50 py-1"
                     data-testid="input-custom-account"
                   />
                 </div>
@@ -992,10 +992,10 @@ export default function RouteFinder() {
                 })()}
 
                 {(showRevolut || showWise || showBinance) && (
-                  <div className="mt-3 pt-3 border-t border-[#D5E8DA] space-y-2">
+                  <div className="mt-3 pt-3 border-t border-border space-y-2">
                     {showRevolut && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-revolut">
-                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-[#0D7A49] border-[#0D7A49]" : "border-[#D5E8DA] bg-white"}`}>
+                        <div onClick={() => togglePerk("revolut")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.revolut ? "bg-primary border-primary" : "border-border bg-background"}`}>
                           {perks.revolut && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Revolut Premium <span className="text-foreground/60">(fee-free FX up to £1,000/mo)</span></span>
@@ -1003,7 +1003,7 @@ export default function RouteFinder() {
                     )}
                     {showWise && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-wise">
-                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-[#0D7A49] border-[#0D7A49]" : "border-[#D5E8DA] bg-white"}`}>
+                        <div onClick={() => togglePerk("wise")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.wise ? "bg-primary border-primary" : "border-border bg-background"}`}>
                           {perks.wise && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Wise Business <span className="text-foreground/60">(lower fees)</span></span>
@@ -1011,7 +1011,7 @@ export default function RouteFinder() {
                     )}
                     {showBinance && (
                       <label className="flex items-center gap-2.5 cursor-pointer" data-testid="perk-binance">
-                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-[#0D7A49] border-[#0D7A49]" : "border-[#D5E8DA] bg-white"}`}>
+                        <div onClick={() => togglePerk("binance")} className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${perks.binance ? "bg-primary border-primary" : "border-border bg-background"}`}>
                           {perks.binance && <Check className="w-2.5 h-2.5 text-white" />}
                         </div>
                         <span className="text-xs text-muted-foreground">Binance VIP <span className="text-foreground/60">(reduced spreads)</span></span>
@@ -1029,7 +1029,7 @@ export default function RouteFinder() {
         <div className="max-w-5xl mx-auto">
           {approxConverted && (
             <div className="mb-2 px-1 text-center md:text-left">
-              <p className="text-xs text-[#0D7A49] font-medium" data-testid="text-approx-converted">
+              <p className="text-xs text-primary font-medium" data-testid="text-approx-converted">
                 ≈ {approxConverted} received
               </p>
             </div>
@@ -1039,9 +1039,9 @@ export default function RouteFinder() {
             const d = formatDisplayRate(midRateData.rate, midRateData.from, midRateData.to);
             const dateLabel = new Date(midRateData.date + "T12:00:00Z").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
             return (
-              <div className="mb-6 px-4 py-3 rounded-xl border border-[#D5E8DA] bg-white flex items-center justify-between gap-3 flex-wrap shadow-sm" data-testid="banner-midmarket-rate">
+              <div className="mb-6 px-4 py-3 rounded-xl border border-border bg-card flex items-center justify-between gap-3 flex-wrap shadow-sm" data-testid="banner-midmarket-rate">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#F0FAF5] flex items-center justify-center text-[#0D7A49]">
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                     <TrendingUp className="w-4 h-4" />
                   </div>
                   <div>
@@ -1058,7 +1058,7 @@ export default function RouteFinder() {
           })()}
 
           {sortedRoutes.length === 0 ? (
-            <div className="text-center py-16 text-muted-foreground bg-white rounded-xl border border-[#D5E8DA]">
+            <div className="text-center py-16 text-muted-foreground bg-card rounded-xl border border-border">
               <p className="text-base mb-1">No routes found for this corridor</p>
               <p className="text-sm">Try relaxing the time limit or selecting a different corridor</p>
             </div>
@@ -1068,11 +1068,11 @@ export default function RouteFinder() {
                 <p className="text-sm font-medium text-muted-foreground" data-testid="text-route-count">
                   {sortedRoutes.length} route{sortedRoutes.length !== 1 ? "s" : ""} found
                 </p>
-                <div className="flex gap-0.5 bg-white border border-[#D5E8DA] rounded-lg p-0.5 shadow-sm">
+                <div className="flex gap-0.5 bg-card border border-border rounded-lg p-0.5 shadow-sm">
                   <button
                     onClick={() => setSortMode("cheapest")}
                     className={`text-[11px] px-3 py-1.5 rounded-md font-bold transition-colors ${
-                      sortMode === "cheapest" ? "bg-[#F0FAF5] text-[#0D7A49]" : "text-muted-foreground hover:text-foreground"
+                      sortMode === "cheapest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                     }`}
                     data-testid="button-sort-cheapest"
                   >
@@ -1081,7 +1081,7 @@ export default function RouteFinder() {
                   <button
                     onClick={() => setSortMode("simplest")}
                     className={`text-[11px] px-3 py-1.5 rounded-md font-bold transition-colors ${
-                      sortMode === "simplest" ? "bg-[#F0FAF5] text-[#0D7A49]" : "text-muted-foreground hover:text-foreground"
+                      sortMode === "simplest" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                     }`}
                     data-testid="button-sort-simplest"
                   >
