@@ -766,6 +766,18 @@ function RouteCard({
               })()}
             </div>
           </div>
+
+          {/* Mock CTA */}
+          <div className="mt-4 pt-4 border-t border-[#E5E7EB]">
+            <button
+              disabled
+              className="w-full h-11 bg-[#2f805c] text-white font-semibold text-sm rounded-[10px] opacity-60 cursor-not-allowed"
+              data-testid="button-complete-transaction"
+            >
+              Complete transaction automatically
+            </button>
+            <p className="text-[11px] text-muted-foreground text-center mt-2">Requires authentication</p>
+          </div>
         </DialogContent>
       </Dialog>
       {isExpanded && (
