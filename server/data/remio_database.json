@@ -1055,6 +1055,40 @@
       "time_hours": 48,
       "time_label": "1-2 business days",
       "notes": "Direct MXN to GBP via Wise."
+    },
+    {
+      "id": "e001b",
+      "from_platform": "bancolombia",
+      "from_currency": "COP",
+      "to_platform": "dolarapp",
+      "to_currency": "USD",
+      "transfer_type": "pse_to_wallet",
+      "fee_structure": {
+        "fixed_fee": 0,
+        "fixed_fee_currency": "COP",
+        "variable_fee_percent": 0,
+        "fx_spread_percent": 0
+      },
+      "time_hours": 0.1,
+      "time_label": "Instant",
+      "notes": "PSE transfer from Bancolombia to DolarApp. Converts COP to digital dollars at buy rate shown in app."
+    },
+    {
+      "id": "e003b",
+      "from_platform": "wise",
+      "from_currency": "USD",
+      "to_platform": "wise",
+      "to_currency": "GBP",
+      "transfer_type": "internal_conversion",
+      "fee_structure": {
+        "fixed_fee": 0,
+        "fixed_fee_currency": "USD",
+        "variable_fee_percent": 0.0534,
+        "fx_spread_percent": 0
+      },
+      "time_hours": 0.01,
+      "time_label": "Instant",
+      "notes": "Wise internal conversion USD to GBP using mid-market rate."
     }
   ],
   "routes": {
@@ -1064,9 +1098,9 @@
         "name": "Dollar App Bridge",
         "description": "Via Dollar App and Wise — best for amounts under £5,000",
         "edges": [
-          "e001",
+          "e001b",
           "e002",
-          "e003",
+          "e003b",
           "e004"
         ],
         "platforms_needed": [
