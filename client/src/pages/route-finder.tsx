@@ -516,6 +516,7 @@ function RouteCard({
   selectedAccounts,
   isExpanded,
   onToggleExpand,
+  amountCurrencyMode,
 }: {
   route: Route;
   adjustedCost: number;
@@ -528,12 +529,17 @@ function RouteCard({
   selectedAccounts: Set<string>;
   isExpanded: boolean;
   onToggleExpand: () => void;
+  amountCurrencyMode: "from" | "to";
 }) {
   const sym = getCurrencySymbol(toCurrency);
   const total = adjustedCost;
   const fxCost = Math.round(total * 0.62 * 100) / 100;
   const feeCost = Math.round((total - fxCost) * 100) / 100;
   const diff = Math.round((total - bestAdjustedCost) * 100) / 100;
+  const convRate = amountCurrencyMode === "from"
+    ? (APPROX_RATES[toCurrency]?.[fromCurrency] ?? (1 / (APPROX_RATES[fromCurrency]?.[toCurrency] ?? 1)))
+    : 1;
+  const displaySym = amountCurrencyMode === "from" ? getCurrencySymbol(fromCurrency) : sym;
   const easeFallback = EASE[route.id];
   const easeLabel = route.ease_label ?? easeFallback?.label;
   const easeColor = route.ease_color ?? easeFallback?.color;
@@ -577,7 +583,7 @@ function RouteCard({
                 className="font-heading text-2xl font-bold text-foreground"
                 data-testid={`text-total-cost-${route.id}`}
               >
-                {sym}{formatMoney(total)}
+                {displaySym}{formatMoney(total * convRate)}
               </span>
               <span className="text-sm text-muted-foreground">total cost</span>
               <span
@@ -602,7 +608,7 @@ function RouteCard({
             {isCostExpanded && (
               <div className="mt-2 space-y-1.5" data-testid={`cost-breakdown-${route.id}`}>
                 <div className="text-xs text-muted-foreground">
-                  Costs due to currency rates: <span className="font-mono text-[#374151]">{sym}{formatMoney(fxCost)}</span>
+                  Costs due to currency rates: <span className="font-mono text-[#374151]">{displaySym}{formatMoney(fxCost * convRate)}</span>
                   {rateDisplay && (
                     <span className="ml-1" data-testid={`text-rate-${route.id}`}>
                       (<span className={`font-medium ${route.total_percent <= 1 ? "text-[#22C55E]" : route.total_percent <= 2.5 ? "text-[#F59E0B]" : "text-[#EF4444]"}`}>+{route.total_percent.toFixed(2)}% above mid-market</span>)
@@ -610,7 +616,7 @@ function RouteCard({
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Costs due to platform fees: <span className="font-mono text-[#374151]">{sym}{formatMoney(feeCost)}</span>
+                  Costs due to platform fees: <span className="font-mono text-[#374151]">{displaySym}{formatMoney(feeCost * convRate)}</span>
                 </div>
               </div>
             )}
@@ -625,7 +631,7 @@ function RouteCard({
               </span>
             ) : (
               <span className="text-xs text-muted-foreground">
-                +{sym}{formatMoney(diff)} more
+                +{displaySym}{formatMoney(diff * convRate)} more
               </span>
             )}
             <EaseBadge routeId={route.id} label={easeLabel} color={easeColor} />
@@ -1234,6 +1240,7 @@ export default function RouteFinder() {
                     selectedAccounts={selectedAccounts}
                     isExpanded={expandedCard === route.id}
                     onToggleExpand={() => setExpandedCard(expandedCard === route.id ? null : route.id)}
+                    amountCurrencyMode={amountCurrencyMode}
                   />
                 ))}
               </div>
