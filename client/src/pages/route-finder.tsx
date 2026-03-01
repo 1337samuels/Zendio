@@ -672,11 +672,7 @@ function RouteCard({
           </button>
           <button
             onClick={() => setSelectOpen(true)}
-            className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-[8px] text-sm font-semibold transition-all ${
-              isBest
-                ? "bg-teal text-white hover:bg-[#3D9970]"
-                : "bg-teal text-white hover:bg-[#3D9970]"
-            }`}
+            className="flex-shrink-0 flex items-center gap-1.5 px-4 py-1.5 rounded-[8px] text-sm font-semibold transition-all text-white hover:bg-[#3D9970] bg-[#2e7f5c]"
             data-testid={`button-select-${route.id}`}
           >
             Select
@@ -684,7 +680,6 @@ function RouteCard({
           </button>
         </div>
       </div>
-
       {/* Tutorial dialog */}
       <Dialog open={selectOpen} onOpenChange={setSelectOpen}>
         <DialogContent className="bg-white border border-[#E5E7EB] text-[#374151] max-w-lg max-h-[85vh] overflow-y-auto shadow-lg">
@@ -773,7 +768,6 @@ function RouteCard({
           </div>
         </DialogContent>
       </Dialog>
-
       {isExpanded && (
         <div className="px-5 pb-5">
           <PriceTracker routeId={route.id} currentCost={total} currency={toCurrency} />
@@ -955,7 +949,6 @@ export default function RouteFinder() {
           </p>
         </div>
       )}
-
       <div
         className={`rounded-2xl border border-[#E5E7EB] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.08)] p-5 md:p-6 space-y-4 ${
           hasResults ? "mb-6" : ""
@@ -1119,7 +1112,6 @@ export default function RouteFinder() {
           {isLoading ? "Finding routes..." : "Find best route"}
         </Button>
       </div>
-
       {/* Results */}
       {hasResults && (
         <div>
