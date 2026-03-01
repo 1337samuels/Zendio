@@ -17,7 +17,7 @@ import {
   Check, TrendingDown, ArrowRight,
 } from "lucide-react";
 import {
-  ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted,
+  ALL_CURRENCIES, CURRENCY_SYMBOLS, getCurrencySymbol, getApproxConverted, APPROX_RATES,
 } from "@/components/corridor-select";
 import zendioLogo from "@assets/zendio-logo.png";
 
@@ -835,6 +835,7 @@ export default function RouteFinder() {
   const [from, setFrom] = useState("COP");
   const [to, setTo] = useState("GBP");
   const [amount, setAmount] = useState("5000000");
+  const [amountCurrencyMode, setAmountCurrencyMode] = useState<"from" | "to">("from");
   const [maxHours, setMaxHours] = useState("any");
   const [showOptions, setShowOptions] = useState(false);
   const [searchParams, setSearchParams] = useState<{
@@ -894,6 +895,7 @@ export default function RouteFinder() {
     setFrom(val);
     const opt = ALL_CURRENCIES.find((o) => o.value === val);
     if (opt?.defaultAmount) setAmount(opt.defaultAmount);
+    setAmountCurrencyMode("from");
     setSearchParams(null);
     setSelectedAccounts(new Set());
   }
@@ -905,12 +907,44 @@ export default function RouteFinder() {
     setTo(prevFrom);
     const newFromOpt = ALL_CURRENCIES.find((o) => o.value === prevTo);
     if (newFromOpt?.defaultAmount) setAmount(newFromOpt.defaultAmount);
+    setAmountCurrencyMode("from");
     setSearchParams(null);
     setSelectedAccounts(new Set());
   }
 
+  function handleAmountCurrencyModeChange(newMode: "from" | "to") {
+    if (newMode === amountCurrencyMode) return;
+    const num = parseFloat(amount);
+    if (!isNaN(num) && num > 0) {
+      if (newMode === "to") {
+        const rate = APPROX_RATES[from]?.[to];
+        if (rate) setAmount(String(Math.round(num * rate)));
+      } else {
+        const rate = APPROX_RATES[to]?.[from];
+        if (rate) setAmount(String(Math.round(num * rate)));
+        else {
+          const reverseRate = APPROX_RATES[from]?.[to];
+          if (reverseRate) setAmount(String(Math.round(num / reverseRate)));
+        }
+      }
+    }
+    setAmountCurrencyMode(newMode);
+    setSearchParams(null);
+  }
+
+  function getAmountInFrom(): string {
+    if (amountCurrencyMode === "from" || !amount) return amount;
+    const num = parseFloat(amount);
+    if (isNaN(num)) return amount;
+    const rate = APPROX_RATES[to]?.[from];
+    if (rate) return String(Math.round(num * rate));
+    const reverseRate = APPROX_RATES[from]?.[to];
+    if (reverseRate) return String(Math.round(num / reverseRate));
+    return amount;
+  }
+
   function handleSearch() {
-    setSearchParams({ from, to, amount, maxHours });
+    setSearchParams({ from, to, amount: getAmountInFrom(), maxHours });
     setExpandedCard(null);
   }
 
@@ -990,7 +1024,7 @@ export default function RouteFinder() {
           </div>
           <div className="flex-1">
             <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">To</label>
-            <Select value={to} onValueChange={(val) => { setTo(val); setSearchParams(null); setSelectedAccounts(new Set()); }}>
+            <Select value={to} onValueChange={(val) => { setTo(val); setAmountCurrencyMode("from"); setSearchParams(null); setSelectedAccounts(new Set()); }}>
               <SelectTrigger className="w-full bg-white border-[#D1D5DB] text-[#1A1A2E] h-11 rounded-[8px] focus:border-teal focus:ring-teal/20" data-testid="select-to-currency">
                 <SelectValue />
               </SelectTrigger>
@@ -1003,16 +1037,24 @@ export default function RouteFinder() {
               </SelectContent>
             </Select>
           </div>
-          <div className="w-32 flex-shrink-0">
+          <div className="w-36 flex-shrink-0">
             <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount</label>
-            <div className="relative">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-mono select-none">{CURRENCY_SYMBOLS[from] ?? from}</span>
+            <div className="flex h-11 rounded-[8px] border border-[#D1D5DB] bg-white overflow-hidden focus-within:ring-1 focus-within:ring-teal/50 focus-within:border-teal">
+              <select
+                value={amountCurrencyMode}
+                onChange={(e) => handleAmountCurrencyModeChange(e.target.value as "from" | "to")}
+                className="text-[11px] font-mono text-muted-foreground bg-transparent border-r border-[#D1D5DB] pl-1.5 pr-0.5 cursor-pointer outline-none appearance-none"
+                data-testid="select-amount-currency"
+              >
+                <option value="from">{from}</option>
+                <option value="to">{to}</option>
+              </select>
               <input
                 type="text"
                 inputMode="numeric"
                 value={amount ? Number(amount).toLocaleString('en-US') : ''}
                 onChange={(e) => { const raw = e.target.value.replace(/,/g, '').replace(/[^0-9]/g, ''); setAmount(raw); setSearchParams(null); }}
-                className="w-full h-11 pl-7 pr-2 rounded-[8px] border border-[#D1D5DB] bg-white text-[#1A1A2E] text-sm font-mono focus:outline-none focus:ring-1 focus:ring-teal/50 focus:border-teal"
+                className="flex-1 min-w-0 h-full px-2 bg-transparent text-[#1A1A2E] text-sm font-mono focus:outline-none"
                 data-testid="input-amount"
                 placeholder="0"
               />
