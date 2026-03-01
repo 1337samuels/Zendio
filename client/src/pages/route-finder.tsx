@@ -840,8 +840,8 @@ function MultiSelect({
 export default function RouteFinder() {
   const [from, setFrom] = useState("COP");
   const [to, setTo] = useState("GBP");
-  const [amount, setAmount] = useState("5000000");
-  const [amountCurrencyMode, setAmountCurrencyMode] = useState<"from" | "to">("from");
+  const [amount, setAmount] = useState("10000");
+  const [amountCurrencyMode, setAmountCurrencyMode] = useState<"from" | "to">("to");
   const [maxHours, setMaxHours] = useState("any");
   const [showOptions, setShowOptions] = useState(false);
   const [searchParams, setSearchParams] = useState<{
