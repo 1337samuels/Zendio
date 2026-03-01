@@ -350,22 +350,22 @@
       "fee_structure": {
         "fixed_fee": 5800,
         "fixed_fee_currency": "COP",
-        "variable_fee_percent": 2.4,
+        "variable_fee_percent": 0.33,
         "variable_fee_tiers": [
           {
             "min_usd": 0,
             "max_usd": 1000,
-            "percent": 3
+            "percent": 0.42
           },
           {
             "min_usd": 1000,
             "max_usd": 5000,
-            "percent": 2.4
+            "percent": 0.33
           },
           {
             "min_usd": 5000,
             "max_usd": 20000,
-            "percent": 1.8
+            "percent": 0.25
           }
         ],
         "fx_spread_percent": 0
@@ -842,22 +842,22 @@
         "fixed_fee": 0,
         "fixed_fee_currency": "COP",
         "variable_fee_percent": 0,
-        "fx_spread_percent": 3.8,
+        "fx_spread_percent": 0.57,
         "fx_spread_tiers": [
           {
             "min_usd": 0,
             "max_usd": 1000,
-            "spread_percent": 4.5
+            "spread_percent": 0.68
           },
           {
             "min_usd": 1000,
             "max_usd": 5000,
-            "spread_percent": 3.8
+            "spread_percent": 0.57
           },
           {
             "min_usd": 5000,
             "max_usd": 20000,
-            "spread_percent": 3
+            "spread_percent": 0.45
           }
         ]
       },
@@ -876,22 +876,22 @@
         "fixed_fee": 9.99,
         "fixed_fee_currency": "USD",
         "variable_fee_percent": 0,
-        "fx_spread_percent": 3.2,
+        "fx_spread_percent": 0.36,
         "fx_spread_tiers": [
           {
             "min_usd": 0,
             "max_usd": 1000,
-            "spread_percent": 4
+            "spread_percent": 0.45
           },
           {
             "min_usd": 1000,
             "max_usd": 5000,
-            "spread_percent": 3.2
+            "spread_percent": 0.36
           },
           {
             "min_usd": 5000,
             "max_usd": 20000,
-            "spread_percent": 2.5
+            "spread_percent": 0.28
           }
         ]
       },
@@ -1057,6 +1057,62 @@
       "notes": "Direct MXN to GBP via Wise."
     },
     {
+      "id": "e007b",
+      "from_platform": "bancolombia",
+      "from_currency": "COP",
+      "to_platform": "binance",
+      "to_currency": "USDT",
+      "transfer_type": "p2p_buy",
+      "fee_structure": {
+        "fixed_fee": 0,
+        "fixed_fee_currency": "COP",
+        "variable_fee_percent": 0,
+        "fx_spread_percent": 0.16,
+        "fx_spread_tiers": [
+          {
+            "min_usd": 0,
+            "max_usd": 500,
+            "spread_percent": 0.3
+          },
+          {
+            "min_usd": 500,
+            "max_usd": 2000,
+            "spread_percent": 0.2
+          },
+          {
+            "min_usd": 2000,
+            "max_usd": 10000,
+            "spread_percent": 0.16
+          },
+          {
+            "min_usd": 10000,
+            "max_usd": 20000,
+            "spread_percent": 0.1
+          }
+        ]
+      },
+      "time_hours": 0.5,
+      "time_label": "15-30 min",
+      "notes": "Binance P2P COP to USDT."
+    },
+    {
+      "id": "e008b",
+      "from_platform": "binance",
+      "from_currency": "USDT",
+      "to_platform": "binance",
+      "to_currency": "GBP",
+      "transfer_type": "spot_conversion",
+      "fee_structure": {
+        "fixed_fee": 0,
+        "fixed_fee_currency": "USD",
+        "variable_fee_percent": 0.05,
+        "fx_spread_percent": 0
+      },
+      "time_hours": 0.01,
+      "time_label": "Instant",
+      "notes": "Binance spot/convert USDT to GBP."
+    },
+    {
       "id": "e001b",
       "from_platform": "bancolombia",
       "from_currency": "COP",
@@ -1135,8 +1191,8 @@
         "name": "Crypto Bridge",
         "description": "Via Binance P2P — potentially cheapest but volatile",
         "edges": [
-          "e007",
-          "e008",
+          "e007b",
+          "e008b",
           "e009"
         ],
         "platforms_needed": [
