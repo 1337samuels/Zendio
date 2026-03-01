@@ -1113,7 +1113,7 @@ export default function RouteFinder() {
         <Button
           onClick={handleSearch}
           disabled={isLoading || !amount}
-          className="w-full h-11 bg-teal text-white font-semibold text-sm rounded-[10px] hover:bg-[#3D9970] transition-colors"
+          className="w-full h-11 bg-[#2f805c] text-white font-semibold text-sm rounded-[10px] hover:bg-[#3D9970] transition-colors"
           data-testid="button-find-routes"
         >
           {isLoading ? "Finding routes..." : "Find best route"}
