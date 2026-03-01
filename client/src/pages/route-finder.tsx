@@ -699,16 +699,22 @@ function RouteCard({
           </DialogHeader>
 
           {/* Received amount summary */}
-          {midRateData && (() => {
-            const sendAmount = parseFloat(amount);
-            const received = sendAmount * midRateData.rate - total;
+          {(() => {
+            const fromAmt = parseFloat(amount);
+            const fromToRate = APPROX_RATES[fromCurrency]?.[toCurrency] ?? (midRateData?.rate ?? 1);
+            const toFromRate = APPROX_RATES[toCurrency]?.[fromCurrency] ?? (midRateData ? 1 / midRateData.rate : 1);
+            const displayAmt = amountCurrencyMode === "to" ? fromAmt * fromToRate : fromAmt;
+            const feesInDisplay = amountCurrencyMode === "to" ? total : total * toFromRate;
+            const received = displayAmt - feesInDisplay;
+            const recvSym = amountCurrencyMode === "to" ? sym : getCurrencySymbol(fromCurrency);
+            const recvCurrency = amountCurrencyMode === "to" ? toCurrency : fromCurrency;
             if (!isNaN(received) && received > 0) {
               return (
                 <div className="rounded-xl border border-teal/30 bg-teal/5 px-4 py-3 flex items-center justify-between gap-3" data-testid={`summary-received-${route.id}`}>
                   <div>
                     <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Recipient gets</p>
-                    <p className="text-xl font-bold font-heading text-foreground">{sym}{formatMoney(received)}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{toCurrency} after all fees &amp; FX costs</p>
+                    <p className="text-xl font-bold font-heading text-foreground">{recvSym}{formatMoney(received)}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{recvCurrency} after all fees &amp; FX costs</p>
                   </div>
                   <div className="text-right text-xs text-muted-foreground">
                     <p>You send</p>
